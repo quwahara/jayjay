@@ -7,7 +7,7 @@ require_once 'init.php';
   $storesDDL = DDL::createTable(new Stores());
 
   try {
-    $pdo = new PDO('mysql:host=localhost;dbname=coya;charset=utf8mb4','coya','coya',
+    $pdo = new PDO('mysql:host=localhost;dbname=wagaya;charset=utf8mb4','php','password',
   array(PDO::ATTR_EMULATE_PREPARES => false));
     
     $stmt = $pdo->prepare($storesDrop);
@@ -25,4 +25,3 @@ require_once 'init.php';
 
 
 ?>
-

@@ -1,5 +1,5 @@
 <?php
-  class Stores {
+  class Stores2 {
     public $__dropTable = [
       'enableIfExists' => TRUE
     ];
