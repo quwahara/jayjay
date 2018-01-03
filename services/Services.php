@@ -38,12 +38,10 @@ class Services {
     if ($cnf === 'drop_create') {
       $stmt = $this->ddl()->dropTable($store, TRUE);
       $this->db()->pdo()->prepare($stmt)->execute();
-      echo 'drop';
     }
-    if ($cnf === 'drop_create') {
-      $stmt = $this->ddl()->createTable($store);
+    if ($cnf === 'drop_create' || $cnf === 'create') {
+      $stmt = $this->ddl()->createTable($store, TRUE);
       $this->db()->pdo()->prepare($stmt)->execute();
-      echo 'create';
     }
     return $this;
   }

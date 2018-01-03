@@ -22,7 +22,7 @@ class DDLService {
     return $s;
   }
 
-  static function createTable($entity) {
+  static function createTable($entity, $enableIfNotExists = FALSE) {
 
     $el = PHP_EOL;
     $r = new ReflectionClass($entity);
@@ -33,7 +33,11 @@ class DDLService {
     }
     
     $s = '';
-    $s .= 'CREATE TABLE ' . strtolower($r->getShortName()) . '(' . $el;
+    $s .= 'CREATE TABLE';
+    if ($enableIfNotExists) {
+      $s .= ' IF NOT EXISTS';
+    }
+    $s .= ' ' . strtolower($r->getShortName()) . '(' . $el;
     $defs = [];
     if (in_array('__indexes', $pnames)) {
       foreach ($entity->{'__indexes'} as $index) {

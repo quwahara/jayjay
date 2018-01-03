@@ -54,7 +54,7 @@
 
   Radio.prototype = {
     create : function(options) {
-      Object.assign(this, options.actives);
+      Object.assign(this, options.model);
       this.$station = prepareObjectStation(this);
       Object.assign(this, options.methods);
       compileElements(options.root.children, this);
@@ -234,18 +234,6 @@
     }
   };
 
-  /*
-   * var Channel = function Channel() { this.receivers = []; };
-   * 
-   * Channel.prototype = { casting : false, $value : null, receivers : null,
-   * subscribe : function(receiver) { receiver.rx(this.$value);
-   * this.receivers.push(receiver); }, cast : function(value, src) { if
-   * (this.casting) return; this.casting = true; this.value = value; for (var i =
-   * 0; i < this.receivers.length; ++i) { var receiver = this.receivers[i]; if
-   * (receiver.object === src) continue; receiver.rx.call(receiver.object,
-   * value); } this.casting = false; } };
-   */
-
   function compileAttrAttr(attr, elm, self) {
     var attrName = attr.name.substr("r-attr:".length);
     var model = attr.value;
@@ -303,22 +291,46 @@
     return func.apply(self, values);
   }
 
-  function buildHandler(handler) {
-    return eval("(" + "" + "function () {" + "" + "this.$event = arguments[0];" + "var keys = Object.keys(this);"
-        + "var values = [];" + "for ( var key in this) {" + "  values.push(this[key]);" + "}"
-        + "var func = eval('(function (' + keys.join(',') + '){ return " + handler.replace("(", ".bind(this)(")
-        + "; })');" +
-        // "var funcs = '(function (' + keys.join(',') + '){ return " +
-        // handler.replace("(", ".bind(this)(") + "; })';" +
-        // "console.log(funcs);" +
-        "return func.apply(this, values);" + "" + "}" + "" + ")");
+  function buildHandler(handler, elm, self) {
+    return (function () {
+      var $self = self;
+      // Enclose iteration contexts
+      var $elm = elm;
+      var $index = self.$index;
+      var $item = self.$item;
+      var bindHndler = handler.replace("(", ".bind($self)(");
+      return (function() {
+        $self.$event = arguments[0];
+        $self.$elm = $elm;
+        $self.$index = $index;
+        $self.$item = $item;
+        var keys = Object.keys($self);
+        var values = [];
+        for (var key in $self) {
+          values.push($self[key]);
+        }
+        var prms = keys.join(',');
+        // Create a function for the event invocation.
+        // You can access Radio instance members in the created the function.
+        // To be able to access the members of Radio instance,
+        // the created function is called by the arguments
+        // that are the members of Radio instance.
+        var func = eval(
+          ' (function (' + prms + ') {' +
+          '   return ' + bindHndler + ';' +
+          ' })'
+        );
+        return func.apply($self, values);
+      });
+    })();
   }
 
   function compileAttrOn(attr, elm, self) {
     var eventName = attr.name.substr("r-on:".length);
     var handlerName = attr.value;
     var handler = self[handlerName];
-    elm.addEventListener(eventName, buildHandler(handlerName).bind(self));
+    console.log(handlerName, self, handler);
+    elm.addEventListener(eventName, buildHandler(handlerName, elm, self).bind(self));
   }
 
   function compileAttrFor(attr, elm, self) {

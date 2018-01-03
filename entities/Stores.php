@@ -3,9 +3,9 @@ namespace Entities;
 require_once 'vendor/autoload.php';
 
 class Stores {
-  public $__dropTable = [
-    'enableIfExists' => TRUE
-  ];
+//  public $__dropTable = [
+//    'enableIfExists' => TRUE
+//  ];
   public $__uniques = [
     [
       'colmuns' => [ 'name', 'id', 'field' ]

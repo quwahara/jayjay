@@ -2,6 +2,7 @@
 namespace Services;
 require_once 'vendor/autoload.php';
 
+use \Exception;
 use \PDO;
 
 class DBService {
@@ -32,11 +33,40 @@ class DBService {
     return $this->pdo_;
   }
   
+  function insertStore($name, $id, $field, $value) {
+    $st = $this->pdo()->prepare("
+INSERT INTO stores (name, id, field, value) VALUES (:name, :id, :field, :value);
+");
+    if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->bindParam(':name', $name, PDO::PARAM_STR);
+    $st->bindParam(':id', $id, PDO::PARAM_STR);
+    $st->bindParam(':field', $field, PDO::PARAM_STR);
+    $st->bindParam(':value', $value, PDO::PARAM_STR);
+    return $st->execute();
+  }
   
-  function find($name, $id) {
-    
-    
-    
+  function deleteStoreById($name, $id) {
+    $st = $this->pdo()->prepare("
+DELETE FROM stores
+WHERE name = :name
+AND id = :id
+");
+    if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->bindParam(':name', $name, PDO::PARAM_STR);
+    $st->bindParam(':id', $id, PDO::PARAM_STR);
+    return $st->execute();
+  }
+  
+  function findAllEntities($fetch_style = PDO::FETCH_ASSOC) {
+    $st = $this->pdo()->prepare("
+SELECT * FROM stores
+WHERE name = 'entity'
+AND field = 'name'
+ORDER BY id
+");
+    if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->execute();
+    return $st->fetchAll($fetch_style);
   }
 }
 
