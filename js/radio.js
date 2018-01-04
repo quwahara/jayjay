@@ -54,18 +54,21 @@
 
   Radio.prototype = {
     create : function(options) {
-      Object.assign(this, options.model);
-      this.$station = prepareObjectStation(this);
-      Object.assign(this, options.methods);
-      compileElements(options.root.children, this);
+      try {
+        Object.assign(this, options.model);
+        this.$station = prepareObjectStation(this);
+        Object.assign(this, options.methods);
+        compileElements(options.root.children, this);
 
-      if (options.phase) {
-        if (isFunction(options.phase.activated)) {
-          options.phase.activated.call(this);
+        if (options.phase) {
+          if (isFunction(options.phase.activated)) {
+            options.phase.activated.call(this);
+          }
         }
+        return this;
+      } catch (ex) {
+        console.error(ex);
       }
-
-      return this;
     }
   };
 
@@ -80,6 +83,11 @@
     });
     return q;
   };
+  
+  function validateMember(member, self, message, elm) {
+    if (member in self) return;
+    throw new Error(message + " element: '" + elm.outerHTML + "'");
+  }
 
   function prepareObjectStation(actives) {
     var $station = {};
@@ -336,6 +344,7 @@
   function compileAttrFor(attr, elm, self) {
     var parentElm = elm.parentElement;
     var model = elm.getAttribute("r-for");
+    validateMember(model, self, "'" + model + "' is not a member in r-for.", elm);
     elm.removeAttribute("r-for");
     var html = elm.outerHTML;
     var arrayStation = loadStation(model, self);

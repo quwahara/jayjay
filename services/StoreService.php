@@ -5,32 +5,17 @@ require_once 'vendor/autoload.php';
 use \Exception;
 use \PDO;
 
-class DBService {
+class StoreService {
   
-  public $dsn_;
-  public $username_;
-  public $password_;
-  public $options_;
-  public $pdo_;
+  public $db_;
   
-  function init($dsn, $username, $password, $options) {
-    $this->dsn_ = $dsn;
-    $this->username_ = $username;
-    $this->password_ = $password;
-    $this->options_ = $options;
+  function init($dbService) {
+    $this->db_ = $dbService;
     return $this;
   }
   
   function pdo() {
-    if (!$this->pdo_) {
-      $this->pdo_ = new PDO(
-        $this->dsn_,
-        $this->username_,
-        $this->password_,
-        $this->options_
-      );
-    }
-    return $this->pdo_;
+    return $this->db_->pdo();
   }
   
   function insertStore($name, $id, $field, $value) {
@@ -69,14 +54,14 @@ ORDER BY id
     return $st->fetchAll($fetch_style);
   }
   
-  function findEntityById($fetch_style = PDO::FETCH_ASSOC) {
+  function findByName($name, $fetch_style = PDO::FETCH_ASSOC) {
     $st = $this->pdo()->prepare("
 SELECT * FROM stores
-WHERE name = 'entity'
-AND field = 'name'
-ORDER BY id
+WHERE name = :name
+ORDER BY id, field
 ");
     if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->bindParam(':name', $name, PDO::PARAM_STR);
     $st->execute();
     return $st->fetchAll($fetch_style);
   }

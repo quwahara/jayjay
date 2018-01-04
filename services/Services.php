@@ -7,6 +7,7 @@ use Entities\Stores;
 use Services\DBService;
 use Services\DDLService;
 use Services\EntityService;
+use Services\StoreService;
 
 class Services {
   
@@ -16,6 +17,7 @@ class Services {
   public $db_;
   public $ddl_;
   public $entity_;
+  public $store_;
   
   static function singleton() {
     if (!self::$singleton_) {
@@ -69,5 +71,13 @@ class Services {
 //    }
 //    return $this->entity_;
   }
+
+  function store() {
+    if (!$this->store_) {
+      $this->store_ = (new StoreService())->init($this->db());
+    }
+    return $this->store_;
+  }
+  
 }
 ?>
