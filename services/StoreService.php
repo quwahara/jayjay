@@ -54,6 +54,16 @@ ORDER BY id
     return $st->fetchAll($fetch_style);
   }
   
+  function findAll($fetch_style = PDO::FETCH_ASSOC) {
+    $st = $this->pdo()->prepare("
+SELECT * FROM stores
+ORDER BY name, id, field
+");
+    if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->execute();
+    return $st->fetchAll($fetch_style);
+  }
+  
   function findByName($name, $fetch_style = PDO::FETCH_ASSOC) {
     $st = $this->pdo()->prepare("
 SELECT * FROM stores
