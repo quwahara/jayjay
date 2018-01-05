@@ -1,7 +1,6 @@
 <?php
 require 'vendor/autoload.php';
 
-use Entities\Stores;
 use Services\Services;
 
 try {
@@ -9,15 +8,17 @@ try {
     $S = Services::singleton();
     if ($_SERVER['REQUEST_METHOD'] === "POST") {
       if ($_POST['command'] === 'delete') {
-        $name = "entity";
+        $name = $_POST['deleteName'];
         $id = $_POST['deleteId'];
-        $S->db()->deleteStoreById($name, $id);
+        $field = $_POST['deleteField'];
+        echo "$name $id $field";
+        $S->store()->deleteByNameAndIdAndField($name, $id, $field);
       } else if ($_POST['command'] === 'add') {
         $name = $_POST['addName'];
         $id = $_POST['addId'];
         $field = $_POST['addField'];
         $value = $_POST['addValue'];
-        $S->db()->insertStore($name, $id, $field, $value);
+        $S->store()->save($name, $id, $field, $value);
       }
     }
     return [
@@ -52,12 +53,14 @@ try {
             <td r-text="$item.field"></td>
             <td r-text="$item.value"></td>
             <td><button type="button" r-attr:data-id="$item.id" r-on:click="edit($item)">Edit</button></td>
-            <td><button type="button" r-attr:data-id="$item.id" r-on:click="delete_($elm)">Del</button></td>
+            <td><button type="button" r-attr:data-id="$item.id" r-on:click="delete_($item)">Del</button></td>
           </tr>
         </tbody>
       </table>
       <input type="hidden" name="command" value="">
+      <input type="hidden" name="deleteName" value="">
       <input type="hidden" name="deleteId" value="">
+      <input type="hidden" name="deleteField" value="">
     </form>
   </div>
   <script>
@@ -78,10 +81,12 @@ try {
             f.addField.value = $item.field;
             f.addValue.value = $item.value;
           },
-          delete_: function($elm) {
+          delete_: function($item) {
             var f = document.theForm;
             f.command.value = 'delete';
-            f.deleteId.value = $elm.dataset.id;
+            f.deleteName.value = $item.name;
+            f.deleteId.value = $item.id;
+            f.deleteField.value = $item.field;
             f.submit();
           }
         }
