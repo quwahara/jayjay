@@ -54,6 +54,15 @@ AND field = :field
     }
   }
 
+  function saveFields($name, $id, $fields) {
+    $result = FALSE;
+    foreach ($fields as $field => $value) {
+      $result = $this->save($name, $id, $field, $value);
+      if (!$result) break;
+    };
+    return $result;
+  }
+
   function deleteByNameAndIdAndField($name, $id, $field) {
     $st = $this->pdo()->prepare("
 DELETE FROM stores
@@ -75,6 +84,32 @@ SELECT * FROM stores
 ORDER BY name, id, field
 ");
     if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->execute();
+    return $st->fetchAll($fetch_style);
+  }
+
+  function findAllByName($name, $fetch_style = PDO::FETCH_ASSOC) {
+    $st = $this->pdo()->prepare("
+SELECT * FROM stores
+WHERE name = :name
+ORDER BY id, field
+");
+    if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->bindParam(':name', $name, PDO::PARAM_STR);
+    $st->execute();
+    return $st->fetchAll($fetch_style);
+  }
+
+  function findAllByNameAndId($name, $id, $fetch_style = PDO::FETCH_ASSOC) {
+    $st = $this->pdo()->prepare("
+SELECT * FROM stores
+WHERE name = :name
+AND id = :id
+ORDER BY field
+");
+    if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->bindParam(':name', $name, PDO::PARAM_STR);
+    $st->bindParam(':id', $id, PDO::PARAM_STR);
     $st->execute();
     return $st->fetchAll($fetch_style);
   }

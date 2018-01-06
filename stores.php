@@ -46,6 +46,14 @@ try {
       <div><label for="addValue">Value</label><input type="text" name="addValue"></div>
       <button type="button" r-on:click="save()">Save</button>
       <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Id</th>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
         <tbody>
           <tr r-for="entities">
             <td r-text="$item.name"></td>
