@@ -133,6 +133,46 @@ AND field = :field
     return 0 !== count($this->findByNameAndIdAndField($name, $id, $field, $fetch_style));
   }
   
+  function allFieldsByName($name, $fetch_style = PDO::FETCH_ASSOC) {
+    $st = $this->pdo()->prepare("
+SELECT field FROM stores
+WHERE name = :name
+GROUP BY 1
+");
+    if (!$st) throw new Exception(json_encode($this->pdo()->errorInfo()));
+    $st->bindParam(':name', $name, PDO::PARAM_STR);
+    $st->execute();
+    return $st->fetchAll($fetch_style);
+  }
+  
+  function findAllIntoAssocByNameAndId($name, $fetch_style = PDO::FETCH_ASSOC) {
+    $allFields = $this->allFieldsByName($name, $fetch_style);
+    if ($allFields === FALSE) return FALSE;
+    $all = $this->findAllByName($name, $fetch_style);
+    if ($all === FALSE) return FALSE;
+    $result = [];
+    $id = NULL;
+    $recout = NULL;
+    foreach ($all as $rec) {
+      if ($id !== $rec['id']) {
+        $id = $rec['id'];
+        if ($recout !== NULL) {
+          $result[] = $recout;
+        }
+        $recout = [];
+        $recout['id'] = $rec['id'];
+        foreach ($allFields as $field) {
+          $recout[$field['field']] = '';
+        }
+      }
+      $recout[$rec['field']] = $rec['value'];
+    }
+    if ($recout !== NULL) {
+      $result[] = $recout;
+    }
+    return $result;
+  }
+
 }
 
 ?>

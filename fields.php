@@ -7,15 +7,12 @@ try {
   $model = (function() {
     $S = Services::singleton();
     if ($_SERVER['REQUEST_METHOD'] === "POST") {
-        echo "<pre>";
       
       $saveName = $_POST['saveName'];
       $saveId = $_POST['saveId'];
       $saveFields = $_POST;
       unset($saveFields['saveId']);
       
-      var_dump($_POST, $saveName, $saveId, $saveFields);
-        echo "</pre>";
       
       $S->store()->saveFields($saveName, $saveId, $saveFields);
     }
@@ -24,9 +21,16 @@ try {
     return [
       'id' => $id,
       'fields' => $S->store()->findAllByNameAndId($name, $id),
-      'stored' => $S->store()->findAllByName($id)
+      'allFields' => $S->store()->allFieldsByName($name),
+//      'stored' => $S->store()->findAllByName($id),
+      'stored' => $S->store()->findAllIntoAssocByNameAndId($id)
     ];
   })();
+  
+  echo "<pre>";
+  var_dump($model);
+  echo "</pre>";
+  
 } catch (Exception $e) {
   print_r($e);
   return;
@@ -63,14 +67,11 @@ try {
       <button type="button" r-on:click="save()">Save</button>
       <input type="hidden" name="saveName" r-attr:value="id">
       <table>
-        <thead>
-          <tr>
-            <th>Id</th>
-          </tr>
-        </thead>
         <tbody>
           <tr r-for="stored">
             <td r-text="$item.id"></td>
+            <td r-text="$item.password"></td>
+            <td r-text="$item.password_retype"></td>
           </tr>
         </tbody>
       </table>
