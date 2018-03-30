@@ -58,7 +58,8 @@ class DDLService {
         . (array_key_exists('isNull', $v) && $v['isNull'] === FALSE ? ' NOT NULL' : '')
         . (array_key_exists('default', $v) ? (" DEFAULT " . $v['default']) : '')
         . (array_key_exists('isAutoIncremnt', $v) && $v['isAutoIncremnt'] === TRUE ? ' AUTO_INCREMENT' : '')
-        . (array_key_exists('isUnique', $v) && $v['isUnique'] === TRUE ? ' UNIQUE' : '')
+        . (array_key_exists('isUniqueKey', $v) && $v['isUniqueKey'] === TRUE ? ' UNIQUE KEY' : '')
+        . (array_key_exists('isPrimaryKey', $v) && $v['isPrimaryKey'] === TRUE ? ' PRIMARY KEY' : '')
         ;
       $defs[] = $def;
     }

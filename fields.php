@@ -27,9 +27,9 @@ try {
     ];
   })();
   
-  echo "<pre>";
-  var_dump($model);
-  echo "</pre>";
+  // echo "<pre>";
+  // var_dump($model);
+  // echo "</pre>";
   
 } catch (Exception $e) {
   print_r($e);
