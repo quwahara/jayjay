@@ -17,6 +17,24 @@ class EntityOperation
     return $this;
   }
 
+  public function newInstance()
+  {
+    $desc = $this->desc;
+    $ref = $desc->ref;
+    $inst = $ref->newInstanceWithoutConstructor();
+    foreach ($desc->cols as $col) {
+      $ptype = $desc->defs[$col]['__param_type'];
+      if ($ptype === PDO::PARAM_INT) {
+        $ref->getProperty($col)->setValue($inst, 0);
+      } else if ($ptype === PDO::PARAM_STR) {
+        $ref->getProperty($col)->setValue($inst, "");
+      } else {
+        $ref->getProperty($col)->setValue($inst, "");
+      }
+    }
+    return $inst;
+  }
+
   public function create($obj)
   {
     $q = "";
@@ -33,9 +51,10 @@ class EntityOperation
       throw new Exception(json_encode($this->pdo()->errorInfo()));
     }
 
-    $ref = $this->desc->ref;
-    foreach ($this->desc->cols as $col) {
-      $st->bindValue(':' . $col, $ref->getProperty($col)->getValue($obj), PDO::PARAM_STR);
+    $desc = $this->desc;
+    $ref = $desc->ref;
+    foreach ($desc->cols as $col) {
+      $st->bindValue(':' . $col, $ref->getProperty($col)->getValue($obj), $desc->defs[$col]['__param_type']);
     }
 
     return $st->execute();
