@@ -4,8 +4,15 @@ require_once 'vendor/autoload.php';
 use Entities\Stores;
 use Entities\Users;
 use Services\DDLService;
+use Services\EntityDesc;
+use Services\EntityOperation;
 
 (function () {
+
+
+
+
+
     echo 'hix';
     $storesDrop = DDLService::dropTable(new Stores());
     $storesDDL = DDLService::createTable(new Stores());
@@ -35,6 +42,13 @@ use Services\DDLService;
         $stmt->execute();
         $stmt = $pdo->prepare($usersDDL);
         $stmt->execute();
+
+        $user = new Users;
+        $userOpe = (new EntityOperation())->init($pdo, $user);
+        var_dump($userOpe);
+        $user->name = "name";
+        $user->password = "password";
+        $userOpe->create($user);
 
         echo 'conn';
     } catch (PDOException $e) {
