@@ -35,6 +35,19 @@ class EntityOperation
     return $inst;
   }
 
+  public function setPropertiesFrom($dst, $src)
+  {
+    $desc = $this->desc;
+    $ref = $desc->ref;
+    foreach ($desc->cols as $col) {
+      if (!array_key_exists($col, $src)) {
+        continue;
+      }
+      $ref->getProperty($col)->setValue($dst, $src[$col]);
+    }
+    return $dst;
+  }
+
   public function create($obj)
   {
     $q = "";
@@ -58,6 +71,35 @@ class EntityOperation
     }
 
     return $st->execute();
+  }
+
+  public function findOneByPrimaryKey($value, $fetch_style = PDO::FETCH_ASSOC)
+  {
+    $pk = $this->desc->primaryKey;
+    $q = "";
+    $q .= "SELECT * FROM ";
+    $q .= $this->desc->name;
+    $q .= " WHERE ";
+    $q .= $pk;
+    $q .= " = :";
+    $q .= $pk;
+    $q .= ";";
+
+    $st = $this->pdo->prepare($q);
+    $st->bindValue(':' . $pk, $value);
+
+    if (!$st) {
+      throw new Exception(json_encode($this->pdo()->errorInfo()));
+    }
+
+    $st->execute();
+    $result = $st->fetchAll($fetch_style);
+    if ($result) {
+      return $result[0];
+    } else {
+      return null;
+    }
+
   }
 
 }

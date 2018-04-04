@@ -3,9 +3,9 @@ namespace Services;
 
 require_once 'vendor/autoload.php';
 
+use Services\EntityOperation;
 use \Exception;
 use \PDO;
-use \ReflectionClass;
 
 class DBService
 {
@@ -36,6 +36,11 @@ class DBService
       );
     }
     return $this->pdo_;
+  }
+
+  public function loadOperation($entity)
+  {
+    return (new EntityOperation())->init($this->pdo(), $entity);
   }
 
   public function insertStore($name, $id, $field, $value)
@@ -101,41 +106,4 @@ ORDER BY id
     $st->execute();
     return $st->fetchAll($fetch_style);
   }
-}
-
-class EntityOperation
-{
-  public $desc;
-
-  public function init($pdo, $entity)
-  {
-    $this->pdo = $pdo;
-    $this->desc = EntityDesc::load($entity);
-    return $this;
-  }
-
-  public function create($obj)
-  {
-    $q = "";
-    $q .= "INSERT INTO ";
-    $q .= $this->desc->name;
-    $q .= " (";
-    $q .= implode(", ");
-    $q .= " ) VALUES (";
-    $q .= ":" . implode(", :");
-    $q .= ");";
-
-    $st = $this->pdo()->prepare($q);
-    if (!$st) {
-      throw new Exception(json_encode($this->pdo()->errorInfo()));
-    }
-
-    $st->bindParam(':name', $name, PDO::PARAM_STR);
-    $st->bindParam(':id', $id, PDO::PARAM_STR);
-    $st->bindParam(':field', $field, PDO::PARAM_STR);
-    $st->bindParam(':value', $value, PDO::PARAM_STR);
-    return $st->execute();
-
-  }
-
 }

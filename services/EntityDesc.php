@@ -14,6 +14,7 @@ class EntityDesc
   public $cols;
   public $defs;
   public $name;
+  public $primaryKey;
 
   public static function load($entity)
   {
@@ -37,6 +38,7 @@ class EntityDesc
     $this->ref = $ref;
     $this->ctor = $ref->getConstructor();
     $this->name = strtolower($ref->getShortName());
+    $this->primaryKey = null;
     $this->cols = [];
 
     $pnames = [];
@@ -55,6 +57,13 @@ class EntityDesc
       $def = $ref->getProperty($pname)->getValue($inst);
       $this->defs[$pname] = $def;
       $this->defs[$pname]['__param_type'] = \Services\EntityDesc::parsePDOParamType($def['type']);
+      if (array_key_exists('isPrimaryKey', $def)) {
+        if ($this->primaryKey !== null) {
+          throw new Exception("One PrimaryKey is allowed in an entity but more PrimaryKey was defined. Entity: '${$this->name}'");
+        }
+        $this->primaryKey = $pname;
+      }
+
     }
 
     return $this;

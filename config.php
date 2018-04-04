@@ -9,8 +9,8 @@ return [
     ]
   ],
   'init' => [
-    // drop_create, create
-    'store' => 'create'
+    // drop_create, create, none
+    'store' => 'none'
   ]
 ];
 ?>
