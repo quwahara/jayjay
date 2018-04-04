@@ -8,6 +8,7 @@ use \PDO;
 
 class EntityOperation
 {
+  public $pdo;
   public $desc;
 
   public function init($pdo, $entity)
