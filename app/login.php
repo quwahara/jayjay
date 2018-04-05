@@ -1,12 +1,11 @@
 <html>
 
 <head>
-  <script src="./js/trax/trax.js"></script>
 </head>
 
 <body>
 <?php
-require 'vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use Services\Services;
 use Services\URIService;

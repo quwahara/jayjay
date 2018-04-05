@@ -1,6 +1,6 @@
 <?php
 namespace Services;
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use \PDO;
 use Entities\Stores;
@@ -28,7 +28,7 @@ class Services {
   
   function init() {
     if (!$this->config_) {
-      $this->config_ = require 'config.php';
+      $this->config_ = require __DIR__ . '/../config.php';
     }
     $this->initStore();
     return $this;

@@ -6,7 +6,7 @@
 
 <body>
 <?php
-require 'vendor/autoload.php';
+require __DIR__ . '/../../../vendor/autoload.php';
 
 use Services\Services;
 
@@ -21,9 +21,11 @@ try {
 }
 
 ?>
-
   <div>
-  This is home.
+  This is entity/menus.
+  </div>
+  <div>
+    <a href="new.php">New</a>
   </div>
 </body>
 
