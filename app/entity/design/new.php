@@ -25,12 +25,20 @@ try {
     <div>
       <h1>New Entity</h1>
     </div>
-    <form>
+    <form name="formA">
+
+      <div><button type="button" id="b2">Put date to table name</button></div>
+      <div><div id="div2"><span class="entityName"></span></div></div>
+      <div><button type="button" class="add-button">Add field</button></div>
+      <div><button type="button" id="okBtn">OK</button><button type="button">Cancel</button><button type="button">Clear</button></div>
+
       <div>Entity name</div>
       <div>
-        <input type="text">
+        <input type="text" class="entityName">
       </div>
-
+      <div>
+        <span class="entity"></span>
+      </div>
       <div>Fields</div>
       <div>
         <table>
@@ -40,13 +48,13 @@ try {
               <th>Type</th>
             </tr>
           </thead>
-          <tbody>
-            <tr class="fields">
+          <tbody class="fields">
+            <tr>
               <td>
-                <input type="text" class="name">
+                <input type="text" class="fieldName">
               </td>
               <td>
-                <select class="value">
+                <select class="type">
                   <option>Text</option>
                   <option>Multi line text</option>
                   <option>Dropdown</option>
@@ -60,49 +68,42 @@ try {
         </table>
       </div>
 
-
-<!--
-        <input type="text">
-        <select>
-        <option>Text</option>
-        <option>Multi line text</option>
-        <option>Dropdown</option>
-        <option>Seigle Checkbox</option>
-        <option>Multi checkboxes</option>
-        <option>Radio button</option>
-        </select>
--->
-
-      <div><button type="button" class="add-button">Add field</button></div>
-
-      <div><button type="button">OK</button><button type="button">Cancel</button><button type="button">Clear</button></div>
-
     </form>
   </div>
   <script>
-    var t;
-    t = new Trax({
-      name: "",
+    var xo;
+    xo = new Trax.Xobject({
+      entityName: "",
       fields: [{
-        name: "",
+        fieldName: "",
         type: "",
-      }],
+      }]
     });
 
-    // t.tx("apple", "#appleDiv .apple");
-    // t.rx("apple", "#appleText2@keyup");
-    // t.trx("apple", "#appleText");
-
-    t.tx("fields");
+    xo._bind("entityName");
+    xo._bind("entityName", document.getElementById("div2"));
+    xo._bind("fields");
 
     document.querySelector(".add-button")
     .addEventListener("click", function (event) {
       var field;
-      field = t.fields.createItem();
-      field.name = "";
+      console.log("b1-click");
+      field = xo.fields.newItem();
+      // field.fieldName = new Date().toISOString();
+      field.fieldName = "";
       field.type = "Text";
-      t.fields.push(field);
+      xo.fields.push(field);
     });
+
+    document.getElementById("b2").addEventListener("click", function (event) {
+      console.log("b2-click");
+      xo.entityName = new Date().toISOString();
+    });
+
+    document.getElementById("okBtn").addEventListener("click", function (event) {
+      console.log("okBtn clicked", JSON.stringify(xo, null, 2));
+    });
+
   </script>
 
 </body>
