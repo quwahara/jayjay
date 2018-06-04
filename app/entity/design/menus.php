@@ -1,7 +1,6 @@
 <html>
 
 <head>
-  <script src="./js/trax/trax.js"></script>
 </head>
 
 <body>

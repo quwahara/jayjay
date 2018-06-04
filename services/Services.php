@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use \PDO;
 use Entities\Stores;
+use Services\DAService;
 use Services\DBService;
 use Services\DDLService;
 use Services\EntityService;
@@ -14,6 +15,8 @@ class Services {
   public static $singleton_;
   
   public $config_;
+  public $dbdec_;
+  public $da_;
   public $db_;
   public $ddl_;
   public $entity_;
@@ -27,11 +30,36 @@ class Services {
   }
   
   function init() {
-    if (!$this->config_) {
-      $this->config_ = require __DIR__ . '/../config.php';
-    }
+    $this->config_ = require __DIR__ . '/../config.php';
+    $this->dbdec_ = require __DIR__ . '/../dbdec.php';
     $this->initStore();
     return $this;
+  }
+  
+  function initDbdec() {
+    $el = PHP_EOL;
+    foreach ($this->dbdec_['tables'] as $table) {
+
+      $d = '';
+      $d .= 'DROP TABLE ' . $table['tableName'] . ';';
+      $this->db()->pdo()->prepare($d)->execute();
+
+      $d = '';
+      $d .= 'CREATE TABLE ' . $table['tableName'] . '(';
+      $cnm = '';
+      foreach ($table['columns'] as $column) {
+        $d .= $cnm . $el . $column['fieldName'] . ' ' . $column['definition'];
+        $cnm = ',';
+      }
+      foreach ($table['index_definitions'] as $idx_def) {
+        $d .= $cnm . $el . $idx_def;
+        $cnm = ',';
+      }
+      $d .= $el . ');';
+      $this->db()->pdo()->prepare($d)->execute();
+    }
+    return $d;
+    // return $this;
   }
   
   function initStore() {
@@ -62,6 +90,14 @@ class Services {
         ->init($dbc['dsn'], $dbc['username'], $dbc['password'], $dbc['options']);
     }
     return $this->db_;
+  }
+  
+  function da() {
+    if (!$this->da_) {
+      $this->da_ = (new DAService())
+        ->init($this->db()->pdo(), $this->dbdec_);
+    }
+    return $this->da_;
   }
   
   function entities() {
