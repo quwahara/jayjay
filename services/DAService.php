@@ -119,6 +119,30 @@ class DAService
     }
   }
 
+  public function findAll($table, $sql, $values, $fetch_style = PDO::FETCH_ASSOC)
+  {
+    $st = $this->pdo->prepare($sql);
+    if (!$st) {
+      throw new Exception(print_r($this->pdo->errorInfo(), TRUE));
+    }
+
+    foreach ($values as $col => $value) {
+      $column = $this->getColumnByFieldName($col, $table);
+      if (is_null($column)) {
+        throw new Exception('Undefined column name in the table:' . $col);
+      }
+      $pType = self::parsePDOParamType($column['definition']);
+      if (is_null($pType)) {
+        throw new Exception('Unknown column type for the column:' . $col);
+      }
+      $st->bindValue($col, $value, $pType);
+    }
+    if (!$st->execute()) {
+      throw new Exception(print_r($st->errorInfo(), TRUE));
+    }
+    return $st->fetchAll($fetch_style);
+  }
+
   public function getTableByTableName($tableName) {
     foreach ($this->dbdec_['tables'] as $table) {
       if ($table['tableName'] === $tableName) {

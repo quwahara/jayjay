@@ -25,6 +25,7 @@ try {
   </div>
   <div>
     <a href="new.php">New</a>
+    <a href="list.php">List</a>
   </div>
 </body>
 
