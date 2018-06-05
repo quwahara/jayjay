@@ -9,12 +9,12 @@ use \PDO;
 
 class DAService
 {
-  public $pdo_;
+  public $pdo;
   public $dbdec_;
 
   public function init($pdo, $dbdec)
   {
-    $this->pdo_ = $pdo;
+    $this->pdo = $pdo;
     $this->dbdec_ = $dbdec;
     return $this;
   }
@@ -26,9 +26,9 @@ class DAService
 
       $d = '';
       $d .= 'DROP TABLE IF EXISTS ' . $table['tableName'] . ';';
-      $st = $this->pdo_->prepare($d);
+      $st = $this->pdo->prepare($d);
       if (!$st) {
-        throw new Exception(print_r($this->pdo_->errorInfo(), TRUE));
+        throw new Exception(print_r($this->pdo->errorInfo(), TRUE));
       }
       if (!$st->execute()) {
         throw new Exception(print_r($st->errorInfo(), TRUE));
@@ -46,9 +46,9 @@ class DAService
         $cnm = ',';
       }
       $d .= $el . ');';
-      $st = $this->pdo_->prepare($d);
+      $st = $this->pdo->prepare($d);
       if (!$st) {
-        throw new Exception(print_r([$d, $this->pdo_->errorInfo()], TRUE));
+        throw new Exception(print_r([$d, $this->pdo->errorInfo()], TRUE));
       }
       if (!$st->execute()) {
         throw new Exception(print_r($st->errorInfo(), TRUE));
@@ -70,9 +70,9 @@ class DAService
       $cnm = ',';
     }
     $q .= $c . $el. ')VALUES(' . $v . $el . ');' . $el;
-    $st = $this->pdo_->prepare($q);
+    $st = $this->pdo->prepare($q);
     if (!$st) {
-      throw new Exception(print_r($this->pdo_->errorInfo(), TRUE));
+      throw new Exception(print_r($this->pdo->errorInfo(), TRUE));
     }
     foreach ($values as $col => $value) {
       $column = $this->getColumnByFieldName($col, $table);
@@ -92,9 +92,9 @@ class DAService
 
   public function findOne($table, $sql, $values, $fetch_style = PDO::FETCH_ASSOC)
   {
-    $st = $this->pdo_->prepare($sql);
+    $st = $this->pdo->prepare($sql);
     if (!$st) {
-      throw new Exception(print_r($this->pdo_->errorInfo(), TRUE));
+      throw new Exception(print_r($this->pdo->errorInfo(), TRUE));
     }
 
     foreach ($values as $col => $value) {

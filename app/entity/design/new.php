@@ -12,36 +12,48 @@ if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
       $S = Services::singleton();
       $da = Services::singleton()->da();
 
-      $payload = json_decode(file_get_contents('php://input'), true);
-      $entityT = $da->getTableByTableName('entities');
-      $entityV = ['entity_name' => $payload['entityName']];
-      $da->insert($entityT, $entityV);
-
-      $sql = 'select * from entities where entity_name = :entity_name;';
-      $entityRec = $da->findOne($entityT, $sql, $entityV);
-
-      $entityId = $entityRec['id'];
-      $fieldT = $da->getTableByTableName('fields');
-      $fieldSql = 'select * from fields where entity_id = :entity_id and field_name = :field_name;';
-      $fieldRecs = [];
-      foreach ($payload['fields'] as $field) {
-        $fieldV = [
-          'entity_id' => $entityId,
-          'field_name' => $field['fieldName'],
-          'field_type' => $field['type'],
+      $da->pdo->beginTransaction();
+      try {
+        $payload = json_decode(file_get_contents('php://input'), true);
+        $entityT = $da->getTableByTableName('entities');
+        $entityV = ['entity_name' => $payload['entityName']];
+        $da->insert($entityT, $entityV);
+  
+        $sql = 'select * from entities where entity_name = :entity_name;';
+        $entityRec = $da->findOne($entityT, $sql, $entityV);
+  
+        $entityId = $entityRec['id'];
+        $fieldT = $da->getTableByTableName('fields');
+        $fieldSql = 'select * from fields where entity_id = :entity_id and field_name = :field_name;';
+        $fieldRecs = [];
+        foreach ($payload['fields'] as $field) {
+          $fieldV = [
+            'entity_id' => $entityId,
+            'field_name' => $field['fieldName'],
+            'field_type' => $field['type'],
+          ];
+          $da->insert($fieldT, $fieldV);
+          $fieldPrm = [
+            'entity_id' => $entityId,
+            'field_name' => $field['fieldName'],
+          ];
+          $fieldRec = $da->findOne($fieldT, $fieldSql, $fieldPrm);
+          $fieldRecs []= $fieldRec;
+        }
+        
+        $da->pdo->commit();
+  
+        $entityRec['fields'] = $fieldRecs;
+        $payload = $entityRec;
+  
+      } catch (Exception $e) {
+        
+        $da->pdo->rollBack();
+  
+        $payload = [
+          'exception' => $e
         ];
-        $da->insert($fieldT, $fieldV);
-        $fieldPrm = [
-          'entity_id' => $entityId,
-          'field_name' => $field['fieldName'],
-        ];
-        $fieldRec = $da->findOne($fieldT, $fieldSql, $fieldPrm);
-        $fieldRecs []= $fieldRec;
       }
-
-      $entityRec['fields'] = $fieldRecs;
-      $payload = $entityRec;
-
     } else {
       $payload = [
         "aa" => "11",
