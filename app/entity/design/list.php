@@ -15,7 +15,7 @@ if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
       try {
         $payload = json_decode(file_get_contents('php://input'), true);
         $entityT = $da->getTableByTableName('entities');
-        $entityV = ['entity_name' => $payload['entityName']];
+        $entityV = ['entity_name' => $payload['searchKey']];
 
         $sql = 'select * from entities where entity_name like :entity_name;';
         $founds = $da->findAll($entityT, $sql, $entityV);
@@ -77,11 +77,11 @@ try {
     <form name="formA">
 
       <div><button type="button" id="okBtn">OK</button><button type="button">Cancel</button><button type="button">Clear</button></div>
-      <div><button type="button" id="apiTestBtn">API Test</button></div>
+      <div><button type="button" id="searchBtn">Search</button></div>
 
       <div>Entity name</div>
       <div>
-        <input type="text" class="entityName">
+        <input type="text" class="searchKey">
       </div>
       <div>
         <span class="entity"></span>
@@ -97,7 +97,7 @@ try {
           <tbody class="founds">
             <tr>
               <td>
-                <a href="#">xx</a>
+                <a href="#" class="entity_name"></a>
               </td>
             </tr>
           </tbody>
@@ -115,25 +115,26 @@ try {
   <script>
     var xo;
     xo = new Trax.Xobject({
-      entityName: "",
+      searchKey: "",
       founds: [{
-        entityName: ""
+        entity_name: ""
       }]
     });
 
-    xo._bind("entityName");
+    xo._bind("searchKey");
     xo._bind("founds");
 
     document.getElementById("okBtn").addEventListener("click", function (event) {
       console.log("okBtn clicked", JSON.stringify(xo, null, 2));
     });
     
-    document.getElementById("apiTestBtn").addEventListener("click", function (event) {
-      console.log("apiTestBtn clicked", null);
+    document.getElementById("searchBtn").addEventListener("click", function (event) {
+      console.log("searchBtn clicked", null);
 
       axios.post('list.php', xo)
         .then(function (response) {
           console.log(response);
+          xo.founds = response.data.founds;
         })
         .catch(function (error) {
           console.log(error);
