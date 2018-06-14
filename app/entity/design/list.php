@@ -97,7 +97,7 @@ try {
           <tbody class="founds">
             <tr>
               <td>
-                <a href="#" class="entity_name"></a>
+                <a href="edit.php?" class="entity_name"></a>
               </td>
             </tr>
           </tbody>
@@ -122,7 +122,17 @@ try {
     });
 
     xo._bind("searchKey");
-    xo._bind("founds");
+    // xo._bind("founds");
+    xo._each("founds", function (elem, xitem) {
+      xitem._bind("entity_name", elem);
+      xitem._listenTo("entity_name", function (value) {
+        elem.querySelector("a").href = value;
+      });
+      // xitem._transmit("entity_name", function (value) {
+      //   elem.href = "detail.php?entity_name=" + value;
+      // });
+    });
+
 
     document.getElementById("okBtn").addEventListener("click", function (event) {
       console.log("okBtn clicked", JSON.stringify(xo, null, 2));
