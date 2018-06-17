@@ -122,17 +122,12 @@ try {
     });
 
     xo._bind("searchKey");
-    // xo._bind("founds");
-    xo._each("founds", function (elem, xitem) {
-      xitem._bind("entity_name", elem);
-      xitem._listenTo("entity_name", function (value) {
-        elem.querySelector("a").href = value;
+    xo._each("founds", function (xitem) {
+      xitem._transmit("entity_name", function (value) {
+        this.textContent = value;
+        this.href = "detail.php?entity_name=" + value;
       });
-      // xitem._transmit("entity_name", function (value) {
-      //   elem.href = "detail.php?entity_name=" + value;
-      // });
     });
-
 
     document.getElementById("okBtn").addEventListener("click", function (event) {
       console.log("okBtn clicked", JSON.stringify(xo, null, 2));
