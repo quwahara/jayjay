@@ -97,7 +97,7 @@ try {
           <tbody class="founds">
             <tr>
               <td>
-                <a href="edit.php?" class="entity_name"></a>
+                <a href="detail.php?" class="entity_name"></a>
               </td>
             </tr>
           </tbody>
@@ -125,7 +125,7 @@ try {
     xo._each("founds", function (xitem) {
       xitem._transmit("entity_name", function (value) {
         this.textContent = value;
-        this.href = "detail.php?entity_name=" + value;
+        this.href = "details.php?entity_name=" + value;
       });
     });
 
