@@ -3,8 +3,85 @@ require __DIR__ . '/../../../vendor/autoload.php';
 
 use Services\Services;
 
+
+if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
+  $content_type = explode(';', trim(strtolower($_SERVER['CONTENT_TYPE'])));
+  $media_type = $content_type[0];
+  
+  if ($media_type == 'application/json') {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $S = Services::singleton();
+      $da = $S->da();
+
+      $da->pdo->beginTransaction();
+      $q = '';
+      $entityV = '';
+      try {
+        $payload = json_decode(file_get_contents('php://input'), true);
+        $entityT = $da->getTableByTableName('entities');
+        $entityV = $payload['model']['entity'];
+        $entityW = 'id = :id__p1__';
+        $entityWP = ['id__p1__' => $payload['model']['entity']['id']];
+
+        $q = $da->update2($entityT, $entityV, $entityW);
+        $da->update($entityT, $entityV, $entityW, $entityWP);
+
+        // $entityV = ['entity_name' => $payload['entityName']];
+        // $da->insert($entityT, $entityV);
+  
+        // $sql = 'select * from entities where entity_name = :entity_name;';
+        // $entityRec = $da->findOne($entityT, $sql, $entityV);
+  
+        // $entityId = $entityRec['id'];
+        // $fieldT = $da->getTableByTableName('fields');
+        // $fieldSql = 'select * from fields where entity_id = :entity_id and field_name = :field_name;';
+        // $fieldRecs = [];
+        // foreach ($payload['fields'] as $field) {
+        //   $fieldV = [
+        //     'entity_id' => $entityId,
+        //     'field_name' => $field['fieldName'],
+        //     'field_type' => $field['type'],
+        //   ];
+        //   $da->insert($fieldT, $fieldV);
+        //   $fieldPrm = [
+        //     'entity_id' => $entityId,
+        //     'field_name' => $field['fieldName'],
+        //   ];
+        //   $fieldRec = $da->findOne($fieldT, $fieldSql, $fieldPrm);
+        //   $fieldRecs []= $fieldRec;
+        // }
+        
+        $da->pdo->commit();
+  
+        // $entityRec['fields'] = $fieldRecs;
+        // $payload = $entityRec;
+  
+      } catch (Exception $e) {
+        
+        $da->pdo->rollBack();
+  
+        $payload = [
+          // 'exception' => $e
+          'q' => $q,
+          'vs' => $entityV,
+          'exception' => print_r($e, TRUE)
+        ];
+      }
+    } else {
+      $payload = [
+        "aa" => "11",
+        "bb" => "22",
+      ];
+    }
+    header("Content-Type: application/json; charset=UTF-8");
+    echo json_encode($payload);
+    exit();
+  }
+}
+
+
 $er = '';
-$dbg = 'aa';
+$dbg = '';
 $entity_name = $_GET['entity_name'];
 try {
   $model = (function ($entity_name) {
@@ -49,6 +126,7 @@ try {
       <div><button type="button" id="okBtn">OK</button><button type="button">Cancel</button><button type="button">Clear</button></div>
       <div><button type="button" id="apiTestBtn">API Test</button></div>
       <div><button type="button" id="JSONTestBtn">JSON Test</button></div>
+      <div><button type="button" id="updateBtn">Update Test</button></div>
 
       <div>Entity name</div>
       <div>
@@ -148,39 +226,27 @@ try {
       console.log("JSONTestBtn clicked", JSON.stringify(xo, null, 2));
     });
     
+    document.getElementById("updateBtn").addEventListener("click", function (event) {
+      console.log("updateBtn clicked", null);
+      axios.post('details.php', xo)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    });
+
+
     document.getElementById("apiTestBtn").addEventListener("click", function (event) {
       console.log("apiTestBtn clicked", null);
-
-// const instance = axios.create({
-//   baseURL: 'https://some-domain.com/api/',
-//   timeout: 1000,
-//   headers: {'X-Custom-Header': 'foobar'}
-// });
-
-// axios.post('/wagaya/api/test.php', 
-axios.post('new.php', 
-  xo
-// {
-//     firstName: 'Fred',
-//     lastName: 'Flintstone'
-//   }
-)
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
-
-
-// axios.get('/wagaya/api/test.php')
-//   .then(function(response) {
-//     console.log(response.data);
-//     console.log(response.status);
-//     console.log(response.statusText);
-//     console.log(response.headers);
-//     console.log(response.config);
-//   });      
+      axios.post('new.php', xo)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
     });
 
 

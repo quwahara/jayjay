@@ -90,6 +90,88 @@ class DAService
     }
   }
 
+  public function update($table, $values, $where = FALSE, $whereParams = false)
+  {
+    $el = PHP_EOL;
+    $q = '';
+    $q .= 'UPDATE ' . $table['tableName'] . ' SET';
+    $cnm = '';
+    $c = '';
+    $v = '';
+    foreach ($values as $col => $value) {
+      $c .= $cnm . $el . $col . ' = ' . ':' . $col;
+      $cnm = ',';
+    }
+    $q .= $c . $el;
+    $q .= 'WHERE ' . $el;
+    if ($where) {
+      $q .= $where . $el;
+      $q .= 'AND ';
+    }
+    $q .= 'TRUE ' . $el;
+
+    $st = $this->pdo->prepare($q);
+    if (!$st) {
+      throw new Exception(print_r($this->pdo->errorInfo(), TRUE));
+    }
+    foreach ($values as $col => $value) {
+
+      $regCol = preg_replace('/__[a-zA-Z0-9]+__$/', '', $col);
+
+      $column = $this->getColumnByFieldName($regCol, $table);
+      if (is_null($column)) {
+        throw new Exception('Undefined column name in the table:' . $col);
+      }
+      $pType = self::parsePDOParamType($column['definition']);
+      if (is_null($pType)) {
+        throw new Exception('Unknown column type for the column:' . $col);
+      }
+      $st->bindValue($col, $value, $pType);
+    }
+    if ($whereParams) {
+      foreach ($whereParams as $col => $value) {
+
+        $regCol = preg_replace('/__[a-zA-Z0-9]+__$/', '', $col);
+  
+        $column = $this->getColumnByFieldName($regCol, $table);
+        if (is_null($column)) {
+          throw new Exception('Undefined column name in the table:' . $col);
+        }
+        $pType = self::parsePDOParamType($column['definition']);
+        if (is_null($pType)) {
+          throw new Exception('Unknown column type for the column:' . $col);
+        }
+        $st->bindValue($col, $value, $pType);
+      }
+    }
+    if (!$st->execute()) {
+      throw new Exception(print_r($st->errorInfo(), TRUE));
+    }
+  }
+
+  public function update2($table, $values, $where = FALSE)
+  {
+    $el = PHP_EOL;
+    $q = '';
+    $q .= 'UPDATE ' . $table['tableName'] . ' SET';
+    $cnm = '';
+    $c = '';
+    $v = '';
+    foreach ($values as $col => $value) {
+      $c .= $cnm . $el . $col . ' = ' . ':' . $col;
+      $cnm = ',';
+    }
+    $q .= $c . $el;
+    $q .= 'WHERE ' . $el;
+    if ($where) {
+      $q .= $where . $el;
+      $q .= 'AND ';
+    }
+    $q .= 'TRUE ' . $el;
+
+    return $q;
+  }
+
   public function findOne($table, $sql, $values, $fetch_style = PDO::FETCH_ASSOC)
   {
     $st = $this->pdo->prepare($sql);
