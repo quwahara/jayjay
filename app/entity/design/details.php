@@ -48,10 +48,11 @@ try {
       <div><button type="button" class="add-button">Add field</button></div>
       <div><button type="button" id="okBtn">OK</button><button type="button">Cancel</button><button type="button">Clear</button></div>
       <div><button type="button" id="apiTestBtn">API Test</button></div>
+      <div><button type="button" id="JSONTestBtn">JSON Test</button></div>
 
       <div>Entity name</div>
       <div>
-        <input type="text" class="entityName">
+        <input type="text" class="entity_name">
       </div>
       <div>
         <span class="entity"></span>
@@ -75,7 +76,11 @@ try {
                 <input type="text" class="field_name">
               </td>
               <td>
-                <span class="field_type"></span>
+                <select class="field_type">
+                  <option>Text</option>
+                  <option>Number</option>
+                </select>
+                <span class="xfield_type"></span>
               </td>
             </tr>
           </tbody>
@@ -94,27 +99,30 @@ try {
     var model = <?= json_encode($model, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?>;
     
     var xo = new Trax.Xobject({
-      // "entity": {
-      //   "id": 0,
-      //   "entity_name": ""
-      // },
-      "fields": [
-        {
+      "model": {
+        "entity": {
           "id": 0,
-          "entity_id": 0,
-          "field_name": "",
-          "field_type": ""
-        }
-      ]
+          "entity_name": ""
+        },
+        "fields": [
+          {
+            "id": 0,
+            "entity_id": 0,
+            "field_name": "",
+            "field_type": ""
+          }
+        ]
+      }
     });
 
-    xo._each("fields", function (xitem) {
+    xo.model.entity._bind("entity_name");
+    xo.model._each("fields", function (xitem) {
       xitem._transmit("id");
       xitem._bind("field_name");
-      xitem._transmit("field_type");
+      xitem._bind("field_type");
     });
-
-    xo.fields = model.fields;
+    
+    xo.model = model;
 
     document.querySelector(".add-button")
     .addEventListener("click", function (event) {
@@ -134,6 +142,10 @@ try {
 
     document.getElementById("okBtn").addEventListener("click", function (event) {
       console.log("okBtn clicked", JSON.stringify(xo, null, 2));
+    });
+    
+    document.getElementById("JSONTestBtn").addEventListener("click", function (event) {
+      console.log("JSONTestBtn clicked", JSON.stringify(xo, null, 2));
     });
     
     document.getElementById("apiTestBtn").addEventListener("click", function (event) {
