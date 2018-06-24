@@ -2,7 +2,7 @@
 require __DIR__ . '/../../../vendor/autoload.php';
 
 use Services\Services;
-
+use Services\ViewService;
 
 if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
   $content_type = explode(';', trim(strtolower($_SERVER['CONTENT_TYPE'])));
@@ -108,8 +108,10 @@ try {
 <html>
 
 <head>
+  <link rel="stylesheet" type="text/css" href="../../../css/global.css">
   <script src="../../../js/lib/node_modules/axios/dist/axios.js"></script>
   <script src="../../../js/trax/trax.js"></script>
+  <script src="../../../js/lib/global.js"></script>
 </head>
 
 <body>
@@ -127,6 +129,7 @@ try {
       <div><button type="button" id="apiTestBtn">API Test</button></div>
       <div><button type="button" id="JSONTestBtn">JSON Test</button></div>
       <div><button type="button" id="updateBtn">Update Test</button></div>
+      <div><button type="button" id="modalBtn">Modal Test</button></div>
 
       <div>Entity name</div>
       <div>
@@ -237,6 +240,25 @@ try {
       });
     });
 
+    document.getElementById("modalBtn").addEventListener("click", function (event) {
+      console.log("updateBtn clicked", null);
+      Global.modal.create({
+        // "header": "<h2>Confirmation</h2>",
+        // "body": "<p>Are you sure?</p>",
+        ok: {
+          onclick: function (event) {
+            axios.post('details.php', xo)
+            .then(function (response) {
+              console.log(response);
+              xo.model = response.data.model;
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+          }
+        }
+      }).open();
+    });
 
     document.getElementById("apiTestBtn").addEventListener("click", function (event) {
       console.log("apiTestBtn clicked", null);
@@ -251,7 +273,6 @@ try {
 
 
   </script>
-
 </body>
 
 </html>
