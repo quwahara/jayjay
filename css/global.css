@@ -1,3 +1,28 @@
+html {
+  /* 10px */
+  /* font-size: 62.5%; */
+  /* 12px */
+  /* font-size: 75.0%; */
+  /* 14px */
+  font-size: 87.5%;
+}
+h1 {
+  font-size: 1.6rem;
+}
+h2 {
+  font-size: 1.4rem;
+}
+h3 {
+  font-size: 1.2rem;
+}
+h4 {
+  font-size: 1.1rem;
+}
+h5 {
+  font-size: 1.0rem;
+}
+
+
 /* The Modal (background) */
 
 .modal {

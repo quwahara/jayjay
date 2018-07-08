@@ -82,14 +82,13 @@ if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
 
 $er = '';
 $dbg = '';
-$entity_name = $_GET['entity_name'];
 try {
-  $model = (function ($entity_name) {
+  $model = (function ($id) {
     $S = Services::singleton();
     $da = $S->da();
 
-    $sql = 'select * from entities where entity_name = :entity_name;';
-    $vals = ['entity_name' => $entity_name];
+    $sql = 'select * from entities where id = :id;';
+    $vals = ['id' => $id];
     $entity = $da->findOne($da->getTableByTableName('entities'), $sql, $vals);
 
     $sql = 'select * from fields where entity_id = :entity_id;';
@@ -97,10 +96,11 @@ try {
     $fields = $da->findAll($da->getTableByTableName('fields'), $sql, $vals);
 
     return [
+      "id" => $id,
       "entity" => $entity,
       "fields" => $fields
     ];
-  })($_GET['entity_name']);
+  })($_GET['id']);
 } catch (Exception $e) {
   $er = print_r($e, TRUE);
 }
@@ -108,67 +108,90 @@ try {
 <html>
 
 <head>
+  <link rel="stylesheet" type="text/css" href="../../../js/lib/node_modules/normalize.css/normalize.css">
   <link rel="stylesheet" type="text/css" href="../../../css/global.css">
   <script src="../../../js/lib/node_modules/axios/dist/axios.js"></script>
   <script src="../../../js/trax/trax.js"></script>
   <script src="../../../js/lib/global.js"></script>
+  <?php
+  echo '<style>'
+  . Services::singleton()->css()->style
+  . '</style>';
+  ?>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
   <div>
-    <div>
-      <h1>New Entity</h1>
+    
+    <div class="belt1">
+      <h1>Details</h1>
     </div>
-    <div><a href="menus.php">menus</a></div>
-    <form name="formA">
+    
+    <div class="belt2">
+      <a href="menus.php">menus</a>
+    </div>
+    
+    <div class="belt3">
+      <button type="button" id="okBtn2">OK</button>
+      <button type="button">Cancel</button>
+      <button type="button">Clear</button>
+    </div>
 
-      <div><button type="button" id="b2">Put date to table name</button></div>
-      <div><div id="div2"><span class="xxxentityName"></span></div></div>
-      <div><button type="button" class="add-button">Add field</button></div>
-      <div><button type="button" id="okBtn">OK</button><button type="button">Cancel</button><button type="button">Clear</button></div>
-      <div><button type="button" id="apiTestBtn">API Test</button></div>
-      <div><button type="button" id="JSONTestBtn">JSON Test</button></div>
-      <div><button type="button" id="updateBtn">Update Test</button></div>
-      <div><button type="button" id="modalBtn">Modal Test</button></div>
+    <div class="contents">
+      <form name="formA">
 
-      <div>Entity name</div>
-      <div>
-        <input type="text" class="entity_name">
-      </div>
-      <div>
-        <span class="entity"></span>
-      </div>
-      <div>Fields</div>
-      <div>
-        <table>
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Name</th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody class="fields">
-            <tr>
-              <td>
-                <span class="id"></span>
-              </td>
-              <td>
-                <input type="text" class="field_name">
-              </td>
-              <td>
-                <select class="field_type">
-                  <option>Text</option>
-                  <option>Number</option>
-                </select>
-                <span class="xfield_type"></span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <div><button type="button" id="b2">Put date to table name</button></div>
+        <div><div id="div2"><span class="xxxentityName"></span></div></div>
+        <div><button type="button" class="add-button">Add field</button></div>
+        <div><button type="button" id="okBtn">OK</button><button type="button">Cancel</button><button type="button">Clear</button></div>
+        <div><button type="button" id="apiTestBtn">API Test</button></div>
+        <div><button type="button" id="JSONTestBtn">JSON Test</button></div>
+        <div><button type="button" id="updateBtn">Update Test</button></div>
+        <div><button type="button" id="modalBtn">Modal Test</button></div>
 
-    </form>
+        <div>
+          <lable for="entity_name">entity_name</label>
+          <input type="text" class="entity_name" set-class-on="error warn" name="entity_name">
+          <div>
+            <div class="_entity_name" show-on="empty">x</div>
+          </div>
+        </div>
+        <div>
+          <span class="entity"></span>
+        </div>
+        <div>Fields</div>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody class="fields">
+              <tr>
+                <td>
+                  <span class="id"></span>
+                </td>
+                <td>
+                  <input type="text" class="field_name">
+                </td>
+                <td>
+                  <select class="field_type">
+                    <option>Text</option>
+                    <option>Number</option>
+                  </select>
+                  <span class="xfield_type"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </form>
+    </div>
     <div>
       <pre>
 <?= $er ?>
@@ -196,7 +219,15 @@ try {
       }
     });
 
-    xo.model.entity._bind("entity_name");
+    xo.model.entity._bind("entity_name", {
+      "validations": [
+        function (result, value, name, elems) {
+          if ((value || "").trim() === "") {
+            result.status = "error empty";
+          }
+        }
+      ],
+    });
     xo.model._each("fields", function (xitem) {
       xitem._transmit("id");
       xitem._bind("field_name");
@@ -221,6 +252,10 @@ try {
       xo.entityName = new Date().toISOString();
     });
 
+    document.getElementById("okBtn2").addEventListener("click", function (event) {
+      xo._validate();
+    });
+    
     document.getElementById("okBtn").addEventListener("click", function (event) {
       console.log("okBtn clicked", JSON.stringify(xo, null, 2));
     });
@@ -273,6 +308,7 @@ try {
 
 
   </script>
+  </div>
 </body>
 
 </html>

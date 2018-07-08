@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use \PDO;
 use Entities\Stores;
+use Services\CSSService;
 use Services\DAService;
 use Services\DBService;
 use Services\DDLService;
@@ -15,6 +16,7 @@ class Services {
   public static $singleton_;
   
   public $config_;
+  public $css_;
   public $dbdec_;
   public $da_;
   public $db_;
@@ -76,6 +78,14 @@ class Services {
     return $this;
   }
   
+  function css() {
+    if (!$this->css_) {
+      $cssc = $this->config_['css'];
+      $this->css_ = (new CSSService())->init($cssc['baseFontSize']);
+    }
+    return $this->css_;
+  }
+  
   function ddl() {
     if (!$this->ddl_) {
       $this->ddl_ = new DDLService();
@@ -116,4 +126,8 @@ class Services {
   }
   
 }
+
+global $S;
+$S = Services::singleton();
+
 ?>

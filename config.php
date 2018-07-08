@@ -8,6 +8,9 @@ return [
       PDO::ATTR_EMULATE_PREPARES => false
     ]
   ],
+  'css' => [
+    'baseFontSize' => 10.0
+  ],
   'init' => [
     // drop_create, create, none
     'store' => 'none'
