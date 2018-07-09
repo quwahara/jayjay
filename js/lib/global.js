@@ -37,6 +37,10 @@
       var ja = messages.ja;
       var key;
       
+      key = "<!-- #hello -->";
+      en[key] = "Hello";
+      ja[key] = "こんにちは";
+
       key = "<!-- #confirmation -->";
       en[key] = "Confirmation";
       ja[key] = "確認";
@@ -53,6 +57,10 @@
       en[key] = "Cancel";
       ja[key] = "キャンセル";
 
+      key = "<!-- #please-input -->";
+      en[key] = "Please input.";
+      ja[key] = "入力して下さい";
+
     })(G.messages);
 
     G.getMsg = function (key) {
@@ -62,6 +70,16 @@
       return (msglng && msglng[key]) || "";
     };
 
+    G.putMsgs = function (selectors, rootElem) {
+      rootElem = rootElem || document;
+      selectors = selectors || ".msg";
+      var elems = rootElem.querySelectorAll(selectors);
+      for (var i = 0; i < elems.length; ++i) {
+        var elem = elems.item(i);
+        elem.textContent = this.getMsg(elem.innerHTML);
+      }
+    };
+    
     var modal = {
       Global: Global,
       html: '' +
@@ -104,7 +122,7 @@
         m.closeSpan = ph.querySelector(".modal-close");
 
         m.opts.ok.text = m.opts.ok.text || G.getMsg(m.okButton.innerHTML);
-        m.okButton.textContent = m.opts.ok.text; 
+        m.okButton.textContent = m.opts.ok.text;
 
         m.opts.cancel.text = m.opts.cancel.text || G.getMsg(m.cancelButton.innerHTML);
         m.cancelButton.textContent = m.opts.cancel.text; 

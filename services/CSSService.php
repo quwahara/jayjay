@@ -99,6 +99,10 @@ div.contents {
   padding-bottom: 1.0rem;
 }
 
+.ph::before {
+  content: "\\0000a0";
+}
+
 EOS;
     return $this;
   }

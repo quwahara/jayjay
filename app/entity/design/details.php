@@ -153,9 +153,7 @@ try {
         <div>
           <lable for="entity_name">entity_name</label>
           <input type="text" class="entity_name" set-class-on="error warn" name="entity_name">
-          <div>
-            <div class="_entity_name" show-on="empty">x</div>
-          </div>
+          <span class="msg _entity_name" show-on="empty"><!-- #please-input --></span>
         </div>
         <div>
           <span class="entity"></span>
@@ -173,17 +171,24 @@ try {
             <tbody class="fields">
               <tr>
                 <td>
-                  <span class="id"></span>
+                  <div><span class="id"></span></div>
+                  <div class="ph"></div>
                 </td>
                 <td>
-                  <input type="text" class="field_name">
+                  <div>
+                    <input type="text" class="field_name" set-class-on="error warn">
+                    <div class="ph"><span class="msg _field_name" show-on="empty"><!-- #please-input --></span></div>
+                  </div>
                 </td>
                 <td>
-                  <select class="field_type">
-                    <option>Text</option>
-                    <option>Number</option>
-                  </select>
-                  <span class="xfield_type"></span>
+                  <div>
+                    <select class="field_type">
+                      <option value=""></option>
+                      <option value="Text">Text</option>
+                      <option value="Number">Number</option>
+                    </select>
+                    <div class="ph"><span class="msg _field_type" show-on="empty"><!-- #please-input --></span></div>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -200,6 +205,10 @@ try {
     </div>
   </div>
   <script>
+    window.onload = function () {
+      Global.putMsgs();
+    };
+
     var model = <?= json_encode($model, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?>;
     
     var xo = new Trax.Xobject({
@@ -219,19 +228,19 @@ try {
       }
     });
 
+    var vs = Trax.validations;
+
     xo.model.entity._bind("entity_name", {
-      "validations": [
-        function (result, value, name, elems) {
-          if ((value || "").trim() === "") {
-            result.status = "error empty";
-          }
-        }
-      ],
+      "validations": [vs.empty],
     });
     xo.model._each("fields", function (xitem) {
       xitem._transmit("id");
-      xitem._bind("field_name");
-      xitem._bind("field_type");
+      xitem._bind("field_name", {
+        "validations": [vs.empty],
+      });
+      xitem._bind("field_type", {
+        "validations": [vs.empty],
+      });
     });
     
     xo.model = model;
