@@ -37,37 +37,56 @@
       var ja = messages.ja;
       var key;
       
-      key = "<!-- #hello -->";
+      key = "#hello";
       en[key] = "Hello";
       ja[key] = "こんにちは";
 
-      key = "<!-- #confirmation -->";
+      key = "#confirmation";
       en[key] = "Confirmation";
       ja[key] = "確認";
 
-      key = "<!-- #confirmation-message -->";
+      key = "#confirmation-message";
       en[key] = "Are you sure?";
       ja[key] = "よろしいですか?";
 
-      key = "<!-- #ok -->";
+      key = "#ok";
       en[key] = "OK";
       ja[key] = "OK";
 
-      key = "<!-- #cancel -->";
+      key = "#cancel";
       en[key] = "Cancel";
       ja[key] = "キャンセル";
 
-      key = "<!-- #please-input -->";
+      key = "#please-input";
       en[key] = "Please input.";
       ja[key] = "入力して下さい";
 
+      key = "#length-min-max";
+      en[key] = "Minimum {min} characters and maximum {max} characters.";
+      ja[key] = "{min}文字以上、{max}文字以下で入力して下さい";
+
     })(G.messages);
 
-    G.getMsg = function (key) {
-      var msglng;
+    var keyRex = /(#[\w-]+)\s*(\{[^}]+\})?/;
+    G.getMsg = function (keyText) {
+      var result = keyRex.exec(keyText);
+      var key = result[1];
       key = (key || "").trim();
-      msglng = this.messages[this.language] || this.messages.en;
-      return (msglng && msglng[key]) || "";
+      var msglng = this.messages[this.language] || this.messages.en;
+      var msg = (msglng && msglng[key]) || "";
+      
+      var opts = result[2];
+      if (opts) {
+        try {
+          var optsObj = JSON.parse(opts);
+          for (var name in optsObj) {
+            msg = msg.replace("{" + name + "}", optsObj[name]);
+          }
+        } catch (e) {
+        }
+      }
+
+      return msg;
     };
 
     G.putMsgs = function (selectors, rootElem) {
@@ -76,6 +95,7 @@
       var elems = rootElem.querySelectorAll(selectors);
       for (var i = 0; i < elems.length; ++i) {
         var elem = elems.item(i);
+        elem.setAttribute("data-original-inner-html", elem.innerHTML);
         elem.textContent = this.getMsg(elem.innerHTML);
       }
     };
