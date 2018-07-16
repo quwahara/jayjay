@@ -102,10 +102,51 @@ echo '<style>'
       <a href="menus.php">menus</a>
     </div>
 
+    <div class="belt status">
+      <div class="message">
+      Info Info Info Info Info Info Info Info <br>
+        Info Info Info Info Info Info Info Info <br>
+        Info Info Info Info Info Info Info Info <br>
+      </div>
+    </div>
+
+    <div class="belt info">
+      <div>
+      Info Info Info Info Info Info Info Info <br>
+      Info Info Info Info Info Info Info Info <br>
+      Info Info Info Info Info Info Info Info <br>
+      </div>
+    </div>
+
+    <div class="belt success">
+      <div>
+      Success Success Success Success Success Success Success Success <br>
+      Success Success Success Success Success Success Success Success <br>
+      Success Success Success Success Success Success Success Success <br>
+      </div>
+    </div>
+
+    <div class="belt warning">
+      <div>
+      Warning Warning Warning Warning Warning Warning Warning Warning <br>
+      Warning Warning Warning Warning Warning Warning Warning Warning <br>
+      Warning Warning Warning Warning Warning Warning Warning Warning <br>
+      </div>
+    </div>
+
+    <div class="belt error">
+      <div>
+      Error Error Error Error Error Error Error Error <br>
+      Error Error Error Error Error Error Error Error <br>
+      Error Error Error Error Error Error Error Error <br>
+      </div>
+    </div>
+
     <div class="belt bl-mono-06">
       <button type="button" id="okBtn2">OK</button>
       <button type="button">Cancel</button>
       <button type="button">Clear</button>
+      <button type="button" id="statusBtn">Status Test</button>
     </div>
 
     <div class="contents">
@@ -191,10 +232,18 @@ echo '<style>'
               "field_type": ""
             }
           ]
+        },
+        "notice": {
+          "status": "",
+          "message": "",
         }
       });
 
       var vs = Trax.validations;
+
+      xo.notice._showOn("status");
+      xo.notice._transmitToClass("status");
+      xo.notice._transmitToHtml("message");
 
       xo.model.entity._bind("entity_name", {
         "validations": [vs.lengthMinMax({min: 2, max: 6})],
@@ -212,6 +261,12 @@ echo '<style>'
       console.log(model);
 
       xo.model = model;
+
+      document.getElementById("statusBtn").addEventListener("click", function (event) {
+        console.log(new Date().toISOString());
+        xo.notice.status = xo.notice.status ? "" : "success";
+        xo.notice.message = !xo.notice.status ? "" : "message message message";
+      });
 
       document.getElementById("okBtn2").addEventListener("click", function (event) {
         console.log(new Date().toISOString());

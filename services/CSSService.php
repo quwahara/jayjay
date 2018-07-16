@@ -71,6 +71,34 @@ div.contents {
   padding-bottom: 1.0rem;
 }
 
+.belt.info {
+  color: hsl(200, 85%, 25%);
+  background: hsl(200, 85%, 85%);
+  border-top: solid 1px hsl(200, 85%, 25%);
+  border-bottom: solid 1px hsl(200, 85%, 25%);
+}
+
+.belt.success {
+  color: hsl(100, 85%, 25%);
+  background: hsl(100, 85%, 85%);
+  border-top: solid 1px hsl(100, 85%, 25%);
+  border-bottom: solid 1px hsl(100, 85%, 25%);
+}
+
+.belt.warning {
+  color: hsl(60, 85%, 25%);
+  background: hsl(60, 85%, 85%);
+  border-top: solid 1px hsl(60, 85%, 25%);
+  border-bottom: solid 1px hsl(60, 85%, 25%);
+}
+
+.belt.error {
+  color: hsl(0, 85%, 25%);
+  background: hsl(0, 85%, 85%);
+  border-top: solid 1px hsl(0, 85%, 25%);
+  border-bottom: solid 1px hsl(0, 85%, 25%);
+}
+
 .bg-mono-00 { background: hsl(0, 0%, 0%); } /* 00/12 */
 .bg-mono-01 { background: hsl(0, 0%, 8%); } /* 01/12 */
 .bg-mono-02 { background: hsl(0, 0%, 17%); } /* 02/12 */
