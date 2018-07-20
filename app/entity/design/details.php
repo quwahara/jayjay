@@ -30,18 +30,30 @@ if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
 
                 $da->pdo->commit();
 
+                $payload['notice']= [
+                  'status' => 'success',
+                  'message' => 'The update has succeeded.'
+                ];
+                http_response_code(200);
+
             } catch (Exception $e) {
 
                 $da->pdo->rollBack();
 
-                $payload = [
-                    'exception' => print_r($e, true),
+                $payload['notice']= [
+                  'status' => 'error',
+                  'message' => 'The update failed.',
+                  'exception' => print_r($e, true),
                 ];
+
+                http_response_code(500);
             }
         } else {
-            $payload = [
+
+            $payload['notice']= [
+              'status' => 'error',
               'message' => 'Not supported request method.',
-              'request_method' => $_SERVER['REQUEST_METHOD'],
+              'request_method' => $_SERVER['REQUEST_METHOD']
             ];
         }
         header("Content-Type: application/json; charset=UTF-8");
@@ -103,43 +115,8 @@ echo '<style>'
     </div>
 
     <div class="belt status">
-      <div class="message">
-      Info Info Info Info Info Info Info Info <br>
-        Info Info Info Info Info Info Info Info <br>
-        Info Info Info Info Info Info Info Info <br>
-      </div>
-    </div>
-
-    <div class="belt info">
-      <div>
-      Info Info Info Info Info Info Info Info <br>
-      Info Info Info Info Info Info Info Info <br>
-      Info Info Info Info Info Info Info Info <br>
-      </div>
-    </div>
-
-    <div class="belt success">
-      <div>
-      Success Success Success Success Success Success Success Success <br>
-      Success Success Success Success Success Success Success Success <br>
-      Success Success Success Success Success Success Success Success <br>
-      </div>
-    </div>
-
-    <div class="belt warning">
-      <div>
-      Warning Warning Warning Warning Warning Warning Warning Warning <br>
-      Warning Warning Warning Warning Warning Warning Warning Warning <br>
-      Warning Warning Warning Warning Warning Warning Warning Warning <br>
-      </div>
-    </div>
-
-    <div class="belt error">
-      <div>
-      Error Error Error Error Error Error Error Error <br>
-      Error Error Error Error Error Error Error Error <br>
-      Error Error Error Error Error Error Error Error <br>
-      </div>
+      <div class="message"></div>
+      <div class="text-right"><button id="statusColseBtn" type="button" class="link">&times; Close</button></div>
     </div>
 
     <div class="belt bl-mono-06">
@@ -242,14 +219,14 @@ echo '<style>'
       var vs = Trax.validations;
 
       xo.notice._showOn("status");
-      xo.notice._transmitToClass("status");
-      xo.notice._transmitToHtml("message");
+      xo.notice._toClass("status");
+      xo.notice._toHtml("message");
 
       xo.model.entity._bind("entity_name", {
         "validations": [vs.lengthMinMax({min: 2, max: 6})],
       });
       xo.model._each("fields", function (xitem) {
-        xitem._transmit("id");
+        xitem._toText("id");
         xitem._bind("field_name", {
           "validations": [vs.empty],
         });
@@ -262,9 +239,14 @@ echo '<style>'
 
       xo.model = model;
 
+      document.getElementById("statusColseBtn").addEventListener("click", function (event) {
+        console.log("statusColseBtn", new Date().toISOString());
+        xo.notice.status = "";
+      });
+
       document.getElementById("statusBtn").addEventListener("click", function (event) {
         console.log(new Date().toISOString());
-        xo.notice.status = xo.notice.status ? "" : "success";
+        xo.notice.status = xo.notice.status ? "" : "error";
         xo.notice.message = !xo.notice.status ? "" : "message message message";
       });
 
@@ -280,9 +262,18 @@ echo '<style>'
                 .then(function (response) {
                   console.log(response);
                   xo.model = response.data.model;
+                  xo.notice = response.data.notice;
                 })
                 .catch(function (error) {
-                  console.log(error);
+                  xo.notice.status = "error";
+                  xo.notice.message = "The update failed.";
+                  if (error.response) {
+                    console.log(error.response);
+                  } else if (error.request) {
+                    console.log(error.request);
+                  } else {
+                    console.log('Error', error.message);
+                  }
                 });
               }
             }
@@ -361,6 +352,8 @@ echo '<style>'
       });
 
     };
+
+    // f12345678901234567890123456789012345678901234567890
   </script>
   </div>
 </body>

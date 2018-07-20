@@ -59,8 +59,27 @@ input[type="text"].error, select.error {
   border-color: #F66;
 }
 
+button.link {
+  display: inline-block;
+  position: relative;
+  background-color: transparent;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  /* color: black; */
+  /* color: #00f; */
+  /* text-decoration: underline; */
+  font: inherit;
+}
+
+.text-right {
+  text-align: right;
+}
+
 div.belt {
   padding-left: 1.0rem;
+  padding-right: 1.0rem;
   padding-top: 1.0rem;
   padding-bottom: 0.8rem;
 }
