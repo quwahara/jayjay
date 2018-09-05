@@ -101,6 +101,7 @@ echo '<style>'
     . '</style>';
 ?>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Details</title>
 </head>
 
 <body>
@@ -139,7 +140,7 @@ echo '<style>'
         <div><button type="button" id="modalBtn">Modal Test</button></div>
 
         <div>
-          <lable for="entity_name">entity_name</label>
+          <label for="entity_name">entity_name</label>
           <input type="text" class="entity_name" set-class-on="error warn" name="entity_name">
           <span class="msg _entity_name" show-on="empty"><!-- #please-input --></span>
           <span class="msg _entity_name" show-on="length-min-max"><!-- #length-min-max { "min": 2, "max": 6 } --></span>

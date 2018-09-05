@@ -37,9 +37,9 @@
       var ja = messages.ja;
       var key;
       
-      key = "#hello";
-      en[key] = "Hello";
-      ja[key] = "こんにちは";
+      key = "#cancel";
+      en[key] = "Cancel";
+      ja[key] = "キャンセル";
 
       key = "#confirmation";
       en[key] = "Confirmation";
@@ -49,27 +49,32 @@
       en[key] = "Are you sure?";
       ja[key] = "よろしいですか?";
 
+      key = "#hello";
+      en[key] = "Hello";
+      ja[key] = "こんにちは";
+
+      key = "#length-min-max";
+      en[key] = "Minimum {min} characters and maximum {max} characters.";
+      ja[key] = "{min}文字以上、{max}文字以下で入力して下さい";
+
       key = "#ok";
       en[key] = "OK";
       ja[key] = "OK";
-
-      key = "#cancel";
-      en[key] = "Cancel";
-      ja[key] = "キャンセル";
 
       key = "#please-input";
       en[key] = "Please input.";
       ja[key] = "入力して下さい";
 
-      key = "#length-min-max";
-      en[key] = "Minimum {min} characters and maximum {max} characters.";
-      ja[key] = "{min}文字以上、{max}文字以下で入力して下さい";
+      key = "#updated";
+      en[key] = "Updated.";
+      ja[key] = "更新しました";
 
     })(G.messages);
 
     var keyRex = /(#[\w-]+)\s*(\{[^}]+\})?/;
     G.getMsg = function (keyText) {
       var result = keyRex.exec(keyText);
+      if (result === null) return "";
       var key = result[1];
       key = (key || "").trim();
       var msglng = this.messages[this.language] || this.messages.en;

@@ -26,12 +26,21 @@ button,
 div,
 h1,h2,h3,h4,h5,
 input,
+label,
 select,
 table {
   font-size: 1.0rem;
   letter-spacing: 0.0em;
   line-height: 1.75em;
   margin: 0px;
+}
+
+label, .label {
+  display: inline-block;
+  font-weight: bold;
+  width: 10em;
+  text-align: right;
+  margin-right: 1.0rem;
 }
 
 h1 { font-size: 1.6rem; }
@@ -50,7 +59,7 @@ button, input[type="button"], input[type="submit"] {
   padding-right: 0.8em;
 }
 
-input[type="text"], select {
+input[type="text"], input[type="password"], select {
   padding: 0.5em;
   border: solid 1px #999;
 }
@@ -77,17 +86,19 @@ button.link {
   text-align: right;
 }
 
+.hide {
+  display: none;
+}
+
+.ph::before {
+  content: "\\0000a0";
+}
+
 div.belt {
   padding-left: 1.0rem;
   padding-right: 1.0rem;
   padding-top: 1.0rem;
   padding-bottom: 0.8rem;
-}
-
-div.contents {
-  padding-left: 1.0rem;
-  padding-top: 1.0rem;
-  padding-bottom: 1.0rem;
 }
 
 .belt.info {
@@ -146,8 +157,14 @@ div.contents {
 .bl-mono-11 { border-bottom: solid 1px hsl(0, 0%, 92%); } /* 11/12 */
 .bl-mono-12 { border-bottom: solid 1px hsl(0, 0%, 100%); } /* 12/12 */
 
-.ph::before {
-  content: "\\0000a0";
+div.contents {
+  padding-left: 1.0rem;
+  padding-top: 1.0rem;
+  padding-bottom: 1.0rem;
+}
+
+div.row {
+  margin: 0.0rem 1.0rem 1.0rem 0.0rem;
 }
 
 EOS;

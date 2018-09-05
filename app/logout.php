@@ -6,6 +6,25 @@ use Services\SH;
 use Services\URIService;
 
 try {
+    switch (session_status()) {
+        case PHP_SESSION_DISABLED:
+            $sst = 'none';
+            $ssstart = session_start();
+            break;
+        case PHP_SESSION_NONE:
+            $sst = 'none';
+            $ssstart = session_start();
+            break;
+        case PHP_SESSION_ACTIVE:
+            $sst = 'avtive';
+            session_reset();
+            break;
+        default:
+            throw new Exception('Session was disabled.');
+            break;
+    }
+
+
     session_start();
     if (session_status() === PHP_SESSION_ACTIVE && $_SESSION['name']) {
         $name = $_SESSION['name'];

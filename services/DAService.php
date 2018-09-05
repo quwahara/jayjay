@@ -114,6 +114,26 @@ class DAService
         ];
     }
 
+    public function findOne2($sql, $tableNameAndValues, $fetch_style = PDO::FETCH_ASSOC)
+    {
+        $st = $this->pdo->prepare($sql);
+        if (!$st) {
+            throw new Exception(print_r($this->pdo->errorInfo(), true));
+        }
+        foreach ($tableNameAndValues['values'] as $v) {
+            $st->bindValue($v['name'], $v['value'], $v['type']);
+        }
+        if (!$st->execute()) {
+            throw new Exception(print_r($st->errorInfo(), true));
+        }
+        $result = $st->fetchAll($fetch_style);
+        if ($result) {
+            return $result[0];
+        } else {
+            return null;
+        }
+    }
+
     public function updateById($tableNameAndValues)
     {
         $el = PHP_EOL;
@@ -261,6 +281,8 @@ class DAService
         foreach ($this->dbdec_['tables'] as $table) {
             if ($table['tableName'] === $tableName) {
                 return $table;
+            } else if ($table['tableName.singular'] === $tableName) {
+                return $table;
             }
         }
         return null;
@@ -274,6 +296,11 @@ class DAService
             }
         }
         return null;
+    }
+
+    public static function isNumber($definition)
+    {
+        return \preg_match('/^((TINY|MEDIUM|LONG|BIG)?INT(EGER)?|(DEC(IMAL)?|NUMERIC|FIXED))/i', $definition);
     }
 
     public static function parsePDOParamType($definition)

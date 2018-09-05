@@ -12,6 +12,7 @@
   "autoload": {
     "psr-4": {
       "Entities\\": "entities/",
+      "J\\": "j/",
       "Services\\": "services/"
     }
   }
