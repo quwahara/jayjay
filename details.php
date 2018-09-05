@@ -40,72 +40,59 @@
 
         <div class="belt status">
         <div class="message"></div>
-        <div class="text-right"><button id="statusColseBtn" type="button" class="link">&times; Close</button></div>
+        <div class="text-right"><button id="statusCloseBtn" type="button" class="link">&times; Close</button></div>
         </div>
 
         <div class="belt bl-mono-06">
-        <button type="button" id="okBtn2">OK</button>
-        <button type="button">Cancel</button>
-        <button type="button">Clear</button>
-        <button type="button" id="statusBtn">Status Test</button>
+        <button type="button" id="okBtn">OK</button>
         </div>
 
         <div class="contents">
         <form name="formA">
-
-            <div><button type="button" id="b2">Put date to table name</button></div>
-            <div><div id="div2"><span class="xxxentityName"></span></div></div>
-            <div><button type="button" class="add-button">Add field</button></div>
-            <div><button type="button" id="okBtn">OK</button><button type="button">Cancel</button><button type="button">Clear</button></div>
-            <div><button type="button" id="apiTestBtn">API Test</button></div>
-            <div><button type="button" id="JSONTestBtn">JSON Test</button></div>
-            <div><button type="button" id="updateBtn">Update Test</button></div>
-            <div><button type="button" id="modalBtn">Modal Test</button></div>
-
             <div>
-            <label for="entity_name">entity_name</label>
-            <input type="text" class="entity_name" set-class-on="error warn" name="entity_name">
-            <span class="msg _entity_name" show-on="empty"><!-- #please-input --></span>
-            <span class="msg _entity_name" show-on="length-min-max"><!-- #length-min-max { "min": 2, "max": 6 } --></span>
+                <label for="entity_name">entity_name</label>
+                <input type="text" class="entity_name" set-class-on="error warn" name="entity_name">
+                <span class="msg _entity_name" show-on="empty"><!-- #please-input --></span>
+                <span class="msg _entity_name" show-on="length-min-max"><!-- #length-min-max { "min": 2, "max": 6 } --></span>
             </div>
             <div>
-            <span class="entity"></span>
+                <span class="entity"></span>
             </div>
             <div>Fields</div>
             <div>
-            <table>
-                <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Type</th>
-                </tr>
-                </thead>
-                <tbody class="fields">
-                <tr>
-                    <td>
-                    <div><span class="id"></span></div>
-                    <div class="ph"></div>
-                    </td>
-                    <td>
-                    <div>
-                        <input type="text" class="field_name" set-class-on="error warn">
-                        <div class="ph"><span class="msg _field_name" show-on="empty"><!-- #please-input --></span></div>
-                    </div>
-                    </td>
-                    <td>
-                    <div>
-                        <select class="field_type" set-class-on="error warn">
-                        <option value=""></option>
-                        <option value="Text">Text</option>
-                        <option value="Number">Number</option>
-                        </select>
-                        <div class="ph"><span class="msg _field_type" show-on="empty"><!-- #please-input --></span></div>
-                    </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                    </tr>
+                    </thead>
+                    <tbody class="fields">
+                    <tr>
+                        <td>
+                        <div><span class="id"></span></div>
+                        <div class="ph"></div>
+                        </td>
+                        <td>
+                        <div>
+                            <input type="text" class="field_name" set-class-on="error warn">
+                            <div class="ph"><span class="msg _field_name" show-on="empty"><!-- #please-input --></span></div>
+                        </div>
+                        </td>
+                        <td>
+                        <div>
+                            <select class="field_type" set-class-on="error warn">
+                            <option value=""></option>
+                            <option value="Text">Text</option>
+                            <option value="Number">Number</option>
+                            </select>
+                            <div class="ph"><span class="msg _field_type" show-on="empty"><!-- #please-input --></span></div>
+                        </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
 
         </form>
@@ -145,13 +132,12 @@
         });
 
         b.io = data.io;
-
-        Brx.on("click", "#okBtn2", function (event) {
-            console.log(new Date);
-            
+        
+        Brx.on("click", "#statusCloseBtn", function (event) {
+            b.io.context.status = "";
+        });
+        Brx.on("click", "#okBtn", function (event) {
             if (vs.isOk(b.io._validate())) {
-                console.log("ok");
-
                 Global.modal.create({
                     ok: {
                         onclick: function (event) {
@@ -163,8 +149,6 @@
                             })
                             .catch(function (error) {
                                 b.io.context.status = "error";
-                                // io.notice.status = "error";
-                                // io.notice.message = "The update failed.";
                                 if (error.response) {
                                     console.log(error.response);
                                 } else if (error.request) {
