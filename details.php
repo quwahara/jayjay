@@ -1,21 +1,21 @@
 <?php (require __DIR__ . '/j/JJ.php')([
     'models' => ['context', 'entity', 'fields[]'],
     'methods' => [
-        'loadPayloads' => function (\J\JJ $jj, string $id) {
-            $payloads = &$jj->data['payloads'];
-            $payloads['entity'] = $jj->dao('entity')->attFindOneBy(['id' => $id]);
-            if (isset($payloads['entity'])) {
-                $payloads['fields'] = $jj->dao('fields')->attFindAllBy(['entity_id' => $id]);
+        'loadIO' => function (\J\JJ $jj, string $id) {
+            $io = &$jj->data['io'];
+            $io['entity'] = $jj->dao('entity')->attFindOneBy(['id' => $id]);
+            if (isset($io['entity'])) {
+                $io['fields'] = $jj->dao('fields')->attFindAllBy(['entity_id' => $id]);
             } else {
-                $payloads['context']['status'] = 'not-found-entity';
-                $payloads['entity'] = $jj->data['models']['entity'];
-                $payloads['fields'] = [];
+                $io['context']['status'] = 'not-found-entity';
+                $io['entity'] = $jj->data['models']['entity'];
+                $io['fields'] = [];
             }
-            return $payloads;
+            return $io;
         }
     ],
     'get' => function (\J\JJ $jj) {
-        $jj->methods['loadPayloads']($jj, $_GET['id']);
+        $jj->methods['loadIO']($jj, $_GET['id']);
         ?>
 <html>
 <head>
@@ -116,23 +116,25 @@
     window.onload = function() {
         Global.putMsgs();
 
-        var local = new Brx({message: ""});
-        local._toText("message");
-
         var vs = Brx.validations;
         var data = <?= $jj->json($jj->data); ?>;
-        var io = new Brx({"payloads": data["models"]});
 
-        io.payloads.context._showOn("status");
-        io.payloads.context._after("status", function (value) {
-            local.message = Global.getMsg(value);
+        var b = new Brx({
+            message: "",
+            io: data["models"]
+        });
+        b._toText("message");
+
+        b.io.context._showOn("status");
+        b.io.context._after("status", function (value) {
+            b.message = Global.getMsg(value);
         });
 
-        io.payloads.entity._bind("entity_name", {
+        b.io.entity._bind("entity_name", {
             "validations": [vs.lengthMinMax({min: 2, max: 6})],
         });
 
-        io.payloads._each("fields", function (item) {
+        b.io._each("fields", function (item) {
             item._toText("id");
             item._bind("field_name", {
                 "validations": [vs.empty],
@@ -142,26 +144,27 @@
             });
         });
 
-        io.payloads = data.payloads;
+        b.io = data.io;
 
         Brx.on("click", "#okBtn2", function (event) {
             console.log(new Date);
             
-            if (vs.isOk(io._validate())) {
+            if (vs.isOk(b.io._validate())) {
                 console.log("ok");
 
                 Global.modal.create({
                     ok: {
                         onclick: function (event) {
-                            io.payloads.context.status = "";
-                            axios.post('details.php', io.payloads)
+                            b.io.context.status = "";
+                            axios.post('details.php', b.io)
                             .then(function (response) {
-                                io.payloads = response.data.payloads;
+                                b.io = response.data.io;
                                 console.log(response);
                             })
                             .catch(function (error) {
-                                io.notice.status = "error";
-                                io.notice.message = "The update failed.";
+                                b.io.context.status = "error";
+                                // io.notice.status = "error";
+                                // io.notice.message = "The update failed.";
                                 if (error.response) {
                                     console.log(error.response);
                                 } else if (error.request) {
@@ -188,8 +191,8 @@
 'post application/json' => function (\J\JJ $jj) {
     $inputs = $jj->readJson();
     $jj->dao('entity')->attUpdateById($inputs['entity']);
-    $jj->methods['loadPayloads']($jj, $inputs['entity']['id']);
-    $jj->data['payloads']['context']['status'] = '#updated';
+    $jj->methods['loadIO']($jj, $inputs['entity']['id']);
+    $jj->data['io']['context']['status'] = '#updated';
     $jj->responseJson();
 }
 ]);

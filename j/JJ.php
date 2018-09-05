@@ -31,15 +31,11 @@ class JJ
         // $this->initMediaType();
         $this->data = [
             'models' => [],
-            'castings' => [],
             'notice' => [
-                'status' => '1',
+                'status' => '',
             ],
-            'payloads' => [
+            'io' => [
                 'context' => $this->dao('context')->createModel()
-                // 'context' => [
-                //     'status' => ''
-                // ]
             ]
         ];
         $this->methods = $args['methods'];
