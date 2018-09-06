@@ -1,5 +1,5 @@
 <?php (require __DIR__ . '/j/JJ.php')([
-    'models' => ['context', 'entity', 'fields[]'],
+    'models' => ['entity', 'fields[]'],
     'methods' => [
         'loadIO' => function (\J\JJ $jj, string $id) {
             $io = &$jj->data['io'];
@@ -7,7 +7,7 @@
             if (isset($io['entity'])) {
                 $io['fields'] = $jj->dao('fields')->attFindAllBy(['entity_id' => $id]);
             } else {
-                $io['context']['status'] = 'not-found-entity';
+                $io['status'] = 'not-found-entity';
                 $io['entity'] = $jj->data['models']['entity'];
                 $io['fields'] = [];
             }
@@ -112,8 +112,8 @@
         });
         b._toText("message");
 
-        b.io.context._showOn("status");
-        b.io.context._after("status", function (value) {
+        b.io._showOn("status");
+        b.io._after("status", function (value) {
             b.message = Global.getMsg(value);
         });
 
@@ -132,23 +132,23 @@
         });
 
         b.io = data.io;
-        
+
         Brx.on("click", "#statusCloseBtn", function (event) {
-            b.io.context.status = "";
+            b.io.status = "";
         });
         Brx.on("click", "#okBtn", function (event) {
             if (vs.isOk(b.io._validate())) {
                 Global.modal.create({
                     ok: {
                         onclick: function (event) {
-                            b.io.context.status = "";
+                            b.io.status = "";
                             axios.post('details.php', b.io)
                             .then(function (response) {
                                 b.io = response.data.io;
                                 console.log(response);
                             })
                             .catch(function (error) {
-                                b.io.context.status = "error";
+                                b.io.status = "error";
                                 if (error.response) {
                                     console.log(error.response);
                                 } else if (error.request) {
@@ -176,7 +176,7 @@
     $inputs = $jj->readJson();
     $jj->dao('entity')->attUpdateById($inputs['entity']);
     $jj->methods['loadIO']($jj, $inputs['entity']['id']);
-    $jj->data['io']['context']['status'] = '#updated';
+    $jj->data['io']['status'] = '#updated';
     $jj->responseJson();
 }
 ]);

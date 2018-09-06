@@ -30,12 +30,11 @@ class JJ
         $this->args = $args;
         // $this->initMediaType();
         $this->data = [
-            'models' => [],
-            'notice' => [
+            'models' => [
                 'status' => '',
             ],
             'io' => [
-                'context' => $this->dao('context')->createModel()
+                'status' => '',
             ]
         ];
         $this->methods = $args['methods'];

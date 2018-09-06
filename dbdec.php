@@ -2,19 +2,6 @@
 return [
     'tables' => [
         [
-            'tableName' => 'contexts',
-            'tableName.singular' => 'context',
-            'options' => [],
-            'columns' => [
-                [
-                    'fieldName' => 'status',
-                    'definition' => 'VARCHAR(60) CHARACTER SET latin1 NOT NULL'
-                ],
-            ],
-            'index_definitions' => [
-            ],
-        ],
-        [
             'tableName' => 'users',
             'tableName.singular' => 'user',
             'options' => [],

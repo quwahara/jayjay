@@ -18,6 +18,9 @@ class DAObject
         $this->da = $da;
         $this->tableName = $tableName;
         $this->table = $da->getTableByTableName($tableName);
+        if (is_null($this->table)) {
+            throw new Exception("The '{$tableName}' was not declared.");
+        }
         return $this;
     }
 
