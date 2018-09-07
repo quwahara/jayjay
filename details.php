@@ -173,11 +173,17 @@
 
 },
 'post application/json' => function (\J\JJ $jj) {
-    $inputs = $jj->readJson();
-    $jj->dao('entity')->attUpdateById($inputs['entity']);
-    $jj->methods['loadIO']($jj, $inputs['entity']['id']);
-    $jj->data['io']['status'] = '#updated';
-    $jj->responseJson();
+    $jj->beginTransaction();
+    try {
+        $inputs = $jj->readJson();
+        $jj->dao('entity')->attUpdateById($inputs['entity']);
+        $jj->methods['loadIO']($jj, $inputs['entity']['id']);
+        $jj->data['io']['status'] = '#updated';
+        $jj->commit();
+        $jj->responseJson();
+    } catch (Exception $e) {
+        $jj->rollBack();
+    }
 }
 ]);
 ?>

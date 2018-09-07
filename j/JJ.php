@@ -109,6 +109,21 @@ class JJ
         return $this->da_;
     }
 
+    function beginTransaction(): bool
+    {
+        return $this->db()->pdo()->beginTransaction();
+    }
+
+    function commit(): bool
+    {
+        return $this->db()->pdo()->commit();
+    }
+
+    function rollBack(): bool
+    {
+        return $this->db()->pdo()->rollBack();
+    }
+
     function dao($tableName)
     {
         return (new DAObject())->init($this->da(), $tableName);
