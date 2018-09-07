@@ -49,9 +49,21 @@
       en[key] = "Are you sure?";
       ja[key] = "よろしいですか?";
 
+      key = "#error-of-request";
+      en[key] = "Request error";
+      ja[key] = "リクエストエラー";
+
+      key = "#error-of-setting-up-requesting";
+      en[key] = "Setting up request error";
+      ja[key] = "リクエスト準備エラー";
+
       key = "#hello";
       en[key] = "Hello";
       ja[key] = "こんにちは";
+
+      key = "#http-status-500";
+      en[key] = "Internal Server Error";
+      ja[key] = "サーバー内部エラー";
 
       key = "#length-min-max";
       en[key] = "Minimum {min} characters and maximum {max} characters.";
@@ -62,11 +74,11 @@
       ja[key] = "OK";
 
       key = "#please-input";
-      en[key] = "Please input.";
+      en[key] = "Please input";
       ja[key] = "入力して下さい";
 
       key = "#updated";
-      en[key] = "Updated.";
+      en[key] = "Updated";
       ja[key] = "更新しました";
 
     })(G.messages);

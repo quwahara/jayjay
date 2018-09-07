@@ -7,7 +7,7 @@
             if (isset($io['entity'])) {
                 $io['fields'] = $jj->dao('fields')->attFindAllBy(['entity_id' => $id]);
             } else {
-                $io['status'] = 'not-found-entity';
+                $io['status'] = '#not-found-entity';
                 $io['entity'] = $jj->data['models']['entity'];
                 $io['fields'] = [];
             }
@@ -145,16 +145,14 @@
                             axios.post('details.php', b.io)
                             .then(function (response) {
                                 b.io = response.data.io;
-                                console.log(response);
                             })
                             .catch(function (error) {
-                                b.io.status = "error";
                                 if (error.response) {
-                                    console.log(error.response);
+                                    b.io.status = "#http-status-" + error.response.status;
                                 } else if (error.request) {
-                                    console.log(error.request);
+                                    b.io.status = "#error-of-request";
                                 } else {
-                                    console.log('Error', error.message);
+                                    b.io.status = "#error-of-setting-up-requesting";
                                 }
                             });
                         }
@@ -179,10 +177,14 @@
         $jj->dao('entity')->attUpdateById($inputs['entity']);
         $jj->methods['loadIO']($jj, $inputs['entity']['id']);
         $jj->data['io']['status'] = '#updated';
+        // throw new Exception("test");
         $jj->commit();
         $jj->responseJson();
     } catch (Exception $e) {
         $jj->rollBack();
+        $jj->data['io'] = $jj->data['models'];
+        $jj->data['io']['status'] = '#error';
+        $jj->responseJson(500);
     }
 }
 ]);
