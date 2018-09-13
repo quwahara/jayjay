@@ -69,6 +69,14 @@
       en[key] = "Minimum {min} characters and maximum {max} characters.";
       ja[key] = "{min}文字以上、{max}文字以下で入力して下さい";
 
+      key = "#login-failed";
+      en[key] = "The login attempt failed.";
+      ja[key] = "ログインに失敗しました";
+
+      key = "#login-succeeded";
+      en[key] = "The login attempt succeeded.";
+      ja[key] = "ログインに成功しました";
+
       key = "#ok";
       en[key] = "OK";
       ja[key] = "OK";

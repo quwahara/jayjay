@@ -1,7 +1,7 @@
 <?php (require __DIR__ . '/j/JJ.php')([
-    'models' => ['users'],
+    'models' => ['user'],
     'get' => function (\J\JJ $jj) {
-?>
+        ?>
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
@@ -23,13 +23,9 @@
             <a href="menus.php">menus</a>
         </div>
 
-        <div class="belt hide status">
+        <div class="belt status">
             <div class="message"></div>
             <div class="text-right"><button id="statusColseBtn" type="button" class="link">&times; Close</button></div>
-        </div>
-
-        <div class="belt bl-mono-06">
-            <button type="button">OK</button>
         </div>
 
         <div class="contents">
@@ -54,36 +50,36 @@
         var data = <?= $jj->dataJSON ?>;
 
         var vs = Brx.validations;
-        var tx = new Brx({
-            "models": {
-                "user": {
-                    "name": "",
-                    "password": ""
-                },
-            },
-            "notice": {
-                "status": "",
-                "message": "",
-            },
+
+        var b = new Brx({
+            message: "",
+            io: data["models"]
         });
 
-        tx.models.user._bind("name", {
+        b._toText("message");
+
+        b.io._showOn("status");
+        b.io._after("status", function (value) {
+            b.message = Global.getMsg(value);
+        });
+
+        b.io.user._bind("name", {
             "validations": [vs.lengthMinMax({min: 1, max: 6})],
         });
-        tx.models.user._bind("password", {
+        b.io.user._bind("password", {
             "validations": [vs.lengthMinMax({min: 1, max: 100})],
         });
 
         Brx.on("click", "#loginBtn", function (event) {
-            console.log(">>> loginBtn on click", tx.models.user);
-            axios.post('login.php', tx)
+            console.log(">>> loginBtn on click", b.io.user);
+            b.io.status = "";
+            axios.post('login.php', b.io)
             .then(function (response) {
                 console.log(response.data);
-                // console.log(response);
-                // xo.models = response.data.models;
-                if (response.data.notice.status === "success") {
+                if (response.data.io.status === "#login-succeeded") {
                     window.location.href = window.location.href.replace("/login.php", "/home.php");
                 }
+                b.io = response.data.io;
             })
             .catch(function (error) {
                 console.log(error);
@@ -95,20 +91,17 @@
 </body>
 </html>
 <?php
-    },
-    'post application/json' => function (\J\JJ $jj)
-    {
-        $inputUser = $jj->readJson()['models']['user'];
 
-        $usersDAO = $jj->dao('users');
-        $user = $usersDAO->findOneBy($usersDAO->attachTypes(['name' => $inputUser['name']]));
-
-        if ($user && password_verify($inputUser['password'], $user['password'])) {
-            $jj->data['notice']['status'] = 'success';
-        } else {
-            $jj->data['notice']['status'] = 'fail';
-        }
-
-        $jj->responseJson();
-    }]);
+},
+'post application/json' => function (\J\JJ $jj) {
+    $jj->data['io'] = $jj->readJson();
+    $user = $jj->dao('user')->attFindOneBy(['name' => $jj->data['io']['user']['name']]);
+    if ($user && password_verify($jj->data['io']['user']['password'], $user['password'])) {
+        $jj->data['io']['status'] = '#login-succeeded';
+    } else {
+        $jj->data['io']['status'] = '#login-failed';
+    }
+    $jj->responseJson();
+}
+]);
 ?>

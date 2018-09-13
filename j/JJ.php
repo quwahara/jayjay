@@ -37,8 +37,10 @@ class JJ
                 'status' => '',
             ]
         ];
-        $this->methods = $args['methods'];
-        if (isset($args['models'])) {
+        if (array_key_exists('methods', $args)) {
+            $this->methods = $args['methods'];
+        }
+        if (array_key_exists('models', $args)) {
             $this->initModels($args['models']);
         }
         // $this->initDAOs($args['models']);
@@ -68,13 +70,25 @@ class JJ
 
     public function initModels($models)
     {
-        foreach ($models as $model) {
-            if ($this->endsWith($model, '[]')) {
-                $model2 = mb_substr($model, 0, mb_strlen($model) - 2);
-                $theModel = [$this->dao($model2)->createModel()];
+        foreach ($models as $key => $value) {
+            if (is_int($key) && is_string($value)) {
+                if ($this->endsWith($value, '[]')) {
+                    $model2 = mb_substr($value, 0, mb_strlen($value) - 2);
+                    $theModel = [$this->dao($model2)->createModel()];
+                } else {
+                    $model2 = $value;
+                    $theModel = $this->dao($model2)->createModel();
+                }
+            } else if (is_string($key) && is_array($value)) {
+                if ($this->endsWith($key, '[]')) {
+                    $model2 = mb_substr($key, 0, mb_strlen($key) - 2);
+                    $theModel = [$value];
+                } else {
+                    $model2 = $key;
+                    $theModel = $value;
+                }
             } else {
-                $model2 = $model;
-                $theModel = $this->dao($model2)->createModel();
+                throw new Exception('The structure of models argument was bad.');
             }
             $this->data['models'][$model2] = $theModel;
         }

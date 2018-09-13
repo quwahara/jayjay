@@ -39,8 +39,8 @@
         </div>
 
         <div class="belt status">
-        <div class="message"></div>
-        <div class="text-right"><button id="statusCloseBtn" type="button" class="link">&times; Close</button></div>
+            <div class="message"></div>
+            <div class="text-right"><button id="statusCloseBtn" type="button" class="link">&times; Close</button></div>
         </div>
 
         <div class="belt bl-mono-06">
