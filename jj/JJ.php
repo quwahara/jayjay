@@ -1,5 +1,5 @@
 <?php
-namespace J;
+namespace JJ;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -25,8 +25,8 @@ class JJ
 
     public function init($args)
     {
-        $this->config_ = require __DIR__ . '/../config.php';
-        $this->dbdec_ = require __DIR__ . '/../dbdec.php';
+        $this->config_ = require __DIR__ . '/../config/global.php';
+        $this->dbdec_ = require __DIR__ . '/../config/dbdec.php';
         $this->args = $args;
         // $this->initMediaType();
         $this->data = [

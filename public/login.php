@@ -1,6 +1,6 @@
-<?php (require __DIR__ . '/j/JJ.php')([
+<?php (require __DIR__ . '/../jj/JJ.php')([
     'models' => ['user'],
-    'get' => function (\J\JJ $jj) {
+    'get' => function (\JJ\JJ $jj) {
         ?>
 <html>
 <head>
@@ -93,7 +93,7 @@
 <?php
 
 },
-'post application/json' => function (\J\JJ $jj) {
+'post application/json' => function (\JJ\JJ $jj) {
     $jj->data['io'] = $jj->readJson();
     $user = $jj->dao('user')->attFindOneBy(['name' => $jj->data['io']['user']['name']]);
     if ($user && password_verify($jj->data['io']['user']['password'], $user['password'])) {

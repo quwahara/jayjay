@@ -1,7 +1,7 @@
-<?php (require __DIR__ . '/j/JJ.php')([
+<?php (require __DIR__ . '/../jj/JJ.php')([
     'models' => ['entity', 'fields[]'],
     'methods' => [
-        'loadIO' => function (\J\JJ $jj, string $id) {
+        'loadIO' => function (\JJ\JJ $jj, string $id) {
             $io = &$jj->data['io'];
             $io['entity'] = $jj->dao('entity')->attFindOneBy(['id' => $id]);
             if (isset($io['entity'])) {
@@ -14,7 +14,7 @@
             return $io;
         }
     ],
-    'get' => function (\J\JJ $jj) {
+    'get' => function (\JJ\JJ $jj) {
         $jj->methods['loadIO']($jj, $_GET['id']);
         ?>
 <html>
@@ -170,7 +170,7 @@
 <?php
 
 },
-'post application/json' => function (\J\JJ $jj) {
+'post application/json' => function (\JJ\JJ $jj) {
     $jj->beginTransaction();
     try {
         $inputs = $jj->readJson();
