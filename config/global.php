@@ -14,6 +14,6 @@ return [
   'init' => [
     // drop_create, create, none
     'store' => 'none'
-  ]
+  ],
 ];
 ?>

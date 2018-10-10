@@ -42,6 +42,7 @@
                 <div class="label"></div>
                 <button type="button" id="loginBtn">Login</button>
             </div>
+            <?= $jj->xsrfHidden() ?>
             </form>
         </div>
     </div>
@@ -71,9 +72,8 @@
         });
 
         Brx.on("click", "#loginBtn", function (event) {
-            console.log(">>> loginBtn on click", b.io.user);
             b.io.status = "";
-            axios.post('login.php', b.io)
+            axios.post("login.php", b.io)
             .then(function (response) {
                 console.log(response.data);
                 if (response.data.io.status === "#login-succeeded") {
@@ -81,10 +81,7 @@
                 }
                 b.io = response.data.io;
             })
-            .catch(function (error) {
-                console.log(error);
-            });
-
+            .catch(Global.catcher(b.io));
         });
     };
     </script>
@@ -94,7 +91,7 @@
 
 },
 'post application/json' => function (\JJ\JJ $jj) {
-    $jj->data['io'] = $jj->readJson();
+    // $jj->data['io'] = $jj->readJson();
     $user = $jj->dao('user')->attFindOneBy(['name' => $jj->data['io']['user']['name']]);
     if ($user && password_verify($jj->data['io']['user']['password'], $user['password'])) {
         $jj->data['io']['status'] = '#login-succeeded';

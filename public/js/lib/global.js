@@ -27,6 +27,10 @@
 
     G.language = window.navigator.language;
 
+    /********************************************************************************
+     * Messages
+     */
+
     G.messages = {};
 
     (function (messages) {
@@ -36,7 +40,7 @@
       var en = messages.en;
       var ja = messages.ja;
       var key;
-      
+
       key = "#cancel";
       en[key] = "Cancel";
       ja[key] = "キャンセル";
@@ -60,6 +64,14 @@
       key = "#hello";
       en[key] = "Hello";
       ja[key] = "こんにちは";
+
+      key = "#http-status-400";
+      en[key] = "Bad Request";
+      ja[key] = "不正なリクエストです";
+
+      key = "#http-status-404";
+      en[key] = "Not Found";
+      ja[key] = "見つかりません";
 
       key = "#http-status-500";
       en[key] = "Internal Server Error";
@@ -99,7 +111,7 @@
       key = (key || "").trim();
       var msglng = this.messages[this.language] || this.messages.en;
       var msg = (msglng && msglng[key]) || "";
-      
+
       var opts = result[2];
       if (opts) {
         try {
@@ -107,8 +119,7 @@
           for (var name in optsObj) {
             msg = msg.replace("{" + name + "}", optsObj[name]);
           }
-        } catch (e) {
-        }
+        } catch (e) { }
       }
 
       return msg;
@@ -124,24 +135,43 @@
         elem.textContent = this.getMsg(elem.innerHTML);
       }
     };
-    
+
+    /********************************************************************************
+     * catcher
+     */
+    G.catcher = function (io) {
+      return function (error) {
+        if (error.response) {
+          io.status = "#http-status-" + error.response.status;
+        } else if (error.request) {
+          io.status = "#error-of-request";
+        } else {
+          io.status = "#error-of-setting-up-requesting";
+        }
+      };
+    };
+
+    /********************************************************************************
+     * modal
+     */
+
     var modal = {
       Global: Global,
       html: '' +
-      '<div id="__modal__" class="modal">' +
-      ' <div class="modal-content">' +
-      '   <div class="modal-header">' +
-      '     <span class="modal-close">&times;</span>' +
-      '     <div class="modal-header-content"><!-- #confirmation --></div>' +
-      '   </div>' +
-      '   <div class="modal-body"><!-- #confirmation-message --></div>' +
-      '   <div class="modal-footer">' +
-      '     <button type="button" class="modal-ok"><!-- #ok --></button>' +
-      '     <button type="button" class="modal-cancel"><!-- #cancel --></button>' +
-      '   </div>' +
-      '  </div>' +
-      '</div>' +
-      '',
+        '<div id="__modal__" class="modal">' +
+        ' <div class="modal-content">' +
+        '   <div class="modal-header">' +
+        '     <span class="modal-close">&times;</span>' +
+        '     <div class="modal-header-content"><!-- #confirmation --></div>' +
+        '   </div>' +
+        '   <div class="modal-body"><!-- #confirmation-message --></div>' +
+        '   <div class="modal-footer">' +
+        '     <button type="button" class="modal-ok"><!-- #ok --></button>' +
+        '     <button type="button" class="modal-cancel"><!-- #cancel --></button>' +
+        '   </div>' +
+        '  </div>' +
+        '</div>' +
+        '',
       create: function (opts) {
         var G = this.Global;
         var m = {};
@@ -157,11 +187,11 @@
         m.modal = ph.querySelector("#" + m.opts.id);
 
         m.header = ph.querySelector(".modal-header-content");
-        m.header.innerHTML = m.opts.header || "<h2>" + G.getMsg(m.header.innerHTML)  + "</h2>";
+        m.header.innerHTML = m.opts.header || "<h2>" + G.getMsg(m.header.innerHTML) + "</h2>";
 
         m.body = ph.querySelector(".modal-body");
         m.body.innerHTML = m.opts.body || G.getMsg(m.body.innerHTML);
-        
+
         m.okButton = ph.querySelector(".modal-ok");
         m.cancelButton = ph.querySelector(".modal-cancel");
         m.closeSpan = ph.querySelector(".modal-close");
@@ -170,7 +200,7 @@
         m.okButton.textContent = m.opts.ok.text;
 
         m.opts.cancel.text = m.opts.cancel.text || G.getMsg(m.cancelButton.innerHTML);
-        m.cancelButton.textContent = m.opts.cancel.text; 
+        m.cancelButton.textContent = m.opts.cancel.text;
 
         m.open = function () {
           document.querySelector("body").appendChild(this.placeholder);
@@ -216,6 +246,8 @@
     };
 
     Global.modal = modal;
+
+
 
     return Global;
   })();

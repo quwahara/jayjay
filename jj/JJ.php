@@ -18,24 +18,46 @@ class JJ
     public $da_;
     public $db_;
 
-    public $mediaType;
     public $daos;
+    public $dispatchKey;
+    public $loadJsonData;
+    public $loadJsonDone;
     public $models;
+    public $mediaType;
     public $methods;
+    public $responseCode;
+    public $xsrf;
 
     public function init($args)
     {
-        $this->config_ = require __DIR__ . '/../config/global.php';
+        $this->config_ = array_merge_recursive(
+            require __DIR__ . '/../config/global-default.php',
+            require __DIR__ . '/../config/global.php'
+        );
+        // $this->config_ = require __DIR__ . '/../config/global.php';
         $this->dbdec_ = require __DIR__ . '/../config/dbdec.php';
         $this->args = $args;
+        $this->responseCode = 200;
+        $this->loadJsonDone = false;
         // $this->initMediaType();
+
+        session_start();
+        if (empty($_SESSION['_xsrf'])) {
+            $this->resetXsrf();
+        }
+        $this->initXsrf();
+        setcookie('XSRF-TOKEN', $this->xsrf);
+
         $this->data = [
             'models' => [
                 'status' => '',
+                '_xsrf' => $this->xsrf,
             ],
             'io' => [
                 'status' => '',
-            ]
+            ],
+            '_dbg' => [
+            ],
         ];
         if (array_key_exists('methods', $args)) {
             $this->methods = $args['methods'];
@@ -43,10 +65,56 @@ class JJ
         if (array_key_exists('models', $args)) {
             $this->initModels($args['models']);
         }
+        if ($this->isJsonPost()) {
+            $this->loadJson();
+        }
         // $this->initDAOs($args['models']);
         $this->dataJSON = $this->json($this->data);
+
+
+        if ($this->validateXsrf()) {
+            $this->dispatchKey = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
+            $this->data['_dbg']['validatateXsrf_result'] = true; 
+        } else {
+            $this->responseCode = 400;
+            $this->dispatchKey = 'error';
+            $this->data['_dbg']['validatateXsrf_result'] = false; 
+        }
+
         return $this;
     }
+
+    /*
+
+error: Error: Request failed with status code 403 at createError (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:913:16) at settle (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:883:13) at XMLHttpRequest.handleLoad (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:756:8)
+config: {adapter: ƒ, transformRequest: {…}, transformResponse: {…}, timeout: 0, xsrfCookieName: "XSRF-TOKEN", …}
+request: XMLHttpRequest {onreadystatechange: ƒ, readyState: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+response:
+config: {adapter: ƒ, transformRequest: {…}, transformResponse: {…}, timeout: 0, xsrfCookieName: "XSRF-TOKEN", …}
+data: {models: {…}, io: {…}, _dbg: {…}}
+
+headers:
+cache-control: "no-store, no-cache, must-revalidate"
+connection: "Keep-Alive"
+content-length: "844"
+content-type: "application/json; charset=UTF-8"
+date: "Tue, 09 Oct 2018 15:26:15 GMT"
+expires: "Thu, 19 Nov 1981 08:52:00 GMT"
+keep-alive: "timeout=5, max=100"
+pragma: "no-cache"
+server: "Apache/2.4.33 (Unix) PHP/7.0.26"
+x-powered-by: "PHP/7.0.26"
+__proto__: Object
+
+request: XMLHttpRequest {onreadystatechange: ƒ, readyState: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+status: 403
+statusText: "Forbidden"
+__proto__: Object
+message: "Request failed with status code 403"
+stack: "Error: Request failed with status code 403↵    at createError (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:913:16)↵    at settle (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:883:13)↵    at XMLHttpRequest.handleLoad (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:756:8)"
+
+     */
+
 
     // public function initMediaType()
     // {
@@ -104,6 +172,42 @@ class JJ
         return $this->css_;
     }
 
+    function initXsrf()
+    {
+        $this->xsrf = $_SESSION['_xsrf'];
+        return $this;
+    }
+
+    function resetXsrf()
+    {
+        $_SESSION['_xsrf'] = bin2hex(random_bytes(32));
+        return $_SESSION['_xsrf'];
+    }
+
+    function xsrfHidden()
+    {
+        return "<input type='hidden' name='_xsrf' value='{$this->xsrf}'>";
+    }
+
+    function validateXsrf()
+    {
+        $headerName = 'HTTP_' . str_replace('-', '_', $this->config_['xsrf']['header_name']);
+        if (isset($_SERVER[$headerName])) {
+            $token = $_SERVER[$headerName];
+            $this->data['_dbg']['vldxsrf'] = 'h'; 
+        }
+        // $token = $_SERVER["HTTP_{str_replace('-', '_', $this->config_['xsrf']['header_name'])}"];
+        if (!isset($token)) {
+            $token = $_COOKIE[$this->config_['xsrf']['cookie_name']];
+            $this->data['_dbg']['vldxsrf'] = 'c'; 
+        }
+        if (!isset($token)) {
+            $token = $_POST[$this->config_['xsrf']['hidden_name']];
+            $this->data['_dbg']['vldxsrf'] = 'p'; 
+        }
+        return isset($this->xsrf) && $this->xsrf === $token;
+    }
+
     function db()
     {
         if (!$this->db_) {
@@ -143,6 +247,11 @@ class JJ
         return (new DAObject())->init($this->da(), $tableName);
     }
 
+    public function isJsonRequested()
+    {
+        return $this->getMediaType() == 'application/json';
+    }
+
     public function isJsonPost()
     {
         if (!array_key_exists('CONTENT_TYPE', $_SERVER)) return false;
@@ -154,6 +263,18 @@ class JJ
     public function readJson()
     {
         return json_decode(file_get_contents('php://input'), true);
+    }
+
+    public function loadJson()
+    {
+        if ($this->loadJsonDone === false) {
+            $this->loadJsonDone = true;
+            $this->loadJsonData = json_decode(file_get_contents('php://input'), true);
+            $this->data['io'] = $this->loadJsonData; 
+            $this->data['_dbg']['loadJsonData'] = $this->loadJsonData; 
+            $this->data['_dbg']['xxx'] = $_SERVER['HTTP_X_XSRF_TOKEN'];
+        }
+        return $this->loadJsonData;
     }
 
     public function json($v)
@@ -172,15 +293,27 @@ class JJ
 
     public function dispatch()
     {
-        $key = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
-        if (isset($this->args[$key])) {
-            return $this->args[$key]($this);
+        if (isset($this->args[$this->dispatchKey])) {
+            return $this->args[$this->dispatchKey]($this);
+        } else if ($this->dispatchKey === 'error') {
+            return $this->dispatchError();
         }
     }
 
-    public function responseJson($code = 200)
+    public function dispatchError()
     {
-        http_response_code($code);
+        if ($this->isJsonRequested()) {
+            $this->responseJson();
+        } else {
+            // TODO response error html in external file
+            http_response_code($this->responseCode);
+            echo 'error';
+        }
+    }
+
+    public function responseJson()
+    {
+        http_response_code($this->responseCode);
         header("Content-Type: application/json; charset=UTF-8");
         echo $this->json($this->data);
         exit();
