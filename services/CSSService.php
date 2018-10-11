@@ -167,6 +167,28 @@ div.row {
   margin: 0.0rem 1.0rem 1.0rem 0.0rem;
 }
 
+.fold {
+    padding: 0;
+    transition: height 0.6s;
+    height: 0px;
+    /*
+    background-color: red;
+    */
+}
+
+.fold>* {
+    display: none;
+}
+
+.un.fold {
+    padding: 1.0rem 1.0rem 0.8rem 1.0rem;
+    height: 4.0rem;
+}
+
+.un.fold>* {
+    display: block;
+}
+
 EOS;
     return $this;
   }

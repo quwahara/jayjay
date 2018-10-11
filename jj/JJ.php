@@ -84,38 +84,6 @@ class JJ
         return $this;
     }
 
-    /*
-
-error: Error: Request failed with status code 403 at createError (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:913:16) at settle (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:883:13) at XMLHttpRequest.handleLoad (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:756:8)
-config: {adapter: ƒ, transformRequest: {…}, transformResponse: {…}, timeout: 0, xsrfCookieName: "XSRF-TOKEN", …}
-request: XMLHttpRequest {onreadystatechange: ƒ, readyState: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
-response:
-config: {adapter: ƒ, transformRequest: {…}, transformResponse: {…}, timeout: 0, xsrfCookieName: "XSRF-TOKEN", …}
-data: {models: {…}, io: {…}, _dbg: {…}}
-
-headers:
-cache-control: "no-store, no-cache, must-revalidate"
-connection: "Keep-Alive"
-content-length: "844"
-content-type: "application/json; charset=UTF-8"
-date: "Tue, 09 Oct 2018 15:26:15 GMT"
-expires: "Thu, 19 Nov 1981 08:52:00 GMT"
-keep-alive: "timeout=5, max=100"
-pragma: "no-cache"
-server: "Apache/2.4.33 (Unix) PHP/7.0.26"
-x-powered-by: "PHP/7.0.26"
-__proto__: Object
-
-request: XMLHttpRequest {onreadystatechange: ƒ, readyState: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
-status: 403
-statusText: "Forbidden"
-__proto__: Object
-message: "Request failed with status code 403"
-stack: "Error: Request failed with status code 403↵    at createError (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:913:16)↵    at settle (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:883:13)↵    at XMLHttpRequest.handleLoad (http://localhost:8080/jayjay/public/js/lib/node_modules/axios/dist/axios.js:756:8)"
-
-     */
-
-
     // public function initMediaType()
     // {
     //     if (array_key_exists('CONTENT_TYPE', $_SERVER)) {

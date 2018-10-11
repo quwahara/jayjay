@@ -23,11 +23,6 @@
             <a href="menus.php">menus</a>
         </div>
 
-        <div class="belt status">
-            <div class="message"></div>
-            <div class="text-right"><button id="statusColseBtn" type="button" class="link">&times; Close</button></div>
-        </div>
-
         <div class="contents">
             <form name="theForm" method="post">
             <div class="row">
@@ -45,6 +40,12 @@
             <?= $jj->xsrfHidden() ?>
             </form>
         </div>
+        
+        <div class="belt status fold">
+            <div class="message"></div>
+            <div class="text-right"><button id="statusColseBtn" type="button" class="link">&times; Close</button></div>
+        </div>
+
     </div>
     <script>
     window.onload = function() {
@@ -59,7 +60,9 @@
 
         b._toText("message");
 
-        b.io._showOn("status");
+        // b.io._showOn("status");
+        b.io._addClassOn("status", "un info");
+
         b.io._after("status", function (value) {
             b.message = Global.getMsg(value);
         });
