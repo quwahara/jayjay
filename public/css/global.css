@@ -1,3 +1,43 @@
+.hidden {
+    visibility: hidden !important;
+}
+
+.none {
+    display: none !important;
+}
+
+.contact {
+    margin: 0px;
+    padding: 0px;
+    line-height: 1em;
+}
+
+.ib {
+    display: inline-block;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.bdr1 {
+    border-left: 1px solid #555;    
+    border-top: 1px solid #555;    
+    border-right: 1px solid #555;    
+}
+
+.pad4 {
+    padding: 4px 8px 4px 8px;
+}
+
 html {
   /* 10px */
   /* font-size: 62.5%; */
@@ -21,6 +61,8 @@ h4 {
 h5 {
   font-size: 1.0rem;
 }
+
+
 
 
 /* The Modal (background) */
@@ -118,4 +160,20 @@ h5 {
   padding: 2px 16px;
   background-color: #5cb85c;
   color: white;
+}
+
+/********************************************************************************
+ * snackbar
+ */
+.snackbar {
+    position: fixed;
+    width: 100%;
+     /* Hidden by default. Visible on click */
+    top: 100%;
+    -webkit-transition: top 0.6s ease-in-out;
+    transition: top 0.6s ease-in-out;
+}
+
+.snackbar .message {
+    min-height: 60px;
 }

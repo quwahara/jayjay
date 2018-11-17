@@ -5,6 +5,7 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
     <link rel="stylesheet" type="text/css" href="css/global.css">
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/brx/brx.js"></script>
@@ -40,15 +41,12 @@
             <?= $jj->xsrfHidden() ?>
             </form>
         </div>
-        
-        <div class="belt status fold">
-            <div class="message"></div>
-            <div class="text-right"><button id="statusColseBtn" type="button" class="link">&times; Close</button></div>
-        </div>
 
     </div>
     <script>
     window.onload = function() {
+
+
         var data = <?= $jj->dataJSON ?>;
 
         var vs = Brx.validations;
@@ -58,14 +56,12 @@
             io: data["models"]
         });
 
-        b._toText("message");
-
+// >>
         // b.io._showOn("status");
-        b.io._addClassOn("status", "un info");
-
-        b.io._after("status", function (value) {
-            b.message = Global.getMsg(value);
-        });
+        // b.io._addClassOn("status", "un gray");
+        // b.io._addClassOn("status", "un info");
+// >>
+        // b.io._addClassOn("status", "show");
 
         b.io.user._bind("name", {
             "validations": [vs.lengthMinMax({min: 1, max: 6})],
@@ -75,6 +71,7 @@
         });
 
         Brx.on("click", "#loginBtn", function (event) {
+            Global.snackbar.close();
             b.io.status = "";
             axios.post("login.php", b.io)
             .then(function (response) {
@@ -86,8 +83,23 @@
             })
             .catch(Global.catcher(b.io));
         });
+
+        Global.snackbar("#snackbar");
+        b._toText("message");
+
+        b.io._after("status", function (value) {
+            b.message = Global.getMsg(value);
+            if ("" === b.message) {
+
+            } else {
+                Global.snackbar.messageDiv.classList.add("warning");
+                Global.snackbar.maximize();
+            }
+        });
+
     };
     </script>
+    <div id="snackbar"></div>
 </body>
 </html>
 <?php

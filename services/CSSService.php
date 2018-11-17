@@ -82,10 +82,6 @@ button.link {
   font: inherit;
 }
 
-.text-right {
-  text-align: right;
-}
-
 .hide {
   display: none;
 }
@@ -99,6 +95,13 @@ div.belt {
   padding-right: 1.0rem;
   padding-top: 1.0rem;
   padding-bottom: 0.8rem;
+}
+
+.belt.gray {
+    color: hsl(0, 0%, 25%);
+    background: hsl(0, 0%, 85%);
+    border-top: solid 1px hsl(0, 0%, 25%);
+    border-bottom: solid 1px hsl(0, 0%, 25%);
 }
 
 .belt.info {
@@ -118,8 +121,10 @@ div.belt {
 .belt.warning {
   color: hsl(60, 85%, 25%);
   background: hsl(60, 85%, 85%);
+  /*
   border-top: solid 1px hsl(60, 85%, 25%);
   border-bottom: solid 1px hsl(60, 85%, 25%);
+  */
 }
 
 .belt.error {
@@ -167,27 +172,6 @@ div.row {
   margin: 0.0rem 1.0rem 1.0rem 0.0rem;
 }
 
-.fold {
-    padding: 0;
-    transition: height 0.6s;
-    height: 0px;
-    /*
-    background-color: red;
-    */
-}
-
-.fold>* {
-    display: none;
-}
-
-.un.fold {
-    padding: 1.0rem 1.0rem 0.8rem 1.0rem;
-    height: 4.0rem;
-}
-
-.un.fold>* {
-    display: block;
-}
 
 EOS;
     return $this;

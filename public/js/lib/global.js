@@ -203,7 +203,7 @@
         m.cancelButton.textContent = m.opts.cancel.text;
 
         m.open = function () {
-          document.querySelector("body").appendChild(this.placeholder);
+          document.body.appendChild(this.placeholder);
           this.modal.style.display = "block";
           return this;
         };
@@ -247,7 +247,62 @@
 
     Global.modal = modal;
 
-
+    /********************************************************************************
+     * snackbar
+     */
+    Global.snackbar = (function () {
+      return function(selectors) {
+        var self = Global.snackbar;
+        self.html = '' +
+        '<div class="snackbar">' +
+        '  <div class="window-btn-belt contact text-right" style="height: 20px; padding-right: 8px; border-bottom: 1px solid #555;">' +
+        '      <!-- https://fontawesome.com/icons?d=gallery&s=solid&m=free -->' +
+        '      <div class="window-btn min ib bdr1 pad4 none">' +
+        '          <i class="far fa-window-minimize"></i>' +
+        '      </div>' +
+        '      <div class="window-btn max ib bdr1 pad4 none">' +
+        '          <i class="far fa-window-maximize"></i>' +
+        '      </div>' +
+        '      <div class="window-btn close ib bdr1 pad4 none">' +
+        '          <i class="far fa-window-close"></i>' +
+        '      </div>' +
+        '  </div>' +
+        '  <div class="belt message">' +
+        '  </div>' +
+        '</div>' +
+        '';
+  
+        var elm = document.querySelector(selectors);
+        elm.innerHTML = self.html;
+        self.element = elm.querySelector(".snackbar");
+        self.minBtn = self.element.querySelector(".window-btn.min");
+        self.maxBtn = self.element.querySelector(".window-btn.max");
+        self.closeBtn = self.element.querySelector(".window-btn.close");
+        self.messageDiv = self.element.querySelector(".message");
+        self.maximize = function() {
+          self.minBtn.classList.remove("none");
+          self.maxBtn.classList.add("none");
+          // self.closeBtn.classList.remove("none");
+          self.element.style.top = "calc(100% - " + self.element.clientHeight + "px)";
+        };
+        self.minimize = function() {
+          self.minBtn.classList.add("none");
+          self.maxBtn.classList.remove("none");
+          // self.closeBtn.classList.remove("none");
+          self.element.style.top = "calc(100% - " + self.element.querySelector(".window-btn-belt").clientHeight + "px";
+        };
+        self.close = function() {
+          self.minBtn.classList.add("none");
+          self.maxBtn.classList.add("none");
+          self.closeBtn.classList.add("none");
+          self.element.style.top = "calc(100% - " + self.element.querySelector(".window-btn-belt").clientHeight + "px";
+        };
+        elm.querySelector(".window-btn.min").addEventListener("click", self.minimize);
+        elm.querySelector(".window-btn.max").addEventListener("click", self.maximize);
+        elm.querySelector(".window-btn.close").addEventListener("click", self.close);
+        return self;
+      };
+    })();
 
     return Global;
   })();
