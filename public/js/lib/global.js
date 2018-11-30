@@ -69,6 +69,10 @@
       en[key] = "Bad Request";
       ja[key] = "不正なリクエストです";
 
+      key = "#http-status-403";
+      en[key] = "Forbidden";
+      ja[key] = "禁止されています";
+
       key = "#http-status-404";
       en[key] = "Not Found";
       ja[key] = "見つかりません";

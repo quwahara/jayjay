@@ -1,6 +1,7 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
-    'models' => ['user'],
+    'access' => 'public',
     'get' => function (\JJ\JJ $jj) {
+        $jj->logout();
         ?>
 <html>
 <head>
@@ -12,12 +13,12 @@
     <script src="js/lib/global.js"></script>
     <?= '<style>' . $jj->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home</title>
+    <title>Logout</title>
 </head>
 <body>
     <div>
         <div class="belt">
-            <h1>Home</h1>
+            <h1>Logout</h1>
         </div>
 
         <div class="belt bg-mono-09">
@@ -25,9 +26,8 @@
         </div>
 
         <div class="contents">
-            <div><a href="logout.php">Log out</a></div>
-            <div><a href="table-definition.php">Table definition</a></div>
-            <div><a href="lab.php">Lab</a></div>
+            <div>Logged out</div>
+            <div>Go to <a href="index.php"> Index page</a></div>
         </div>
 
     </div>

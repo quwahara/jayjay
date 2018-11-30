@@ -1,5 +1,10 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
-    'models' => ['user'],
+    'models' => [
+        'models[]' => [
+            'name' => '',
+            'createTable' => ''
+        ]
+    ],
     'get' => function (\JJ\JJ $jj) {
         ?>
 <html>
@@ -12,12 +17,12 @@
     <script src="js/lib/global.js"></script>
     <?= '<style>' . $jj->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home</title>
+    <title>Table definition</title>
 </head>
 <body>
     <div>
         <div class="belt">
-            <h1>Home</h1>
+            <h1>Table definition</h1>
         </div>
 
         <div class="belt bg-mono-09">
@@ -25,9 +30,7 @@
         </div>
 
         <div class="contents">
-            <div><a href="logout.php">Log out</a></div>
-            <div><a href="table-definition.php">Table definition</a></div>
-            <div><a href="lab.php">Lab</a></div>
+            TBD
         </div>
 
     </div>

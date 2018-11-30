@@ -10,5 +10,13 @@ return [
         'hidden_name' => '_xsrf',
         'header_name' => 'X-XSRF-TOKEN',
     ],
+    'login' => [
+        'loggedin_variable_name' => 'loggedin',
+        'redirect_path' => 'index.php',
+        'redirect_server_vars_name' => 'redirect_server_vars',
+    ],
+    'access_denied' => [
+        'redirect_path' => 'forbidden.php'
+    ]
 ];
 ?>

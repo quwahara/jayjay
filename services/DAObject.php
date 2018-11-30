@@ -43,6 +43,15 @@ class DAObject
         return null;
     }
 
+    public function attachTypes($nameVsValues)
+    {
+        $nameValueTypes = [];
+        foreach ($nameVsValues as $name => $value) {
+            $nameValueTypes[] = $this->attachType($name, $value);
+        }
+        return $nameValueTypes;
+    }
+
     public function attachType($name, $value)
     {
         $column = $this->getColumnByFieldName($name);
@@ -60,24 +69,20 @@ class DAObject
         ];
     }
 
-    public function attachTypes($nameVsValues)
+    public function attFindAllBy($nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
     {
-        $nameValueTypes = [];
-        foreach ($nameVsValues as $name => $value) {
-            $nameValueTypes[] = $this->attachType($name, $value);
-        }
-        return $nameValueTypes;
+        return $this->findAllBy($this->attachTypes($nameVsValues), $fetch_style);
     }
 
     public function findAllBy($nameValueTypes, $fetch_style = PDO::FETCH_ASSOC)
     {
         $el = PHP_EOL;
         $sql = "select * from {$this->table['tableName']} where TRUE {$el}";
-        
+
         foreach ($nameValueTypes as $nvt) {
             $sql .= "and {$nvt['name']} = :{$nvt['name']}{$el}";
         }
-        
+
         $pdo = $this->da->pdo;
         $st = $pdo->prepare($sql);
         if (!$st) {
@@ -94,12 +99,12 @@ class DAObject
 
         return $st->fetchAll($fetch_style);
     }
-    
-    public function attFindAllBy($nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
+
+    public function attFindOneBy($nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
     {
-        return $this->findAllBy($this->attachTypes($nameVsValues), $fetch_style);
+        return $this->findOneBy($this->attachTypes($nameVsValues), $fetch_style);
     }
-    
+
     public function findOneBy($nameValueTypes, $fetch_style = PDO::FETCH_ASSOC)
     {
         $results = $this->findAllBy($nameValueTypes, $fetch_style);
@@ -109,12 +114,7 @@ class DAObject
             return null;
         }
     }
-    
-    public function attFindOneBy($nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
-    {
-        return $this->findOneBy($this->attachTypes($nameVsValues), $fetch_style);
-    }
-    
+
     public function updateBy($setNameValueTypes, $whereNameValueTypes = null)
     {
         $el = PHP_EOL;
@@ -153,7 +153,7 @@ class DAObject
             throw new Exception(print_r($st->errorInfo(), true));
         }
     }
-    
+
     public function updateById($nameValueTypes)
     {
         $setNameValueTypes = [];
@@ -169,13 +169,39 @@ class DAObject
         if (count($whereNameValueTypes) === 0) {
             throw new Exception("Not found Id in params");
         }
-        
+
         $this->updateBy($setNameValueTypes, $whereNameValueTypes);
     }
-    
+
     public function attUpdateById($nameVsValues)
     {
         $this->updateById($this->attachTypes($nameVsValues));
     }
-    
+
+    public function createTable(bool $enableIfNotExists = false): string
+    {
+        $el = PHP_EOL;
+        $s = '';
+        $s .= 'CREATE TABLE';
+        if ($enableIfNotExists) {
+            $s .= ' IF NOT EXISTS';
+        }
+        $s .= " {$this->table['tableName']} (" . $el;
+
+        $defs = [];
+        foreach ($this->table['columns'] as $column) {
+            $defs[] = "{$column['fieldName']} {$column['definition']}";
+        }
+        if (array_key_exists('index_definitions', $this->table)) {
+            foreach ($this->table['index_definitions'] as $def) {
+                $defs[] = $def;
+            }
+        }
+
+        $s .= implode($defs, ',' . $el);
+        $s .= $el . ');' . $el;
+
+        return $s;
+    }
+
 }

@@ -1,4 +1,6 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
+    // Giving permission to access without logged in
+    'access' => 'public',
     'models' => ['user'],
     'get' => function (\JJ\JJ $jj) {
         ?>
@@ -21,33 +23,30 @@
         </div>
 
         <div class="belt bg-mono-09">
-            <a href="menus.php">menus</a>
+            <div>&nbsp;</div>
         </div>
 
         <div class="contents">
             <form name="theForm" method="post">
-            <div class="row">
-                <label for="name">Username</label>
-                <input type="text" name="name" id="name" class="name">
-            </div>
-            <div class="row">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" class="password">
-            </div>
-            <div class="row">
-                <div class="label"></div>
-                <button type="button" id="loginBtn">Login</button>
-            </div>
-            <?= $jj->xsrfHidden() ?>
+                <div class="row">
+                    <label for="name">Username</label>
+                    <input type="text" name="name" id="name" class="name">
+                </div>
+                <div class="row">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" class="password">
+                </div>
+                <div class="row">
+                    <div class="label"></div>
+                    <button type="button" id="loginBtn">Login</button>
+                </div>
             </form>
         </div>
 
     </div>
     <script>
     window.onload = function() {
-
-
-        var data = <?= $jj->dataJSON ?>;
+        var data = <?= $jj->dataAsJSON() ?>;
 
         var vs = Brx.validations;
 
@@ -73,11 +72,11 @@
         Brx.on("click", "#loginBtn", function (event) {
             Global.snackbar.close();
             b.io.status = "";
-            axios.post("login.php", b.io)
+            axios.post("index.php", b.io)
             .then(function (response) {
                 console.log(response.data);
                 if (response.data.io.status === "#login-succeeded") {
-                    window.location.href = window.location.href.replace("/login.php", "/home.php");
+                    window.location.href = window.location.href.replace("/index.php", "/home.php");
                 }
                 b.io = response.data.io;
             })
@@ -106,14 +105,13 @@
 
 },
 'post application/json' => function (\JJ\JJ $jj) {
-    // $jj->data['io'] = $jj->readJson();
     $user = $jj->dao('user')->attFindOneBy(['name' => $jj->data['io']['user']['name']]);
     if ($user && password_verify($jj->data['io']['user']['password'], $user['password'])) {
+        $jj->login(['user_id' => $user['name']]);
         $jj->data['io']['status'] = '#login-succeeded';
     } else {
         $jj->data['io']['status'] = '#login-failed';
     }
-    $jj->responseJson();
 }
 ]);
 ?>
