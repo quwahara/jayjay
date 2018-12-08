@@ -12,11 +12,22 @@ return [
                 ],
                 [
                     'fieldName' => 'name',
-                    'definition' => 'VARCHAR(60) CHARACTER SET latin1 NOT NULL'
+                    'definition' => 'VARCHAR(60) CHARACTER SET latin1 NOT NULL',
+                    // Attributes for input tag
+                    'attr' => [
+                        'required' => '',   // Turns required attribute on
+                        'minlength' => 6,
+                        'maxlength' => 60,
+                    ]
                 ],
                 [
                     'fieldName' => 'password',
-                    'definition' => 'VARCHAR(60) CHARACTER SET latin1 NOT NULL'
+                    'definition' => 'VARCHAR(60) CHARACTER SET latin1 NOT NULL',
+                    'attr' => [
+                        'required' => '',
+                        'minlength' => 8,
+                        'maxlength' => 60,
+                    ]
                 ],
             ],
             'index_definitions' => [

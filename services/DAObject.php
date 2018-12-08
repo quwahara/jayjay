@@ -24,7 +24,23 @@ class DAObject
         return $this;
     }
 
-    public function createModel()
+    public function getAttrsAll() : array
+    {
+        $attrs = [];
+        foreach ($this->table['columns'] as $column) {
+            $fieldName = $column['fieldName'];
+            $attrs[$fieldName] = $this->getAttrByFieldName($fieldName);
+        }
+        return $attrs;
+    }
+
+    public function getAttrByFieldName(string $fieldName) : array
+    {
+        $column = $this->getColumnByFieldName($fieldName);
+        return isset($column) && array_key_exists('attr', $column) ? $column['attr'] : [];
+    }
+
+    public function createModel() : array
     {
         $model = [];
         foreach ($this->table['columns'] as $column) {
@@ -33,7 +49,7 @@ class DAObject
         return $model;
     }
 
-    public function getColumnByFieldName($fieldName)
+    public function getColumnByFieldName(string $fieldName) : array
     {
         foreach ($this->table['columns'] as $column) {
             if ($column['fieldName'] === $fieldName) {
@@ -178,7 +194,7 @@ class DAObject
         $this->updateById($this->attachTypes($nameVsValues));
     }
 
-    public function createTable(bool $enableIfNotExists = false): string
+    public function createTable(bool $enableIfNotExists = false) : string
     {
         $el = PHP_EOL;
         $s = '';
@@ -201,6 +217,18 @@ class DAObject
         $s .= implode($defs, ',' . $el);
         $s .= $el . ');' . $el;
 
+        return $s;
+    }
+
+    public function dropTable(bool $enableIfExists = false) : string
+    {
+        $el = PHP_EOL;
+        $s = '';
+        $s .= 'DROP TABLE';
+        if ($enableIfExists) {
+            $s .= ' IF EXISTS';
+        }
+        $s .= " {$this->table['tableName']};" . $el;
         return $s;
     }
 

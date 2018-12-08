@@ -3,7 +3,7 @@
         'models[]' => [
             'name' => '',
             'createTable' => ''
-        ]
+        ],
     ],
     'get' => function (\JJ\JJ $jj) {
         ?>

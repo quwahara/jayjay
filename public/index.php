@@ -30,11 +30,11 @@
             <form name="theForm" method="post">
                 <div class="row">
                     <label for="name">Username</label>
-                    <input type="text" name="name" id="name" class="name">
+                    <input type="text" name="name">
                 </div>
                 <div class="row">
                     <label for="password">Password</label>
-                    <input type="password" name="password" id="password" class="password">
+                    <input type="password" name="password">
                 </div>
                 <div class="row">
                     <div class="label"></div>

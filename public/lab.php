@@ -14,9 +14,10 @@
     'get' => function (\JJ\JJ $jj) {
         $models = [];
         foreach ($jj->dbdec_['tables'] as $table) {
-            $models []= [
+            $models[] = [
                 'name' => $table['tableName'],
                 'createTable' => $jj->dao($table['tableName'])->createTable(),
+                'dropTable' => $jj->dao($table['tableName'])->dropTable(),
             ];
         }
         $jj->data['io']['models'] = $models;
@@ -49,11 +50,22 @@
 
         <div class="contents">
             <div class="models">
-                <div>
-                    <h3 class="name"></h3>
-                    <div><button class="create">Create</button></div>
-                    <pre class="createTable">
-                    </pre>
+                <div class="model">
+                        <h3 class="name"></h3>
+                        <div>
+                            <form>
+                                <button name="command" value="create">Create</button>
+                                <input type="hidden" name="tableName">
+                            </form>
+                            <form>
+                                <button name="command" value="drop">Drop</button>
+                                <input type="hidden" name="tableName">
+                            </form>
+                        </div>
+                        <pre class="createTable">
+                        </pre>
+                        <pre class="dropTable">
+                        </pre>
                 </div>
             </div>
         </div>
@@ -70,27 +82,31 @@
 
         brx.io._each("models", function (item) {
             item._toText("name");
-            item._toAttr("name", "id", {query: "button.create"});
-            Brx.on("click", "#" + item.name, function(event) {
+            item._toAttr("name", "name", {query: "input[name='tableName']"});
+            // item._toData("name", "arg2", {query: ".create"});
+            // item._toAttr("name", "name", {query: ".drop", prefix: "drop_"});
+            // item._toAttr("name", "dataArg", {query: "button[name='create']"});
+            Brx.on("click", "button[name='command']", function(event) {
                 // alert(event.target.id);
 
                 Global.snackbar.close();
-                brx.io.status = "";
-                brx.io.command.command = "create";
-                brx.io.command.args = [event.target.id];
-                axios.post("lab.php", brx.io)
-                .then(function (response) {
-                    console.log(response.data);
-                    // if (response.data.io.status === "#login-succeeded") {
-                    //     window.location.href = window.location.href.replace("/index.php", "/home.php");
-                    // }
-                    // brx.io = response.data.io;
-                })
-                .catch(Global.catcher(brx.io));
+                // brx.io.status = "";
+                // brx.io.command.command = event.target.name;
+                // brx.io.command.args = [event.target.dataset.arg1, event.target.dataset.arg2];
+                // axios.post("lab.php", brx.io)
+                // .then(function (response) {
+                //     console.log(response.data);
+                //     // if (response.data.io.status === "#login-succeeded") {
+                //     //     window.location.href = window.location.href.replace("/index.php", "/home.php");
+                //     // }
+                //     // brx.io = response.data.io;
+                // })
+                // .catch(Global.catcher(brx.io));
 
 
             });
             item._toText("createTable");
+            item._toText("dropTable");
         });
 
         brx.io = data.io;

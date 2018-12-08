@@ -96,7 +96,7 @@ class JJ
     }
 
     /**
-     * Do response on forbidden raised
+     * Response forbidden
      * 
      * This method exits and never returns.
      *
@@ -111,6 +111,25 @@ class JJ
             $this->responseJsonThenExit();
         } else {
             $this->redirectThenExit($this->config_['access_denied']['redirect_path']);
+        }
+    }
+
+    /**
+     * Response internal server error
+     * 
+     * This method exits and never returns.
+     *
+     * @return void
+     */
+    public function responseInternalServerErrorThenExit()
+    {
+        $this->data = null;
+        $this->responseCode = 500;  // Internal Server Error
+
+        if ($this->isJsonRequested()) {
+            $this->responseJsonThenExit();
+        } else {
+            $this->redirectThenExit($this->config_['internal_server_error']['redirect_path']);
         }
     }
 
@@ -149,22 +168,64 @@ class JJ
         return $this;
     }
 
-    public function initModels($models)
+    /**
+     * Initialize model declarations
+     *
+     * $models argument examples
+     * [
+     *      // #1
+     *      'model_name',               // model_name is expected to be declared in dbdec.php
+     *                                  // The initialized models turned into key-value array.
+     *
+     *      // #2
+     *      'model_name[]',             // model_name is expected to be declared in dbdec.php
+     *                                  // The initialized models turned into array of key-value array.
+     *
+     *      // #3
+     *      'literal_model_name' =>
+     *      [
+     *          'string_field' => '',   // string_field is string
+     *          'number_field' => 0,    // number_field is number 
+     *      ],
+     *
+     *      // #4
+     *      'literal_model_name[]' =>
+     *      [
+     *          'string_field' => '',   // string_field is string
+     *          'number_field' => 0,    // number_field is number 
+     *      ],
+     * ]
+     * 
+     * @param array $models names of declared model in dbdec.php or literal declarations.
+     * @return JJ $this instance
+     */
+    public function initModels(array $models) : JJ
     {
         foreach ($models as $key => $value) {
             // When a string was supplied, the string is name of model.
             // It creates model from DAO by the name.
             if (is_int($key) && is_string($value)) {
-                if ($this->endsWith($value, '[]')) {
+                $isArray = $this->endsWith($value, '[]');
+                if ($isArray) {
                     $model2 = mb_substr($value, 0, mb_strlen($value) - 2);
-                    $theModel = [$this->dao($model2)->createModel()];
                 } else {
                     $model2 = $value;
-                    $theModel = $this->dao($model2)->createModel();
                 }
+                $dao = $this->dao($model2);
+                if ($isArray) {
+                    $theModel = [$dao->createModel()];
+                } else {
+                    $theModel = $dao->createModel();
+                }
+                $attrs = $dao->getAttrsAll();
+
             // When key was string and value was array, the key is name of model.
             // The value was assumed the model itself.
             } else if (is_string($key) && is_array($value)) {
+
+                if ($this->endsWith($key, '$')) {
+                    continue;
+                }
                 if ($this->endsWith($key, '[]')) {
                     $model2 = mb_substr($key, 0, mb_strlen($key) - 2);
                     $theModel = [$value];
@@ -172,10 +233,24 @@ class JJ
                     $model2 = $key;
                     $theModel = $value;
                 }
+                if (array_key_exists($model2 . '$', $models)) {
+                    $attrs = $models[$model2 . '$'];
+                } else {
+                    $attrs = [];
+                }
             } else {
                 throw new Exception('The structure of models argument was bad.');
             }
             $this->data['models'][$model2] = $theModel;
+            $this->data['models'][$model2.'$'] = $attrs;
+        }
+        return $this;
+    }
+
+    public function initAttrs(array $attrs) : JJ
+    {
+        foreach ($attrs as $attr) {
+            $this->data['attrs'][$attr] = $this->dao($attr)->getAttrsAll();;
         }
         return $this;
     }
@@ -395,9 +470,16 @@ class JJ
 }
 
 return (function (array $args) {
-    $jj = (new JJ())->initConfig($args)->verifyAccess();
-    if ($jj->accessAllowed) {
-        $jj->init()->dispatch();
+    $jj = (new JJ())->initConfig($args);
+    try {
+        $jj->verifyAccess();
+        if ($jj->accessAllowed) {
+            $jj->init()->dispatch();
+        }
+    } catch (\Throwable $th) {
+        throw $th;
+        // $jj->responseInternalServerErrorThenExit();
+        error_log(var_export($th, true));
     }
     return $jj;
 });

@@ -16,7 +16,10 @@ return [
         'redirect_server_vars_name' => 'redirect_server_vars',
     ],
     'access_denied' => [
-        'redirect_path' => 'forbidden.php'
-    ]
+        'redirect_path' => 'errors/forbidden.php'
+    ],
+    'internal_server_error' => [
+        'redirect_path' => 'errors/internal-server-error.php'
+    ],
 ];
 ?>

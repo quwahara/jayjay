@@ -62,6 +62,10 @@ h5 {
   font-size: 1.0rem;
 }
 
+input[type='text'].h5v:invalid {
+    border: solid 1px red;
+    background-color: lightpink;
+}
 
 
 
