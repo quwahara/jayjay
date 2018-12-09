@@ -18,7 +18,7 @@ class DAService
         return $this;
     }
 
-    public function createTables()
+    public function createTableDDLs()
     {
         $el = PHP_EOL;
         foreach ($this->dbdec_['tables'] as $table) {

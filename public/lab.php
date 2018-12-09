@@ -2,7 +2,7 @@
     'models' => [
         'models[]' => [
             'name' => '',
-            'createTable' => ''
+            'createTableDDL' => ''
         ],
         'command' => [
             'command' => '',
@@ -15,9 +15,9 @@
         $models = [];
         foreach ($jj->dbdec_['tables'] as $table) {
             $models[] = [
-                'name' => $table['tableName'],
-                'createTable' => $jj->dao($table['tableName'])->createTable(),
-                'dropTable' => $jj->dao($table['tableName'])->dropTable(),
+                'tableName' => $table['tableName'],
+                'createTableDDL' => $jj->dao($table['tableName'])->createTableDDL(),
+                'dropTableDDL' => $jj->dao($table['tableName'])->dropTableDDL(),
             ];
         }
         $jj->data['io']['models'] = $models;
@@ -51,20 +51,22 @@
         <div class="contents">
             <div class="models">
                 <div class="model">
-                        <h3 class="name"></h3>
+                        <h3 class="tableName"></h3>
                         <div>
                             <form>
-                                <button name="command" value="create">Create</button>
+                                <input type="hidden" name="command" value="create">
                                 <input type="hidden" name="tableName">
+                                <button type="button">Create</button>
                             </form>
                             <form>
-                                <button name="command" value="drop">Drop</button>
+                                <input type="hidden" name="command" value="drop">
                                 <input type="hidden" name="tableName">
+                                <button type="button">Drop</button>
                             </form>
                         </div>
-                        <pre class="createTable">
+                        <pre class="createTableDDL">
                         </pre>
-                        <pre class="dropTable">
+                        <pre class="dropTableDDL">
                         </pre>
                 </div>
             </div>
@@ -73,40 +75,43 @@
     </div>
     <script>
     window.onload = function() {
-        Global.snackbar("#snackbar");
 
         var data = <?= $jj->dataAsJSON() ?>;
         var brx = new Brx({
+            message: "",
             io: data.models
         });
+        
+        Global.snackbar("#snackbar");
+        brx._.focus("message").text();
 
         brx.io._each("models", function (item) {
-            item._toText("name");
-            item._toAttr("name", "name", {query: "input[name='tableName']"});
-            // item._toData("name", "arg2", {query: ".create"});
-            // item._toAttr("name", "name", {query: ".drop", prefix: "drop_"});
-            // item._toAttr("name", "dataArg", {query: "button[name='create']"});
-            Brx.on("click", "button[name='command']", function(event) {
-                // alert(event.target.id);
+            item._
+                .focus("tableName").text()
+                .queryByName().attr("value")
+                .query("button")
+                .on("click", function (event) {
+                    Global.snackbar.close();
+                    brx.io.status = "";
+                    axios.post("lab.php", new FormData(Brx.goUpParentByTagName(event.target, "form")))
+                    .then(function (response) {
+                        console.log(response.data);
+                        brx.message = response.data.message;
+                        if ("" !== brx.message) {
+                            Global.snackbar.messageDiv.classList.add("warning");
+                            Global.snackbar.maximize();
+                        }
 
-                Global.snackbar.close();
-                // brx.io.status = "";
-                // brx.io.command.command = event.target.name;
-                // brx.io.command.args = [event.target.dataset.arg1, event.target.dataset.arg2];
-                // axios.post("lab.php", brx.io)
-                // .then(function (response) {
-                //     console.log(response.data);
-                //     // if (response.data.io.status === "#login-succeeded") {
-                //     //     window.location.href = window.location.href.replace("/index.php", "/home.php");
-                //     // }
-                //     // brx.io = response.data.io;
-                // })
-                // .catch(Global.catcher(brx.io));
-
-
-            });
-            item._toText("createTable");
-            item._toText("dropTable");
+                        // if (response.data.io.status === "#login-succeeded") {
+                        //     window.location.href = window.location.href.replace("/index.php", "/home.php");
+                        // }
+                        // brx.io = response.data.io;
+                    })
+                    .catch(Global.catcher(brx.io));
+                })
+                .focus("createTableDDL").text()
+                .focus("dropTableDDL").text()
+                ;
         });
 
         brx.io = data.io;
@@ -117,18 +122,42 @@
 <?php
 
 },
-'post application/json' => function (\JJ\JJ $jj) {
-    //TODO post from browser
+'post multipart/form-data' => function (\JJ\JJ $jj) {
 
-    $jj->data['io'] = $jj->readJson();
-    // $user = $jj->dao('user')->attFindOneBy(['name' => $jj->data['io']['user']['name']]);
-    // if ($user && password_verify($jj->data['io']['user']['password'], $user['password'])) {
-    //     $jj->login(['user_id' => $user['name']]);
-    //     $jj->data['io']['status'] = '#login-succeeded';
-    // } else {
-    //     $jj->data['io']['status'] = '#login-failed';
-    // }
-    $jj->responseJson();
-}
+    $command = $_POST['command'];
+    $tableName = $_POST['tableName'];
+
+    if (!in_array($command, ['create', 'drop'], true)) {
+        $jj->data['message'] = 'Not supported command.';
+        $jj->responseJsonThenExit();
+    }
+
+    $table = $jj->dao($tableName);
+    if (is_null($table)) {
+        $jj->data['message'] = 'Not defined table name.';
+        $jj->responseJsonThenExit();
+    }
+
+    try {
+        if ($command === 'create') {
+            $ddl = $table->createTableDDL();
+            $table->execute($ddl);
+            $jj->data['message'] = 'OK';
+            $jj->responseJsonThenExit();
+        } else if ($command === 'drop') {
+            $ddl = $table->dropTableDDL();
+            $table->execute($ddl);
+            $jj->data['message'] = 'OK';
+            $jj->responseJsonThenExit();
+        }
+    } catch (\Throwable $th) {
+        $jj->data['message'] = 'NG';
+        $jj->data['detail'] = print_r($th, true);
+        $jj->responseJsonThenExit();
+    }
+
+    $jj->data['message'] = 'NOP';
+    $jj->responseJsonThenExit();
+},
 ]);
 ?>

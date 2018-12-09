@@ -17,6 +17,7 @@ class JJ
     public $dbdec_;
     public $da_;
     public $db_;
+    public $tables_;
 
     public $accessAllowed;
     public $daos;
@@ -36,6 +37,7 @@ class JJ
             require __DIR__ . '/../config/global.php'
         );
         $this->dbdec_ = require __DIR__ . '/../config/dbdec.php';
+        $this->tables_ = $this->dbdec_['tables'];
         $this->args = $args;
         return $this;
     }
@@ -242,7 +244,7 @@ class JJ
                 throw new Exception('The structure of models argument was bad.');
             }
             $this->data['models'][$model2] = $theModel;
-            $this->data['models'][$model2.'$'] = $attrs;
+            $this->data['models'][$model2 . '$'] = $attrs;
         }
         return $this;
     }
@@ -367,10 +369,29 @@ class JJ
         return $this->db()->pdo()->rollBack();
     }
 
-    function dao($tableName)
+    function dao(string $tableName)
     {
-        return (new DAObject())->init($this->da(), $tableName);
+        $table = $this->getTableByTableName($tableName);
+        if (is_null($table)) {
+            return null;
+        }
+        return (new DAObject())->init($this->db()->pdo(), $table);
+        // return (new DAObject())->init($this->da(), $tableName);
     }
+
+    public function getTableByTableName($tableName)
+    {
+        foreach ($this->dbdec_['tables'] as $table) {
+            if ($table['tableName'] === $tableName) {
+                return $table;
+            } else if ($table['tableName.singular'] === $tableName) {
+                return $table;
+            }
+        }
+        return null;
+    }
+
+
 
     public function isGet() : bool
     {

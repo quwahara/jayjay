@@ -46,6 +46,11 @@ html {
   /* 14px */
   font-size: 87.5%;
 }
+form {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
 h1 {
   font-size: 1.6rem;
 }

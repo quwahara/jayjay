@@ -2,6 +2,38 @@
 return [
     'tables' => [
         [
+            'tableName' => 'tests',
+            'tableName.singular' => 'test',
+            'options' => [],
+            'columns' => [
+                [
+                    'fieldName' => 'id',
+                    'definition' => 'BIGINT NOT NULL AUTO_INCREMENT UNIQUE'
+                ],
+                [
+                    'fieldName' => 'apple',
+                    'definition' => 'VARCHAR(60) CHARACTER SET latin1 NOT NULL',
+                    // Attributes for input tag
+                    'attr' => [
+                        'required' => '',   // Turns required attribute on
+                        'minlength' => 1,
+                        'maxlength' => 60,
+                    ]
+                ],
+                [
+                    'fieldName' => 'banana',
+                    'definition' => 'VARCHAR(60) CHARACTER SET latin1 NOT NULL',
+                    'attr' => [
+                        'required' => '',
+                        'minlength' => 1,
+                        'maxlength' => 60,
+                    ]
+                ],
+            ],
+            'index_definitions' => [
+            ],
+        ],
+        [
             'tableName' => 'users',
             'tableName.singular' => 'user',
             'options' => [],

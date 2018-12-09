@@ -9,18 +9,13 @@ use Services\DAService;
 
 class DAObject
 {
-    public $da;
-    public $tableName;
+    public $pdo;
     public $table;
 
-    public function init($da, $tableName)
+    public function init($pdo, $table)
     {
-        $this->da = $da;
-        $this->tableName = $tableName;
-        $this->table = $da->getTableByTableName($tableName);
-        if (is_null($this->table)) {
-            throw new Exception("The '{$tableName}' was not declared.");
-        }
+        $this->pdo = $pdo;
+        $this->table = $table;
         return $this;
     }
 
@@ -99,7 +94,7 @@ class DAObject
             $sql .= "and {$nvt['name']} = :{$nvt['name']}{$el}";
         }
 
-        $pdo = $this->da->pdo;
+        $pdo = $this->pdo;
         $st = $pdo->prepare($sql);
         if (!$st) {
             throw new Exception(print_r($pdo->errorInfo(), true));
@@ -149,7 +144,7 @@ class DAObject
             }
         }
 
-        $pdo = $this->da->pdo;
+        $pdo = $this->pdo;
         $st = $pdo->prepare($sql);
         if (!$st) {
             throw new Exception(print_r($pdo->errorInfo(), true));
@@ -194,7 +189,7 @@ class DAObject
         $this->updateById($this->attachTypes($nameVsValues));
     }
 
-    public function createTable(bool $enableIfNotExists = false) : string
+    public function createTableDDL(bool $enableIfNotExists = false) : string
     {
         $el = PHP_EOL;
         $s = '';
@@ -220,7 +215,7 @@ class DAObject
         return $s;
     }
 
-    public function dropTable(bool $enableIfExists = false) : string
+    public function dropTableDDL(bool $enableIfExists = false) : string
     {
         $el = PHP_EOL;
         $s = '';
@@ -230,6 +225,18 @@ class DAObject
         }
         $s .= " {$this->table['tableName']};" . $el;
         return $s;
+    }
+
+    public function execute($sql)
+    {
+        $st = $this->pdo->prepare($sql);
+        if (!$st) {
+            throw new Exception(print_r($pdo->errorInfo(), true));
+        }
+
+        if (!$st->execute()) {
+            throw new Exception(print_r($st->errorInfo(), true));
+        }
     }
 
 }
