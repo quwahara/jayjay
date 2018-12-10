@@ -287,19 +287,19 @@
           self.minBtn.classList.remove("none");
           self.maxBtn.classList.add("none");
           // self.closeBtn.classList.remove("none");
-          self.element.style.top = "calc(100% - " + self.element.clientHeight + "px)";
+          self.element.style.top = "calc(100vh - " + self.element.clientHeight + "px)";
         };
         self.minimize = function() {
           self.minBtn.classList.add("none");
           self.maxBtn.classList.remove("none");
           // self.closeBtn.classList.remove("none");
-          self.element.style.top = "calc(100% - " + self.element.querySelector(".window-btn-belt").clientHeight + "px";
+          self.element.style.top = "calc(100vh - " + self.element.querySelector(".window-btn-belt").clientHeight + "px)";
         };
         self.close = function() {
           self.minBtn.classList.add("none");
           self.maxBtn.classList.add("none");
           self.closeBtn.classList.add("none");
-          self.element.style.top = "calc(100% - " + self.element.querySelector(".window-btn-belt").clientHeight + "px";
+          self.element.style.top = "calc(100vh - " + self.element.querySelector(".window-btn-belt").clientHeight + "px)";
         };
         elm.querySelector(".window-btn.min").addEventListener("click", self.minimize);
         elm.querySelector(".window-btn.max").addEventListener("click", self.maximize);
