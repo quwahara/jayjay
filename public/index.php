@@ -43,6 +43,7 @@
             </form>
         </div>
 
+<div class="apple"></div>
     </div>
     <script>
     window.onload = function() {
@@ -95,6 +96,15 @@
                 Global.snackbar.maximize();
             }
         });
+
+        var booq = new Brx.Booq({
+            apple: ""
+        });
+        booq.for("apple").text();
+        booq.data.apple = "fine";
+        // booq.data = {
+        //     apple: "fine"
+        // };
 
     };
     </script>
