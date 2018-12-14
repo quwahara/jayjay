@@ -44,6 +44,8 @@
         </div>
 
 <div class="apple"></div>
+<input type="text" name="banana">
+<div class="banana"></div>
     </div>
     <script>
     window.onload = function() {
@@ -98,10 +100,16 @@
         });
 
         var booq = new Brx.Booq({
-            apple: ""
+            apple: "",
+            banana: "",
         });
-        booq.for("apple").text();
+        booq
+        .for("apple").toText()
+        .for("banana").withValue()
+        .linkByClass().toText()
+        ;
         booq.data.apple = "fine";
+        booq.data.banana = "good";
         // booq.data = {
         //     apple: "fine"
         // };
