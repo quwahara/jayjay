@@ -44,6 +44,7 @@
         </div>
 
 <div class="apple"></div>
+<div class="butter"></div>
 <input type="text" name="banana">
 <div class="banana"></div>
     </div>
@@ -102,17 +103,30 @@
         var booq = new Brx.Booq({
             apple: "",
             banana: "",
+            cacao: {
+                butter: ""
+            }
         });
         booq
-        .for("apple").toText()
-        .for("banana").withValue()
-        .linkByClass().toText()
+        .apple.toText()
+        .cacao.butter.toText()
+        // .for("apple").toText()
+        // .for("banana").withValue()
+        // .linkByClass().toText()
+        // .cacao.for("butter").toText()
         ;
         booq.data.apple = "fine";
-        booq.data.banana = "good";
-        // booq.data = {
-        //     apple: "fine"
-        // };
+        booq.data.cacao.butter = "nice";
+        // booq.data.banana = "good";
+        booq.data = {
+            apple: "so fine",
+            cacao: {
+                butter: "so nice"
+            }
+        };
+        booq.data.cacao = {
+            butter: "very nice"
+        };
 
     };
     </script>
