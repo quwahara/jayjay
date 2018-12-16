@@ -43,10 +43,17 @@
             </form>
         </div>
 
-<div class="apple"></div>
-<div class="butter"></div>
-<input type="text" name="banana">
-<div class="banana"></div>
+        <div class="apple"></div>
+        <div class="butter"></div>
+        <input type="text" name="banana">
+        <div class="banana"></div>
+
+        <div>
+            <div class="dog">
+                <div class="egg"></div>
+            </div>
+        </div>
+
     </div>
     <script>
     window.onload = function() {
@@ -105,8 +112,14 @@
             banana: "",
             cacao: {
                 butter: ""
-            }
+            },
+            dog: [
+                {
+                    egg: ""
+                }
+            ]
         });
+
         booq
         .apple.toText()
         .cacao.butter.toText()
@@ -127,6 +140,15 @@
         booq.data.cacao = {
             butter: "very nice"
         };
+
+        booq.dog.each(function () {
+           this.egg.toText(); 
+        });
+        booq.data.dog = [
+            {
+                egg: "one"
+            }
+        ];
 
     };
     </script>
