@@ -24,7 +24,14 @@ class DAObject
         $attrs = [];
         foreach ($this->table['columns'] as $column) {
             $fieldName = $column['fieldName'];
-            $attrs[$fieldName] = $this->getAttrByFieldName($fieldName);
+            $attr = $this->getAttrByFieldName($fieldName);
+            // Empty PHP array turns to empty JS array by json_encode().
+            // Not empty assoc PHP array turns to JS Object.
+            // Attr is expected to be JS Object.
+            // This method doesn't returns empty PHP array to avoid producing empty JS array.
+            if (count($attr) > 0) {
+                $attrs[$fieldName] = $this->getAttrByFieldName($fieldName);
+            }
         }
         return $attrs;
     }

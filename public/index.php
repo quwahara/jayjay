@@ -42,114 +42,50 @@
                 </div>
             </form>
         </div>
-
-        <div class="apple"></div>
-        <div class="butter"></div>
-        <input type="text" name="banana">
-        <div class="banana"></div>
-
-        <div>
-            <div class="dog">
-                <div class="egg"></div>
-            </div>
-        </div>
-
+        
     </div>
     <script>
     window.onload = function() {
+        Global.snackbar("#snackbar");
         var data = <?= $jj->dataAsJSON() ?>;
 
-        var vs = Brx.validations;
+        var Booq = Brx.Booq;
 
-        var b = new Brx({
+        var booq = new Booq({
             message: "",
             io: data["models"]
         });
 
-// >>
-        // b.io._showOn("status");
-        // b.io._addClassOn("status", "un gray");
-        // b.io._addClassOn("status", "un info");
-// >>
-        // b.io._addClassOn("status", "show");
+        booq
+        .message.toText()
+        .io
+        .user
+        .name.withValue()
+        .password.withValue()
+        ;
 
-        b.io.user._bind("name", {
-            "validations": [vs.lengthMinMax({min: 1, max: 6})],
-        });
-        b.io.user._bind("password", {
-            "validations": [vs.lengthMinMax({min: 1, max: 100})],
-        });
-
-        Brx.on("click", "#loginBtn", function (event) {
+        Booq.q("#loginBtn").on("click", function() {
             Global.snackbar.close();
-            b.io.status = "";
-            axios.post("index.php", b.io)
+            booq.data.io.status = "";
+            axios.post("index.php", booq.data.io)
             .then(function (response) {
                 console.log(response.data);
                 if (response.data.io.status === "#login-succeeded") {
                     window.location.href = window.location.href.replace("/index.php", "/home.php");
                 }
-                b.io = response.data.io;
-            })
-            .catch(Global.catcher(b.io));
-        });
+                booq.data.io = response.data.io;
+                booq.data.message = Global.getMsg(booq.data.io.status);
+                if ("" === booq.data.message) {
 
-        Global.snackbar("#snackbar");
-        b._toText("message");
-
-        b.io._after("status", function (value) {
-            b.message = Global.getMsg(value);
-            if ("" === b.message) {
-
-            } else {
-                Global.snackbar.messageDiv.classList.add("warning");
-                Global.snackbar.maximize();
-            }
-        });
-
-        var booq = new Brx.Booq({
-            apple: "",
-            banana: "",
-            cacao: {
-                butter: ""
-            },
-            dog: [
-                {
-                    egg: ""
+                } else {
+                    Global.snackbar.messageDiv.classList.add("warning");
+                    Global.snackbar.maximize();
                 }
-            ]
+
+
+            })
+            .catch(Global.catcher(booq.data.io));
         });
-
-        booq
-        .apple.toText()
-        .cacao.butter.toText()
-        // .for("apple").toText()
-        // .for("banana").withValue()
-        // .linkByClass().toText()
-        // .cacao.for("butter").toText()
-        ;
-        booq.data.apple = "fine";
-        booq.data.cacao.butter = "nice";
-        // booq.data.banana = "good";
-        booq.data = {
-            apple: "so fine",
-            cacao: {
-                butter: "so nice"
-            }
-        };
-        booq.data.cacao = {
-            butter: "very nice"
-        };
-
-        booq.dog.each(function () {
-           this.egg.toText(); 
-        });
-        booq.data.dog = [
-            {
-                egg: "one"
-            }
-        ];
-
     };
     </script>
     <div id="snackbar"></div>
