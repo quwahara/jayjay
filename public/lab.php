@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
     <link rel="stylesheet" type="text/css" href="css/global.css">
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-    <script src="js/brx/brx.js"></script>
+    <script src="js/brx/booq.js"></script>
     <script src="js/lib/global.js"></script>
     <?= '<style>' . $jj->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -79,7 +79,6 @@
         Global.snackbar("#snackbar");
 
         var data = <?= $jj->dataAsJSON() ?>;
-        var Booq = Brx.Booq;
         var booq = new Booq({
             message: "",
             io: data.models
