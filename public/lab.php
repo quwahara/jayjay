@@ -1,8 +1,9 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'models' => [
         'models[]' => [
-            'name' => '',
-            'createTableDDL' => ''
+            'tableName' => '',
+            'createTableDDL' => '',
+            'dropTableDDL' => '',
         ],
         'command' => [
             'command' => '',
@@ -75,46 +76,43 @@
     </div>
     <script>
     window.onload = function() {
+        Global.snackbar("#snackbar");
 
         var data = <?= $jj->dataAsJSON() ?>;
-        var brx = new Brx({
+        var Booq = Brx.Booq;
+        var booq = new Booq({
             message: "",
             io: data.models
         });
-        
-        Global.snackbar("#snackbar");
-        brx._.focus("message").text();
 
-        brx.io._each("models", function (item) {
-            item._
-                .focus("tableName").text()
-                .queryByName().attr("value")
-                .query("button")
-                .on("click", function (event) {
-                    Global.snackbar.close();
-                    brx.io.status = "";
-                    axios.post("lab.php", new FormData(Brx.goUpParentByTagName(event.target, "form")))
-                    .then(function (response) {
-                        console.log(response.data);
-                        brx.message = response.data.message;
-                        if ("" !== brx.message) {
-                            Global.snackbar.messageDiv.classList.add("warning");
-                            Global.snackbar.maximize();
-                        }
+        booq
+        .message.toText()
+        .io.models.each(function (elem) {
+            this
+            .tableName.toText()
+            .tableName.withValue()
+            .createTableDDL.toText()
+            .dropTableDDL.toText()
+            ;
 
-                        // if (response.data.io.status === "#login-succeeded") {
-                        //     window.location.href = window.location.href.replace("/index.php", "/home.php");
-                        // }
-                        // brx.io = response.data.io;
-                    })
-                    .catch(Global.catcher(brx.io));
+            Booq.q(elem).q("button").on("click", function () {
+                Global.snackbar.close();
+                booq.data.io.status = "";
+                axios.post("lab.php", new FormData(Booq.goUpParentByTagName(event.target, "form")))
+                .then(function (response) {
+                    console.log(response.data);
+                    booq.data.message = response.data.message;
+                    if ("" !== booq.data.message) {
+                        Global.snackbar.messageDiv.classList.add("warning");
+                        Global.snackbar.maximize();
+                    }
                 })
-                .focus("createTableDDL").text()
-                .focus("dropTableDDL").text()
-                ;
+                .catch(Global.catcher(booq.data.io));
+            })
+            ;
         });
 
-        brx.io = data.io;
+        booq.data.io = data.io;
     };
     </script>
 </body>

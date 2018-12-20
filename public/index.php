@@ -43,6 +43,9 @@
             </form>
         </div>
         
+        <button type="button" id="x">X</button>
+
+
     </div>
     <script>
     window.onload = function() {
@@ -50,6 +53,21 @@
         var data = <?= $jj->dataAsJSON() ?>;
 
         var Booq = Brx.Booq;
+
+        var booq2 = new Booq({
+            array: [
+                {apple: ""}
+            ]
+        });
+
+        Booq.q("#x").on("click", function () {
+            booq2.data = {
+                array: [
+                    {apple: "x"}
+                ]
+            };
+        });
+
 
         var booq = new Booq({
             message: "",
