@@ -4,6 +4,11 @@ return [
         'enabled' => true,
         'debug_variable_name' => '_dbg',
     ],
+    'db' => [
+        'attributes' => [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ],
+    ],
     'xsrf' => [
         'session_variable_name' => '_xsrf',
         'cookie_name' => 'XSRF-TOKEN',
@@ -21,5 +26,6 @@ return [
     'internal_server_error' => [
         'redirect_path' => 'errors/internal-server-error.php'
     ],
+
 ];
 ?>

@@ -6,7 +6,7 @@ return [
     'password' => 'password',
     'options' => [
       PDO::ATTR_EMULATE_PREPARES => false
-    ]
+    ],
   ],
   'css' => [
     'baseFontSize' => 10.0

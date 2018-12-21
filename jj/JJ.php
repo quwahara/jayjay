@@ -340,7 +340,7 @@ class JJ
         if (!$this->db_) {
             $dbc = $this->config_['db'];
             $this->db_ = (new DBService())
-                ->init($dbc['dsn'], $dbc['username'], $dbc['password'], $dbc['options']);
+                ->init($dbc['dsn'], $dbc['username'], $dbc['password'], $dbc['options'], $dbc['attributes']);
         }
         return $this->db_;
     }

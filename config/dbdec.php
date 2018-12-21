@@ -67,6 +67,58 @@ return [
             ],
         ],
         [
+            'tableName' => 'objects',
+            'tableName.singular' => 'object',
+            'options' => [],
+            'columns' => [
+                [
+                    'fieldName' => 'id',
+                    'definition' => 'BIGINT NOT NULL AUTO_INCREMENT UNIQUE'
+                ],
+                [
+                    'fieldName' => 'type',
+                    'definition' => 'VARCHAR(50) CHARACTER SET latin1 NOT NULL'
+                ],
+                [
+                    'fieldName' => 'i',
+                    'definition' => 'INT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'name',
+                    'definition' => 'TEXT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'value',
+                    'definition' => 'TEXT NOT NULL'
+                ],
+            ],
+            'index_definitions' => [
+            ],
+        ],
+        [
+            'tableName' => 'object_graphs',
+            'tableName.singular' => 'object_graph',
+            'options' => [],
+            'columns' => [
+                [
+                    'fieldName' => 'id',
+                    'definition' => 'BIGINT NOT NULL AUTO_INCREMENT UNIQUE'
+                ],
+                [
+                    'fieldName' => 'parent_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'child_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+            ],
+            'index_definitions' => [
+                'UNIQUE(parent_id, child_id)'
+            ],
+        ],
+    //
+        [
             'tableName' => 'entities',
             'tableName.singular' => 'entity',
             'options' => [],

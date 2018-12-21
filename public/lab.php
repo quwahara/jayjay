@@ -46,7 +46,7 @@
         </div>
 
         <div class="belt bg-mono-09">
-            <div>&nbsp;</div>
+            <div><a href="home.php">Home</a></div>
         </div>
 
         <div class="contents">
@@ -149,7 +149,7 @@
         }
     } catch (\Throwable $th) {
         $jj->data['message'] = 'NG';
-        $jj->data['detail'] = print_r($th, true);
+        $jj->data['detail'] = $th;
         $jj->responseJsonThenExit();
     }
 

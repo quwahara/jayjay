@@ -236,14 +236,7 @@ class DAObject
 
     public function execute($sql)
     {
-        $st = $this->pdo->prepare($sql);
-        if (!$st) {
-            throw new Exception(print_r($pdo->errorInfo(), true));
-        }
-
-        if (!$st->execute()) {
-            throw new Exception(print_r($st->errorInfo(), true));
-        }
+        $this->pdo->prepare($sql)->execute();
     }
 
 }
