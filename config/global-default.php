@@ -4,6 +4,16 @@ return [
         'enabled' => true,
         'debug_variable_name' => '_dbg',
     ],
+    // global structs parameters
+    'structs' => [
+        'status' => '',
+        'message' => '',
+    ],
+    // global data parameters
+    'data' => [
+        'status' => '',
+        'message' => '',
+    ],
     'db' => [
         'attributes' => [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION

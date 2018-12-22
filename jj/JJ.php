@@ -21,13 +21,14 @@ class JJ
 
     public $accessAllowed;
     public $daos;
+    public $data;
     public $dispatchKey;
     public $loadJsonData;
     public $loadJsonDone;
-    public $models;
     public $mediaType;
     public $methods;
     public $responseCode;
+    public $structs;
     public $xsrf;
 
     public function initConfig(array $args)
@@ -142,25 +143,16 @@ class JJ
 
         $this->dispatchKey = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
 
-        $this->data = [
-            // the 'models' is declaration of data structure.
-            // This is for showing to initialize data model on browser side. 
-            'models' => [
-                'status' => '',
-            ],
-            // the 'io' is for communication with browser side.
-            'io' => [
-                'status' => '',
-            ],
-            '_dbg' => [],
-        ];
+        $this->structs = $this->config_['structs'];
+
+        $this->data = $this->config_['data'];
 
         if (array_key_exists('methods', $this->args)) {
             $this->methods = $this->args['methods'];
         }
 
-        if (array_key_exists('models', $this->args)) {
-            $this->initModels($this->args['models']);
+        if (array_key_exists('structs', $this->args)) {
+            $this->initStructs($this->args['structs']);
         }
 
         if ($this->isJsonPost()) {
@@ -170,81 +162,43 @@ class JJ
         return $this;
     }
 
-    /**
-     * Initialize model declarations
-     *
-     * $models argument examples
-     * [
-     *      // #1
-     *      'model_name',               // model_name is expected to be declared in dbdec.php
-     *                                  // The initialized models turned into key-value array.
-     *
-     *      // #2
-     *      'model_name[]',             // model_name is expected to be declared in dbdec.php
-     *                                  // The initialized models turned into array of key-value array.
-     *
-     *      // #3
-     *      'literal_model_name' =>
-     *      [
-     *          'string_field' => '',   // string_field is string
-     *          'number_field' => 0,    // number_field is number 
-     *      ],
-     *
-     *      // #4
-     *      'literal_model_name[]' =>
-     *      [
-     *          'string_field' => '',   // string_field is string
-     *          'number_field' => 0,    // number_field is number 
-     *      ],
-     * ]
-     * 
-     * @param array $models names of declared model in dbdec.php or literal declarations.
-     * @return JJ $this instance
-     */
-    public function initModels(array $models) : JJ
+    public function initStructs(array $structs) : JJ
     {
-        foreach ($models as $key => $value) {
-            // When a string was supplied, the string is name of model.
-            // It creates model from DAO by the name.
+        foreach ($structs as $key => $value) {
+            // The $value is name of struct if only $value is supplied and it is string
+            // It creates struct from DAO by the name.
             if (is_int($key) && is_string($value)) {
                 $isArray = $this->endsWith($value, '[]');
                 if ($isArray) {
-                    $model2 = mb_substr($value, 0, mb_strlen($value) - 2);
+                    $struct2 = mb_substr($value, 0, mb_strlen($value) - 2);
                 } else {
-                    $model2 = $value;
+                    $struct2 = $value;
                 }
-                $dao = $this->dao($model2);
+                $dao = $this->dao($struct2);
                 if ($isArray) {
-                    $theModel = [$dao->createModel()];
+                    $theStruct = [$dao->createStruct()];
                 } else {
-                    $theModel = $dao->createModel();
+                    $theStruct = $dao->createStruct();
                 }
-                $attrs = $dao->getAttrsAll();
 
-            // When key was string and value was array, the key is name of model.
-            // The value was assumed the model itself.
+            // The $key is name of struct if $key is string and $value is array.
+            // The $value was assumed the struct itself.
             } else if (is_string($key) && is_array($value)) {
 
                 if ($this->endsWith($key, '$')) {
                     continue;
                 }
                 if ($this->endsWith($key, '[]')) {
-                    $model2 = mb_substr($key, 0, mb_strlen($key) - 2);
-                    $theModel = [$value];
+                    $struct2 = mb_substr($key, 0, mb_strlen($key) - 2);
+                    $theStruct = [$value];
                 } else {
-                    $model2 = $key;
-                    $theModel = $value;
-                }
-                if (array_key_exists($model2 . '$', $models)) {
-                    $attrs = $models[$model2 . '$'];
-                } else {
-                    $attrs = [];
+                    $struct2 = $key;
+                    $theStruct = $value;
                 }
             } else {
-                throw new Exception('The structure of models argument was bad.');
+                throw new Exception('The form of structs argument was bad.');
             }
-            $this->data['models'][$model2] = $theModel;
-            $this->data['models'][$model2 . '$'] = $attrs;
+            $this->structs[$struct2] = $theStruct;
         }
         return $this;
     }
@@ -391,8 +345,6 @@ class JJ
         return null;
     }
 
-
-
     public function isGet() : bool
     {
         return $_SERVER['REQUEST_METHOD'] == 'GET';
@@ -406,6 +358,11 @@ class JJ
     function dataAsJSON()
     {
         return $this->json($this->data);
+    }
+
+    function structsAsJSON()
+    {
+        return $this->json($this->structs);
     }
 
     public function isJsonRequested()
@@ -428,7 +385,7 @@ class JJ
         if ($this->loadJsonDone === false) {
             $this->loadJsonDone = true;
             $this->loadJsonData = json_decode(file_get_contents('php://input'), true);
-            $this->data['io'] = $this->loadJsonData;
+            $this->data = $this->loadJsonData;
         }
         return $this->loadJsonData;
     }

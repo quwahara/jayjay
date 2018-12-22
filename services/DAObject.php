@@ -19,36 +19,47 @@ class DAObject
         return $this;
     }
 
-    public function getAttrsAll() : array
+    public function getAttrsAll()
     {
         $attrs = [];
         foreach ($this->table['columns'] as $column) {
             $fieldName = $column['fieldName'];
-            $attr = $this->getAttrByFieldName($fieldName);
-            // Empty PHP array turns to empty JS array by json_encode().
-            // Not empty assoc PHP array turns to JS Object.
-            // Attr is expected to be JS Object.
-            // This method doesn't returns empty PHP array to avoid producing empty JS array.
-            if (count($attr) > 0) {
-                $attrs[$fieldName] = $this->getAttrByFieldName($fieldName);
-            }
+            $attrs[$fieldName] = $this->getAttrByFieldName($fieldName);
+
+            // $attr = $this->getAttrByFieldName($fieldName);
+            // // Empty PHP array turns to empty JS array by json_encode().
+            // // Not empty assoc PHP array turns to JS Object.
+            // // Attr is expected to be JS Object.
+            // // This method doesn't returns empty PHP array to avoid producing empty JS array.
+            // if (count($attr) > 0) {
+            //     $attrs[$fieldName] = $this->getAttrByFieldName($fieldName);
+            // }
         }
-        return $attrs;
+        if (count($attrs) > 0) {
+            return $attrs;
+        } else {
+            return new \stdClass();
+        }
     }
 
-    public function getAttrByFieldName(string $fieldName) : array
+    public function getAttrByFieldName(string $fieldName)
     {
         $column = $this->getColumnByFieldName($fieldName);
-        return isset($column) && array_key_exists('attr', $column) ? $column['attr'] : [];
+        $attr = isset($column) && array_key_exists('attr', $column) ? $column['attr'] : [];
+        if (count($attr) > 0) {
+            return $attr;
+        } else {
+            return new \stdClass();
+        }
     }
 
-    public function createModel() : array
+    public function createStruct() : array
     {
-        $model = [];
+        $struct = [];
         foreach ($this->table['columns'] as $column) {
-            $model[$column['fieldName']] = DAService::isNumber($column['definition']) ? 0 : '';
+            $struct[$column['fieldName']] = DAService::isNumber($column['definition']) ? 0 : '';
         }
-        return $model;
+        return $struct;
     }
 
     public function getColumnByFieldName(string $fieldName) : array

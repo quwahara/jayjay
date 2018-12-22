@@ -1,7 +1,7 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     // Giving permission to access without logged in
     'access' => 'public',
-    'models' => ['user'],
+    'structs' => ['user'],
     'get' => function (\JJ\JJ $jj) {
         ?>
 <html>
@@ -42,39 +42,15 @@
                 </div>
             </form>
         </div>
-        
-        <button type="button" id="x">X</button>
-
 
     </div>
     <script>
     window.onload = function() {
         Global.snackbar("#snackbar");
-        var data = <?= $jj->dataAsJSON() ?>;
-
-        var booq2 = new Booq({
-            array: [
-                {apple: ""}
-            ]
-        });
-
-        Booq.q("#x").on("click", function () {
-            booq2.data = {
-                array: [
-                    {apple: "x"}
-                ]
-            };
-        });
-
-
-        var booq = new Booq({
-            message: "",
-            io: data["models"]
-        });
+        var booq = new Booq(<?= $jj->structsAsJSON() ?>);
 
         booq
         .message.toText()
-        .io
         .user
         .name.withValue()
         .password.withValue()
@@ -82,25 +58,21 @@
 
         Booq.q("#loginBtn").on("click", function() {
             Global.snackbar.close();
-            booq.data.io.status = "";
-            axios.post("index.php", booq.data.io)
+            booq.data.status = "";
+            axios.post("index.php", booq.data)
             .then(function (response) {
                 console.log(response.data);
-                if (response.data.io.status === "#login-succeeded") {
+                if (response.data.status === "#login-succeeded") {
                     window.location.href = window.location.href.replace("/index.php", "/home.php");
                 }
-                booq.data.io = response.data.io;
-                booq.data.message = Global.getMsg(booq.data.io.status);
-                if ("" === booq.data.message) {
-
-                } else {
+                booq.data = response.data;
+                booq.data.message = Global.getMsg(booq.data.status);
+                if ("" !== booq.data.message) {
                     Global.snackbar.messageDiv.classList.add("warning");
                     Global.snackbar.maximize();
                 }
-
-
             })
-            .catch(Global.catcher(booq.data.io));
+            .catch(Global.catcher(booq.data));
         });
     };
     </script>
@@ -111,12 +83,12 @@
 
 },
 'post application/json' => function (\JJ\JJ $jj) {
-    $user = $jj->dao('user')->attFindOneBy(['name' => $jj->data['io']['user']['name']]);
-    if ($user && password_verify($jj->data['io']['user']['password'], $user['password'])) {
+    $user = $jj->dao('user')->attFindOneBy(['name' => $jj->data['user']['name']]);
+    if ($user && password_verify($jj->data['user']['password'], $user['password'])) {
         $jj->login(['user_id' => $user['name']]);
-        $jj->data['io']['status'] = '#login-succeeded';
+        $jj->data['status'] = '#login-succeeded';
     } else {
-        $jj->data['io']['status'] = '#login-failed';
+        $jj->data['status'] = '#login-failed';
     }
 }
 ]);

@@ -1,5 +1,5 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
-    'models' => [
+    'structs' => [
         'models[]' => [
             'tableName' => '',
             'createTableDDL' => '',
@@ -12,6 +12,19 @@
             ]
         ],
     ],
+    // 'models' => [
+    //     'models[]' => [
+    //         'tableName' => '',
+    //         'createTableDDL' => '',
+    //         'dropTableDDL' => '',
+    //     ],
+    //     'command' => [
+    //         'command' => '',
+    //         'args' => [
+    //             ''
+    //         ]
+    //     ],
+    // ],
     'get' => function (\JJ\JJ $jj) {
         $models = [];
         foreach ($jj->dbdec_['tables'] as $table) {
@@ -21,8 +34,8 @@
                 'dropTableDDL' => $jj->dao($table['tableName'])->dropTableDDL(),
             ];
         }
-        $jj->data['io']['models'] = $models;
-        $jj->data['io']['command'] = [
+        $jj->data['models'] = $models;
+        $jj->data['command'] = [
             'command' => '',
             'args' => []
         ];
@@ -78,15 +91,11 @@
     window.onload = function() {
         Global.snackbar("#snackbar");
 
-        var data = <?= $jj->dataAsJSON() ?>;
-        var booq = new Booq({
-            message: "",
-            io: data.models
-        });
+        var booq = new Booq(<?= $jj->structsAsJSON() ?>);
 
         booq
         .message.toText()
-        .io.models.each(function (elem) {
+        .models.each(function (elem) {
             this
             .tableName.toText()
             .tableName.withValue()
@@ -96,7 +105,7 @@
 
             Booq.q(elem).q("button").on("click", function () {
                 Global.snackbar.close();
-                booq.data.io.status = "";
+                booq.data.status = "";
                 axios.post("lab.php", new FormData(Booq.goUpParentByTagName(event.target, "form")))
                 .then(function (response) {
                     console.log(response.data);
@@ -106,12 +115,12 @@
                         Global.snackbar.maximize();
                     }
                 })
-                .catch(Global.catcher(booq.data.io));
+                .catch(Global.catcher(booq.data));
             })
             ;
         });
 
-        booq.data.io = data.io;
+        booq.data = <?= $jj->dataAsJSON() ?>;
     };
     </script>
 </body>
