@@ -45,7 +45,7 @@ class DAObject
     public function getAttrByFieldName(string $fieldName)
     {
         $column = $this->getColumnByFieldName($fieldName);
-        $attr = isset($column) && array_key_exists('attr', $column) ? $column['attr'] : [];
+        $attr = !empty($column) && array_key_exists('attr', $column) ? $column['attr'] : [];
         if (count($attr) > 0) {
             return $attr;
         } else {
@@ -69,7 +69,7 @@ class DAObject
                 return $column;
             }
         }
-        return null;
+        return [];
     }
 
     public function attachTypes($nameVsValues)
@@ -84,7 +84,7 @@ class DAObject
     public function attachType($name, $value)
     {
         $column = $this->getColumnByFieldName($name);
-        if (is_null($column)) {
+        if (empty($column)) {
             throw new Exception('Undefined column name in the table:' . $name);
         }
         $pType = DAService::parsePDOParamType($column['definition']);
@@ -96,6 +96,26 @@ class DAObject
             'value' => $value,
             'type' => $pType,
         ];
+    }
+
+    public function attFindOneById($id, $fetch_style = PDO::FETCH_ASSOC)
+    {
+        return $this->findOneBy($this->attachTypes(['id' => $id]), $fetch_style);
+    }
+
+    public function attFindOneBy($nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
+    {
+        return $this->findOneBy($this->attachTypes($nameVsValues), $fetch_style);
+    }
+
+    public function findOneBy($nameValueTypes, $fetch_style = PDO::FETCH_ASSOC)
+    {
+        $results = $this->findAllBy($nameValueTypes, $fetch_style);
+        if ($results) {
+            return $results[0];
+        } else {
+            return null;
+        }
     }
 
     public function attFindAllBy($nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
@@ -129,19 +149,65 @@ class DAObject
         return $st->fetchAll($fetch_style);
     }
 
-    public function attFindOneBy($nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
+    public function attInsert($nameVsValues)
     {
-        return $this->findOneBy($this->attachTypes($nameVsValues), $fetch_style);
+        return $this->insert($this->attachTypes($nameVsValues));
     }
 
-    public function findOneBy($nameValueTypes, $fetch_style = PDO::FETCH_ASSOC)
+    public function insert($setNameValueTypes)
     {
-        $results = $this->findAllBy($nameValueTypes, $fetch_style);
-        if ($results) {
-            return $results[0];
-        } else {
-            return null;
+        $el = PHP_EOL;
+        $sql = "INSERT INTO {$this->table['tableName']} ({$el}";
+
+        $cnm = '';
+        foreach ($setNameValueTypes as $nvt) {
+            $sql .= "{$cnm} {$nvt['name']}{$el}";
+            $cnm = ',';
         }
+
+        $sql .= ") VALUES ({$el}";
+
+        $cnm = '';
+        foreach ($setNameValueTypes as $nvt) {
+            $sql .= "{$cnm} :{$nvt['name']}{$el}";
+            $cnm = ',';
+        }
+
+        $sql .= "){$el}";
+
+        $pdo = $this->pdo;
+        $st = $pdo->prepare($sql);
+
+        foreach ($setNameValueTypes as $nvt) {
+            $st->bindValue($nvt['name'], $nvt['value'], $nvt['type']);
+        }
+
+        $st->execute();
+        return $pdo->lastInsertId();
+    }
+
+    public function attUpdateById($nameVsValues)
+    {
+        $this->updateById($this->attachTypes($nameVsValues));
+    }
+
+    public function updateById($nameValueTypes)
+    {
+        $setNameValueTypes = [];
+        $whereNameValueTypes = [];
+        foreach ($nameValueTypes as $nvt) {
+            if ($nvt['name'] === 'id') {
+                $whereNameValueTypes[] = $nvt;
+            } else {
+                $setNameValueTypes[] = $nvt;
+            }
+        }
+
+        if (count($whereNameValueTypes) === 0) {
+            throw new Exception("Not found Id in params");
+        }
+
+        $this->updateBy($setNameValueTypes, $whereNameValueTypes);
     }
 
     public function updateBy($setNameValueTypes, $whereNameValueTypes = null)
@@ -181,30 +247,6 @@ class DAObject
         if (!$st->execute()) {
             throw new Exception(print_r($st->errorInfo(), true));
         }
-    }
-
-    public function updateById($nameValueTypes)
-    {
-        $setNameValueTypes = [];
-        $whereNameValueTypes = [];
-        foreach ($nameValueTypes as $nvt) {
-            if ($nvt['name'] === 'id') {
-                $whereNameValueTypes[] = $nvt;
-            } else {
-                $setNameValueTypes[] = $nvt;
-            }
-        }
-
-        if (count($whereNameValueTypes) === 0) {
-            throw new Exception("Not found Id in params");
-        }
-
-        $this->updateBy($setNameValueTypes, $whereNameValueTypes);
-    }
-
-    public function attUpdateById($nameVsValues)
-    {
-        $this->updateById($this->attachTypes($nameVsValues));
     }
 
     public function createTableDDL(bool $enableIfNotExists = false) : string

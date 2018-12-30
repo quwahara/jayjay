@@ -143,14 +143,14 @@
     /********************************************************************************
      * catcher
      */
-    G.catcher = function (io) {
+    G.catcher = function (obj) {
       return function (error) {
         if (error.response) {
-          io.status = "#http-status-" + error.response.status;
+          obj.status = "#http-status-" + error.response.status;
         } else if (error.request) {
-          io.status = "#error-of-request";
+          obj.status = "#error-of-request";
         } else {
-          io.status = "#error-of-setting-up-requesting";
+          obj.status = "#error-of-setting-up-requesting";
         }
       };
     };

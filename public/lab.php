@@ -1,44 +1,13 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'structs' => [
-        'models[]' => [
-            'tableName' => '',
-            'createTableDDL' => '',
-            'dropTableDDL' => '',
-        ],
-        'command' => [
-            'command' => '',
-            'args' => [
-                ''
-            ]
-        ],
+        'object',
+        'commands' => [
+            'register' => ''
+        ]
     ],
-    // 'models' => [
-    //     'models[]' => [
-    //         'tableName' => '',
-    //         'createTableDDL' => '',
-    //         'dropTableDDL' => '',
-    //     ],
-    //     'command' => [
-    //         'command' => '',
-    //         'args' => [
-    //             ''
-    //         ]
-    //     ],
-    // ],
     'get' => function (\JJ\JJ $jj) {
-        $models = [];
-        foreach ($jj->dbdec_['tables'] as $table) {
-            $models[] = [
-                'tableName' => $table['tableName'],
-                'createTableDDL' => $jj->dao($table['tableName'])->createTableDDL(),
-                'dropTableDDL' => $jj->dao($table['tableName'])->dropTableDDL(),
-            ];
-        }
-        $jj->data['models'] = $models;
-        $jj->data['command'] = [
-            'command' => '',
-            'args' => []
-        ];
+        $jj->data['object']['type'] = 'variable';
+        $jj->data['object']['name'] = 'apple';
         ?>
 <html>
 <head>
@@ -63,27 +32,27 @@
         </div>
 
         <div class="contents">
-            <div class="models">
-                <div class="model">
-                        <h3 class="tableName"></h3>
-                        <div>
-                            <form>
-                                <input type="hidden" name="command" value="create">
-                                <input type="hidden" name="tableName">
-                                <button type="button">Create</button>
-                            </form>
-                            <form>
-                                <input type="hidden" name="command" value="drop">
-                                <input type="hidden" name="tableName">
-                                <button type="button">Drop</button>
-                            </form>
-                        </div>
-                        <pre class="createTableDDL">
-                        </pre>
-                        <pre class="dropTableDDL">
-                        </pre>
+            <form method="post">
+                <div class="row">
+                    <label for="type">Type</label>
+                    <select name="type">
+                        <option value="variable">Variable</option>
+                        <option value="string">String</option>
+                    </select>
                 </div>
-            </div>
+                <div class="row">
+                    <label for="name">Name</label>
+                    <input type="text" name="name">
+                </div>
+                <div class="row value">
+                    <label for="value">Value</label>
+                    <input type="value" name="value">
+                </div>
+                <div class="row">
+                    <div class="label"></div>
+                    <button type="button" name="register">Register</button>
+                </div>
+            </form>
         </div>
         <div id="snackbar"></div>
     </div>
@@ -91,34 +60,43 @@
     window.onload = function() {
         Global.snackbar("#snackbar");
 
-        var booq = new Booq(<?= $jj->structsAsJSON() ?>);
+        var booq = new Booq(<?= $jj->structsAsJSON() ?>)
+        .commands
+        .register.on("click", function (event) {
 
-        booq
-        .message.toText()
-        .models.each(function (elem) {
-            this
-            .tableName.toText()
-            .tableName.withValue()
-            .createTableDDL.toText()
-            .dropTableDDL.toText()
-            ;
-
-            Booq.q(elem).q("button").on("click", function () {
-                Global.snackbar.close();
-                booq.data.status = "";
-                axios.post("lab.php", new FormData(Booq.goUpParentByTagName(event.target, "form")))
+            Global.snackbar.close();
+                booq.status = "";
+                axios.post("lab.php", booq.data)
                 .then(function (response) {
                     console.log(response.data);
-                    booq.data.message = response.data.message;
-                    if ("" !== booq.data.message) {
-                        Global.snackbar.messageDiv.classList.add("warning");
-                        Global.snackbar.maximize();
-                    }
+                    // booq.data.message = response.data.message;
+                    // if ("" !== booq.data.message) {
+                    //     Global.snackbar.messageDiv.classList.add("warning");
+                    //     Global.snackbar.maximize();
+                    // }
                 })
-                .catch(Global.catcher(booq.data));
-            })
-            ;
-        });
+                .catch(Global.catcher(booq));
+        })
+        .end
+
+        .object
+        .type.withValue()
+        .type.on("change", function (event) {
+            // if(event.target.value === "variable") {
+            //     Booq.q("[name='value']").addClass("hidden");
+            // }
+            this.update();
+        })
+        .name.withValue()
+        .setUpdate(function () {
+            var x = this;
+            Booq.q(".value").toggleClassByFlag("hidden", this.data.type !== "variable");
+            // this.type.toggleClassByFlag("hidden", true);
+        })
+        .update()
+        .end
+        ;
+
 
         booq.data = <?= $jj->dataAsJSON() ?>;
     };
@@ -128,42 +106,23 @@
 <?php
 
 },
-'post multipart/form-data' => function (\JJ\JJ $jj) {
+'post application/json' => function (\JJ\JJ $jj) {
 
-    $command = $_POST['command'];
-    $tableName = $_POST['tableName'];
+    $object = $jj->data['object'];
+    $objectDao = $jj->dao('object');
+    $doUpdate = false;
 
-    if (!in_array($command, ['create', 'drop'], true)) {
-        $jj->data['message'] = 'Not supported command.';
-        $jj->responseJsonThenExit();
+    if (array_key_exists('id', $object) && intval($object['id']) > 0) {
+        $doUpdate = null !== $objectDao->attFindOneById($object['id']);
     }
 
-    $table = $jj->dao($tableName);
-    if (is_null($table)) {
-        $jj->data['message'] = 'Not defined table name.';
-        $jj->responseJsonThenExit();
+    if ($doUpdate) {
+        $objectDao->attUpdateById($object);
+    } else {
+        unset($object['id']);
+        $jj->data['object'] = $objectDao->attFindOneById($objectDao->attInsert($object));
     }
-
-    try {
-        if ($command === 'create') {
-            $ddl = $table->createTableDDL();
-            $table->execute($ddl);
-            $jj->data['message'] = 'OK';
-            $jj->responseJsonThenExit();
-        } else if ($command === 'drop') {
-            $ddl = $table->dropTableDDL();
-            $table->execute($ddl);
-            $jj->data['message'] = 'OK';
-            $jj->responseJsonThenExit();
-        }
-    } catch (\Throwable $th) {
-        $jj->data['message'] = 'NG';
-        $jj->data['detail'] = $th;
-        $jj->responseJsonThenExit();
-    }
-
-    $jj->data['message'] = 'NOP';
-    $jj->responseJsonThenExit();
-},
+    $jj->data['status'] = 'OK';
+}
 ]);
 ?>

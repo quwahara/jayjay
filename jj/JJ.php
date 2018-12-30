@@ -10,6 +10,14 @@ use Services\DAObject;
 use Services\DAService;
 use Services\DBService;
 
+function bool_in_ini($var)
+{
+    if (strtolower(strval($var)) === 'off') {
+        return false;
+    }
+    return boolval($var);
+}
+
 class JJ
 {
     public $config_;
@@ -126,7 +134,9 @@ class JJ
      */
     public function responseInternalServerErrorThenExit()
     {
-        $this->data = null;
+        if (!bool_in_ini(ini_get('display_errors'))) {
+            $this->data = null;
+        }
         $this->responseCode = 500;  // Internal Server Error
 
         if ($this->isJsonRequested()) {
@@ -395,6 +405,20 @@ class JJ
         return json_encode($v, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     }
 
+    public function hasId()
+    {
+        return array_key_exists('id', $_REQUEST);
+    }
+
+    public function getId()
+    {
+        if ($this->hasId()) {
+            return intval($_REQUEST['id']);
+        } else {
+            return -1;
+        }
+    }
+
     public function getMediaType()
     {
         if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
@@ -407,7 +431,13 @@ class JJ
     public function dispatch()
     {
         if (isset($this->args[$this->dispatchKey])) {
-            $this->args[$this->dispatchKey]($this);
+            try {
+                $this->args[$this->dispatchKey]($this);
+            } catch (\Throwable $th) {
+                error_log(var_export($th, true));
+                $this->data = $th;
+                $this->responseInternalServerErrorThenExit();
+            }
         }
 
         if ($this->isJsonRequested()) {

@@ -27,7 +27,7 @@
         </div>
 
         <div class="contents">
-            <form name="theForm" method="post">
+            <form method="post">
                 <div class="row">
                     <label for="name">Username</label>
                     <input type="text" name="name">
@@ -38,7 +38,7 @@
                 </div>
                 <div class="row">
                     <div class="label"></div>
-                    <button type="button" id="loginBtn">Login</button>
+                    <button type="submit" id="loginBtn">Login</button>
                 </div>
             </form>
         </div>
@@ -56,7 +56,8 @@
         .password.withValue()
         ;
 
-        Booq.q("#loginBtn").on("click", function() {
+        Booq.q("form").on("submit", function(event) {
+            event.preventDefault();
             Global.snackbar.close();
             booq.data.status = "";
             axios.post("index.php", booq.data)
