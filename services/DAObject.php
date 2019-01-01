@@ -132,20 +132,36 @@ class DAObject
             $sql .= "and {$nvt['name']} = :{$nvt['name']}{$el}";
         }
 
-        $pdo = $this->pdo;
-        $st = $pdo->prepare($sql);
-        if (!$st) {
-            throw new Exception(print_r($pdo->errorInfo(), true));
-        }
+        return $this->fetchAll($sql, $nameValueTypes, $fetch_style);
+    }
 
+    public function attFetchOne($sql, $nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
+    {
+        return $this->fetchOne($sql, $this->attachTypes($nameVsValues), $fetch_style);
+    }
+
+    public function fetchOne($sql, $nameValueTypes, $fetch_style = PDO::FETCH_ASSOC)
+    {
+        $results = $this->fetchAll($sql, $nameValueTypes, $fetch_style);
+        if ($results) {
+            return $results[0];
+        } else {
+            return null;
+        }
+    }
+
+    public function attFetchAll($sql, $nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
+    {
+        return $this->fetchAll($sql, $this->attachTypes($nameVsValues), $fetch_style);
+    }
+
+    public function fetchAll($sql, $nameValueTypes, $fetch_style = PDO::FETCH_ASSOC)
+    {
+        $st = $this->pdo->prepare($sql);
         foreach ($nameValueTypes as $nvt) {
             $st->bindValue($nvt['name'], $nvt['value'], $nvt['type']);
         }
-
-        if (!$st->execute()) {
-            throw new Exception(print_r($st->errorInfo(), true));
-        }
-
+        $st->execute();
         return $st->fetchAll($fetch_style);
     }
 
@@ -247,6 +263,40 @@ class DAObject
         if (!$st->execute()) {
             throw new Exception(print_r($st->errorInfo(), true));
         }
+    }
+
+    public function attDeleteById($id)
+    {
+        $this->attDeleteBy(['id' => $id]);
+    }
+
+    public function attDeleteBy($nameVsValues)
+    {
+        $this->deleteBy($this->attachTypes($nameVsValues));
+    }
+
+    public function deleteBy($nameValueTypes = null)
+    {
+        $el = PHP_EOL;
+        $sql = "DELETE FROM {$this->table['tableName']} {$el}";
+
+        $sql .= "where true{$el}";
+        if ($nameValueTypes) {
+            foreach ($nameValueTypes as $nvt) {
+                $sql .= "and {$nvt['name']} = :{$nvt['name']}{$el}";
+            }
+        }
+
+        $pdo = $this->pdo;
+        $st = $pdo->prepare($sql);
+
+        if ($nameValueTypes) {
+            foreach ($nameValueTypes as $nvt) {
+                $st->bindValue($nvt['name'], $nvt['value'], $nvt['type']);
+            }
+        }
+
+        $st->execute();
     }
 
     public function createTableDDL(bool $enableIfNotExists = false) : string

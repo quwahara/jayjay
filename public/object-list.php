@@ -31,6 +31,10 @@
         </div>
 
         <div class="contents">
+            <div class="row">
+                <a href="object.php">New</a>
+            </div>
+
             <form method="post">
                 <div class="row">
                     <table>

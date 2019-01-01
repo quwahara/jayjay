@@ -67,6 +67,81 @@ return [
             ],
         ],
         [
+            'tableName' => 'parts',
+            'tableName.singular' => 'part',
+            'options' => [],
+            'columns' => [
+                [
+                    'fieldName' => 'id',
+                    'definition' => 'BIGINT NOT NULL AUTO_INCREMENT UNIQUE'
+                ],
+                [
+                    'fieldName' => 'type',
+                    'definition' => 'VARCHAR(50) CHARACTER SET latin1 NOT NULL'
+                ],
+                [
+                    'fieldName' => 'value',
+                    'definition' => 'TEXT NOT NULL'
+                ],
+            ],
+            'index_definitions' => [
+            ],
+        ],
+        [
+            'tableName' => 'part_maps',
+            'tableName.singular' => 'part_map',
+            'options' => [],
+            'columns' => [
+                [
+                    'fieldName' => 'id',
+                    'definition' => 'BIGINT NOT NULL AUTO_INCREMENT UNIQUE'
+                ],
+                [
+                    'fieldName' => 'parent_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'child_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'name',
+                    'definition' => 'VARCHAR(50) CHARACTER SET latin1 NOT NULL'
+                ],
+            ],
+            'index_definitions' => [
+                'UNIQUE(parent_id, child_id)',
+                'UNIQUE(parent_id, name)',
+            ],
+        ],
+        [
+            'tableName' => 'part_arrays',
+            'tableName.singular' => 'part_array',
+            'options' => [],
+            'columns' => [
+                [
+                    'fieldName' => 'id',
+                    'definition' => 'BIGINT NOT NULL AUTO_INCREMENT UNIQUE'
+                ],
+                [
+                    'fieldName' => 'parent_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'child_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'i',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+            ],
+            'index_definitions' => [
+                'UNIQUE(parent_id, child_id)',
+                'UNIQUE(parent_id, i)',
+            ],
+        ],
+        [
             'tableName' => 'objects',
             'tableName.singular' => 'object',
             'options' => [],
@@ -114,7 +189,7 @@ return [
                 ],
             ],
             'index_definitions' => [
-                'UNIQUE(parent_id, child_id)'
+                'UNIQUE(parent_id, child_id)',
             ],
         ],
     //

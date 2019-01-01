@@ -1,7 +1,10 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'structs' => [
-        'object',
-        'object_graph',
+        'parent' => [
+            'parent_type' => '',
+            'parent_id' => 0
+        ],
+        'part',
         'commands' => [
             'register' => ''
         ],
@@ -11,13 +14,18 @@
         ]
     ],
     'get' => function (\JJ\JJ $jj) {
-        $jj->data['object']['type'] = 'variable';
-        $jj->data['object_graph']['parent_id'] = $jj->getRequest('parent_id', 0);
-        if (($id = $jj->getId()) > 0) {
-            if ($object = $jj->dao('object')->attFindOneById($id)) {
-                $jj->data['object'] = $object;
+
+        $jj->data['parent']['parent_type'] = $jj->getRequest('parent_type', '');
+        $jj->data['parent']['parent_id'] = $jj->getRequest('parent_id', 0);
+
+        $jj->data['part']['id'] = $jj->getRequest('id', 0);
+        $jj->data['part']['type'] = 'string';
+        if (($id = $jj->data['part']['id']) > 0) {
+            if ($part = $jj->dao('part')->attFindOneById($id)) {
+                $jj->data['part'] = $part;
             }
         }
+
         $jj->data['views'] = new stdClass();
 
         ?>
@@ -31,26 +39,26 @@
     <script src="js/lib/global.js"></script>
     <?= '<style>' . $jj->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Object</title>
+    <title>Part</title>
 </head>
 <body>
     <div>
         <div class="belt">
-            <h1>Object</h1>
+            <h1>Part</h1>
         </div>
 
         <div class="belt bg-mono-09">
-            <div><a href="home.php">Home</a><a href="object-list.php">List</a></div>
+            <div><a href="home.php">Home</a><a href="part-list.php">List</a></div>
         </div>
 
         <div class="contents">
             <form method="post">
+                <input type="hidden" name="parent_type">
                 <input type="hidden" name="parent_id">
                 <input type="hidden" name="id">
                 <div class="row type-select none">
                     <label for="type">Type</label>
                     <select name="type" disabled>
-                        <option value="variable">Variable</option>
                         <option value="string">String</option>
                         <option value="number">Number</option>
                         <option value="object">Object</option>
@@ -62,16 +70,12 @@
                     <span class="type"></span>
                     <input type="hidden" name="type" disabled>
                 </div>
-                <div class="row">
-                    <label for="name">Name</label>
-                    <input type="text" name="name">
-                </div>
                 <div class="row value">
                     <label for="value">Value</label>
                     <input type="text" name="value">
                 </div>
                 <div class="row array-operations none">
-                    <div><a class="array-new-item" href="object.php?parent_id=:parent_id">New item</a></div>
+                    <div><a class="array-new-item">New item</a></div>
                 </div>
                 <div class="row">
                     <div class="label"></div>
@@ -91,8 +95,8 @@
         .register.on("click", function (event) {
 
             Global.snackbar.close();
-                booq.status = "";
-                axios.post("object.php", booq.data)
+                booq.data.status = "";
+                axios.post("part.php", booq.data)
                 .then(function (response) {
                     console.log(response.data);
                     booq.data = response.data;
@@ -102,23 +106,27 @@
                     //     Global.snackbar.maximize();
                     // }
                 })
-                .catch(Global.catcher(booq));
+                .catch(Global.catcher(booq.data));
         })
         .end
 
-        .object
+        .parent
+        .parent_type.withValue()
+        .parent_id.withValue()
+        .end
+
+        .part
         .id.withValue()
-        .id.link(".array-new-item").toHref("object.php?parent_id=:id")
+        .id.link(".array-new-item").toHref("part.php?parent_type=array&parent_id=:id")
         .type.withValue()
         .type.toText()
-        .type.on("change", booq.update)
-        .name.withValue()
+        .type.on("change", function() { booq.update(); })
         .value.withValue()
         .end
 
         .views.setUpdate(function (data) {
-            data.typeSelectable = !booq.data.object.id;
-            data.arrayOperatable = booq.data.object.id && booq.data.object.type === "array";
+            data.typeSelectable = !booq.data.part.id;
+            data.arrayOperatable = booq.data.part.id && booq.data.part.type === "array";
         })
         .typeSelectable.link(".type-select").antitogglesClass("none")
         .typeSelectable.link(".type-select select").antitogglesAttr("disabled", "")
@@ -126,16 +134,6 @@
         .typeSelectable.link(".type-label input").togglesAttr("disabled", "")
         .arrayOperatable.link(".array-operations").antitogglesClass("none")
         .end
-        // .setUpdate(function () {
-        //     var views = this.views.data;
-        //     views.typeSelectable = !this.data.id;
-        //     views.arrayOperatable = !this.data.id;
-
-        //     Booq.q(".array-operations").toggleClassByFlag("none",
-        //         !(this.data.type === "array" && this.data.id !== ""));
-                
-        //     Booq.q(".value").toggleClassByFlag("hidden", this.data.type !== "variable");
-        // })
         .setData(<?= $jj->dataAsJSON() ?>)
         .update()
         ;
@@ -149,38 +147,46 @@
 },
 'post application/json' => function (\JJ\JJ $jj) {
 
-    $object = $jj->data['object'];
-    $objectDao = $jj->dao('object');
-    $doUpdateObject = false;
+    $part = $jj->data['part'];
+    $partDao = $jj->dao('part');
+    $doUpdatePart = false;
 
-    if (array_key_exists('id', $object) && intval($object['id']) > 0) {
-        $doUpdateObject = null !== $objectDao->attFindOneById($object['id']);
+    if (array_key_exists('id', $part) && intval($part['id']) > 0) {
+        $doUpdatePart = null !== $partDao->attFindOneById($part['id']);
     }
 
-    if ($doUpdateObject) {
-        $objectDao->attUpdateById($object);
+    if ($doUpdatePart) {
+        $partDao->attUpdateById($part);
     } else {
-        unset($object['id']);
-        $jj->data['object'] = $objectDao->attFindOneById($objectDao->attInsert($object));
+        unset($part['id']);
+        $part = $partDao->attFindOneById($partDao->attInsert($part));
     }
 
-
-    $objectGraph = $jj->data['object_graph'];
-    $objectGraphDao = $jj->dao('object_graph');
-
-    if (array_key_exists('parent_id', $objectGraph) && intval($objectGraph['parent_id']) > 0) {
-        $objectGraph['child_id'] = $jj->data['object']['id'];
-        $jj->data['object_graph'] = $objectGraphDao->attFindOneById([
-            parent_id => $objectGraph['parent_id'],
-            child_id => $objectGraph['child_id'],
+    $parent = $jj->data['parent'];
+    if ($parent['parent_type'] === 'array') {
+        $partArrayDao = $jj->dao('part_array');
+        $partArray = $partArrayDao->attFindOneBy([
+            'parent_id' => $parent['parent_id'],
+            'child_id' => $part['id']
         ]);
+        if (is_null($partArray)) {
+            $maxI = $partArrayDao->attFetchOne(
+                'select max(i) as i_max from part_arrays '
+                    . 'where parent_id = :parent_id ',
+                ['parent_id' => $parent['parent_id']]
+            )['i_max'];
+
+            $i = is_null($maxI) ? 0 : ($maxI + 1);
+
+            $partArrayDao->attInsert([
+                'parent_id' => $parent['parent_id'],
+                'child_id' => $part['id'],
+                'i' => $i,
+            ]);
+        }
     }
 
-    if ($jj->data['object_graph'] === null) {
-        unset($objectGraph['id']);
-        $jj->data['object_graph'] = $objectGraphDao->attFindOneById($objectGraphDao->attInsert($objectGraph));
-    }
-
+    $jj->data['part'] = $part;
     $jj->data['status'] = 'OK';
 }
 ]);

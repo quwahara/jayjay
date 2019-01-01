@@ -413,9 +413,18 @@ class JJ
     public function getId()
     {
         if ($this->hasId()) {
-            return intval($_REQUEST['id']);
+            return $_REQUEST['id'];
         } else {
-            return -1;
+            return null;
+        }
+    }
+
+    public function getRequest($key, $val = null)
+    {
+        if (array_key_exists($key, $_REQUEST)) {
+            return $_REQUEST[$key];
+        } else {
+            return $val;
         }
     }
 
