@@ -1,5 +1,9 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'structs' => [
+        'xparts[]' => [
+            'parts',
+            'part_arrays',
+        ],
         'parts[]',
         'commands' => [
             'command' => '',
@@ -7,7 +11,32 @@
         ]
     ],
     'get' => function (\JJ\JJ $jj) {
-        $jj->data['parts'] = $jj->dao('parts')->attFindAllBy([]);
+        // $jj->data['parts'] = $jj->dao('parts')->attFindAllBy([]);
+        $parent_type = $jj->getRequest('parent_type', null);
+        $parent_id = $jj->getRequest('parent_id', null);
+
+        if ($parent_type === 'array') {
+            $jj->data['parts'] = $jj->dao('part_arrays')->attFetchAll(
+                'select p.*, a.i  '
+                    . 'from parts p'
+                    . ' inner join part_arrays a '
+                    . '     on p.id = a.child_id '
+                    . 'where a.parent_id = :parent_id '
+                    . ' ',
+                ['parent_id' => $parent_id]
+            );
+        } else {
+            $jj->data['parts'] = $jj->dao('parts')->attFetchAll(
+                'select p.*, a.i  '
+                    . 'from parts p'
+                    . ' left outer join part_arrays a '
+                    . '     on p.id = a.child_id '
+                    . 'where a.child_id is null '
+                    . ' ',
+                []
+            );
+        }
+
         $jj->data['commands'] = [
             'command' => '',
             'delete_id' => 0,

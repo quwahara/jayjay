@@ -174,43 +174,80 @@ class JJ
 
     public function initStructs(array $structs) : JJ
     {
+        $theStructs = [];
         foreach ($structs as $key => $value) {
-            // The $value is name of struct if only $value is supplied and it is string
-            // It creates struct from DAO by the name.
-            if (is_int($key) && is_string($value)) {
-                $isArray = $this->endsWith($value, '[]');
-                if ($isArray) {
-                    $struct2 = mb_substr($value, 0, mb_strlen($value) - 2);
-                } else {
-                    $struct2 = $value;
-                }
-                $dao = $this->dao($struct2);
-                if ($isArray) {
-                    $theStruct = [$dao->createStruct()];
-                } else {
-                    $theStruct = $dao->createStruct();
-                }
-
-            // The $key is name of struct if $key is string and $value is array.
-            // The $value was assumed the struct itself.
-            } else if (is_string($key) && is_array($value)) {
-
-                if ($this->endsWith($key, '$')) {
-                    continue;
-                }
-                if ($this->endsWith($key, '[]')) {
-                    $struct2 = mb_substr($key, 0, mb_strlen($key) - 2);
-                    $theStruct = [$value];
-                } else {
-                    $struct2 = $key;
-                    $theStruct = $value;
-                }
-            } else {
-                throw new Exception('The form of structs argument was bad.');
-            }
-            $this->structs[$struct2] = $theStruct;
+            $substruct = $this->parseStruct($key, $value);
+            $theStructs = array_merge($theStructs, $substruct);
         }
+        $this->structs = $theStructs;
         return $this;
+    }
+
+    public function parseStruct($key, $value) : array
+    {
+        if (is_int($key) && is_string($value)) {
+            return $this->parseStructForName($value);
+
+        } else if (is_string($key) && is_array($value)) {
+
+            $isArray = $this->endsWith($key, '[]');
+            if ($isArray) {
+                $key2 = mb_substr($key, 0, mb_strlen($key) - 2);
+            } else {
+                $key2 = $key;
+            }
+            
+            // merge everything
+            $theStruct = [];
+            foreach ($value as $key3 => $value3) {
+                // In case of $value3 is model name
+                if (is_int($key3) && is_string($value3)) {
+                    // Using only structure of model. Ripping $key3 having model name.
+                    $substruct = $this->parseStructForName($value3);
+                    foreach ($substruct as $key4 => $value4) {
+                        $theStruct = array_merge($theStruct, $value4);
+                    }
+                } else {
+                    $substruct = $this->parseStruct($key3, $value3);
+                    $theStruct = array_merge($theStruct, $substruct);
+                }
+            }
+            if ($isArray) {
+                return [$key2 => [$theStruct]];
+            } else {
+                return [$key2 => $theStruct];
+            }
+
+        } else if (is_string($key) && (is_string($value) || is_numeric($value) || is_bool($value))) {
+            // create a key-value pair
+            // This is going to be merged after this function returns.
+            if ($this->endsWith($key, '[]')) {
+                $key2 = mb_substr($key, 0, mb_strlen($key) - 2);
+                return [$key2 => [$value]];
+            } else {
+                return [$key => $value];
+            }
+
+        } else {
+            throw new Exception('The form of structs argument was bad.');
+        }
+    }
+
+    public function parseStructForName($name) : array
+    {
+        $theStruct = [];
+        $isArray = $this->endsWith($name, '[]');
+        if ($isArray) {
+            $name2 = mb_substr($name, 0, mb_strlen($name) - 2);
+        } else {
+            $name2 = $name;
+        }
+        $dao = $this->dao($name2);
+        if ($isArray) {
+            return [$name2 => [$dao->createStruct()]];
+        } else {
+            return [$name2 => $dao->createStruct()];
+        }
     }
 
     public function initAttrs(array $attrs) : JJ

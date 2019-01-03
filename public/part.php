@@ -76,6 +76,7 @@
                 </div>
                 <div class="row array-operations none">
                     <div><a class="array-new-item">New item</a></div>
+                    <div><a class="array-items">Items</a></div>
                 </div>
                 <div class="row">
                     <div class="label"></div>
@@ -118,6 +119,7 @@
         .part
         .id.withValue()
         .id.link(".array-new-item").toHref("part.php?parent_type=array&parent_id=:id")
+        .id.link(".array-items").toHref("part-list.php?parent_type=array&parent_id=:id")
         .type.withValue()
         .type.toText()
         .type.on("change", function() { booq.update(); })
