@@ -4,15 +4,23 @@ return [
         'enabled' => true,
         'debug_variable_name' => '_dbg',
     ],
+    // global methods parameters
+    'methods' => [
+        // 'methodName' => function ($arg1, $arg2) {
+        //     // codes...
+        // }
+    ],
     // global structs parameters
     'structs' => [
         'status' => '',
         'message' => '',
+        'context' => [],
     ],
     // global data parameters
     'data' => [
         'status' => '',
         'message' => '',
+        'context' => [],
     ],
     'db' => [
         'attributes' => [

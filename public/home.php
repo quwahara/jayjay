@@ -1,6 +1,6 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'models' => ['user'],
-    'get' => function (\JJ\JJ $jj) {
+    'get' => function () {
         ?>
 <html>
 <head>
@@ -10,7 +10,7 @@
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/brx/brx.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $jj->css()->style . '</style>' ?>
+    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home</title>
 </head>

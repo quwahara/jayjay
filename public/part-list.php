@@ -1,46 +1,56 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'structs' => [
-        'xparts[]' => [
+        'context' => [
+            'parent_type' => '',
+            'parent_id' => 0,
+        ],
+        'partxs[]' => [
             'parts',
             'part_arrays',
         ],
-        'parts[]',
         'commands' => [
             'command' => '',
             'delete_id' => 0,
         ]
     ],
-    'get' => function (\JJ\JJ $jj) {
-        // $jj->data['parts'] = $jj->dao('parts')->attFindAllBy([]);
-        $parent_type = $jj->getRequest('parent_type', null);
-        $parent_id = $jj->getRequest('parent_id', null);
+    'methods' => [
+        'refreshData' => function () {
 
-        if ($parent_type === 'array') {
-            $jj->data['parts'] = $jj->dao('part_arrays')->attFetchAll(
-                'select p.*, a.i  '
-                    . 'from parts p'
-                    . ' inner join part_arrays a '
-                    . '     on p.id = a.child_id '
-                    . 'where a.parent_id = :parent_id '
-                    . ' ',
-                ['parent_id' => $parent_id]
-            );
-        } else {
-            $jj->data['parts'] = $jj->dao('parts')->attFetchAll(
-                'select p.*, a.i  '
-                    . 'from parts p'
-                    . ' left outer join part_arrays a '
-                    . '     on p.id = a.child_id '
-                    . 'where a.child_id is null '
-                    . ' ',
-                []
-            );
-        }
+            $this->data['context']['parent_type'] = $this->getRequest('parent_type', '');
+            $this->data['context']['parent_id'] = $this->getRequest('parent_id', 0);
+            $context = $this->data['context'];
 
-        $jj->data['commands'] = [
-            'command' => '',
-            'delete_id' => 0,
-        ];
+            if ($this->data['context']['parent_type'] === 'array') {
+                $this->data['partxs'] = $this->dao('parts', ['part_arrays'])->attFetchAll(
+                    'select p.*, a.parent_id, a.child_id, a.i  '
+                        . 'from parts p'
+                        . ' inner join part_arrays a '
+                        . '     on p.id = a.child_id '
+                        . 'where a.parent_id = :parent_id '
+                        . ' ',
+                    ['parent_id' => $context['parent_id']]
+                );
+            } else {
+                $this->data['partxs'] = $this->dao('parts')->attFetchAll(
+                    'select p.*, \'\' as i  '
+                        . 'from parts p'
+                        . ' left outer join part_arrays a '
+                        . '     on p.id = a.child_id '
+                        . 'where a.child_id is null '
+                        . ' ',
+                    []
+                );
+            }
+
+            $this->data['commands'] = [
+                'command' => '',
+                'delete_id' => 0,
+            ];
+            return $this;
+        },
+    ],
+    'get' => function () {
+        $this->refreshData();
         ?>
 <html>
 <head>
@@ -50,7 +60,7 @@
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/brx/booq.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $jj->css()->style . '</style>' ?>
+    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Part list</title>
 </head>
@@ -75,14 +85,16 @@
                         <thead>
                             <tr>
                                 <th class="">&times;</th>
+                                <th class="">i</th>
                                 <th class="">id</th>
                                 <th class="">type</th>
                                 <th class="">value</th>
                             </tr>
                         </thead>
-                        <tbody class="parts">
+                        <tbody class="partxs">
                             <tr>
                                 <td><button type="button" class="delete">&times;</button></td>
+                                <td><a class="i"></a></td>
                                 <td><a class="id"></a></td>
                                 <td class="type"></td>
                                 <td class="value"></td>
@@ -100,9 +112,10 @@
         Global.snackbar("#snackbar");
 
         var booq;
-        (booq = new Booq(<?= $jj->structsAsJSON() ?>))
-        .parts.each(function (element) {
+        (booq = new Booq(<?= $this->structsAsJSON() ?>))
+        .partxs.each(function (element) {
             this
+            .i.toText()
             .id.toText()
             .id.toHref("part.php?id=:id")
             .type.toText()
@@ -137,7 +150,7 @@
                     };
             })(this));
         })
-        .setData(<?= $jj->dataAsJSON() ?>)
+        .setData(<?= $this->dataAsJSON() ?>)
         ;
     };
     </script>
@@ -146,14 +159,23 @@
 <?php
 
 },
-'post application/json' => function (\JJ\JJ $jj) {
-    $data = $jj->data;
-    $command = $jj->data['commands']['command'];
+'post application/json' => function () {
+    $data = $this->data;
+    $command = $this->data['commands']['command'];
     if ($command === 'delete') {
-        $jj->dao('part')->attDeleteById($jj->data['commands']['delete_id']);
+        $delete_id = $this->data['commands']['delete_id'];
+        $this->dao('part')->attDeleteById($delete_id);
+        $context = $this->data['context'];
+        if ($context['parent_type'] === 'array') {
+            $this->dao('part_arrays')->attDeleteBy([
+                'parent_id' => $context['parent_id'],
+                'child_id' => $delete_id
+            ]);
+        }
     }
-    $jj->data['parts'] = $jj->dao('parts')->attFindAllBy([]);
-    $jj->data['status'] = 'OK';
+    $this->refreshData();
+
+    $this->data['status'] = 'OK';
 }
 ]);
 ?>

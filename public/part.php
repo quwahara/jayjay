@@ -13,20 +13,20 @@
             'arrayOperatable' => false,
         ]
     ],
-    'get' => function (\JJ\JJ $jj) {
+    'get' => function () {
 
-        $jj->data['parent']['parent_type'] = $jj->getRequest('parent_type', '');
-        $jj->data['parent']['parent_id'] = $jj->getRequest('parent_id', 0);
+        $this->data['parent']['parent_type'] = $this->getRequest('parent_type', '');
+        $this->data['parent']['parent_id'] = $this->getRequest('parent_id', 0);
 
-        $jj->data['part']['id'] = $jj->getRequest('id', 0);
-        $jj->data['part']['type'] = 'string';
-        if (($id = $jj->data['part']['id']) > 0) {
-            if ($part = $jj->dao('part')->attFindOneById($id)) {
-                $jj->data['part'] = $part;
+        $this->data['part']['id'] = $this->getRequest('id', 0);
+        $this->data['part']['type'] = 'string';
+        if (($id = $this->data['part']['id']) > 0) {
+            if ($part = $this->dao('part')->attFindOneById($id)) {
+                $this->data['part'] = $part;
             }
         }
 
-        $jj->data['views'] = new stdClass();
+        $this->data['views'] = new stdClass();
 
         ?>
 <html>
@@ -37,7 +37,7 @@
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/brx/booq.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $jj->css()->style . '</style>' ?>
+    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Part</title>
 </head>
@@ -91,7 +91,7 @@
         Global.snackbar("#snackbar");
 
         var booq;
-        (booq = new Booq(<?= $jj->structsAsJSON() ?>))
+        (booq = new Booq(<?= $this->structsAsJSON() ?>))
         .commands
         .register.on("click", function (event) {
 
@@ -136,7 +136,7 @@
         .typeSelectable.link(".type-label input").togglesAttr("disabled", "")
         .arrayOperatable.link(".array-operations").antitogglesClass("none")
         .end
-        .setData(<?= $jj->dataAsJSON() ?>)
+        .setData(<?= $this->dataAsJSON() ?>)
         .update()
         ;
 
@@ -147,10 +147,10 @@
 <?php
 
 },
-'post application/json' => function (\JJ\JJ $jj) {
+'post application/json' => function () {
 
-    $part = $jj->data['part'];
-    $partDao = $jj->dao('part');
+    $part = $this->data['part'];
+    $partDao = $this->dao('part');
     $doUpdatePart = false;
 
     if (array_key_exists('id', $part) && intval($part['id']) > 0) {
@@ -164,9 +164,9 @@
         $part = $partDao->attFindOneById($partDao->attInsert($part));
     }
 
-    $parent = $jj->data['parent'];
+    $parent = $this->data['parent'];
     if ($parent['parent_type'] === 'array') {
-        $partArrayDao = $jj->dao('part_array');
+        $partArrayDao = $this->dao('part_array');
         $partArray = $partArrayDao->attFindOneBy([
             'parent_id' => $parent['parent_id'],
             'child_id' => $part['id']
@@ -188,8 +188,8 @@
         }
     }
 
-    $jj->data['part'] = $part;
-    $jj->data['status'] = 'OK';
+    $this->data['part'] = $part;
+    $this->data['status'] = 'OK';
 }
 ]);
 ?>

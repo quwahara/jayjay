@@ -153,12 +153,14 @@ class JJ
 
         $this->dispatchKey = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
 
+        $this->methods = $this->config_['methods'];
+
         $this->structs = $this->config_['structs'];
 
         $this->data = $this->config_['data'];
 
         if (array_key_exists('methods', $this->args)) {
-            $this->methods = $this->args['methods'];
+            $this->initMethods($this->args['methods']);
         }
 
         if (array_key_exists('structs', $this->args)) {
@@ -172,14 +174,37 @@ class JJ
         return $this;
     }
 
+    public function initMethods(array $methods) : JJ
+    {
+        $this->methods = array_merge($this->methods, $methods);
+        foreach ($this->methods as $name => $closure) {
+            if (!is_callable($closure)) {
+                throw new \RuntimeException("Method {$name} was not callable");
+            }
+            $this->$name = $closure->bindTo($this, $this);
+        }
+        return $this;
+    }
+
+    public function __call($name, $args)
+    {
+        if (is_null($this->$name)) {
+            throw new \RuntimeException("Method {$name} does not exist");
+        }
+        if (!is_callable($this->$name)) {
+            throw new \RuntimeException("Method {$name} was not callable");
+        }
+        return call_user_func($this->$name, $args);
+    }
+
     public function initStructs(array $structs) : JJ
     {
         $theStructs = [];
         foreach ($structs as $key => $value) {
             $substruct = $this->parseStruct($key, $value);
-            $theStructs = array_merge($theStructs, $substruct);
+            $theStructs = $theStructs + $substruct;
         }
-        $this->structs = $theStructs;
+        $this->structs = array_merge($this->structs, $theStructs);
         return $this;
     }
 
@@ -205,11 +230,11 @@ class JJ
                     // Using only structure of model. Ripping $key3 having model name.
                     $substruct = $this->parseStructForName($value3);
                     foreach ($substruct as $key4 => $value4) {
-                        $theStruct = array_merge($theStruct, $value4);
+                        $theStruct = $theStruct + $value4;
                     }
                 } else {
                     $substruct = $this->parseStruct($key3, $value3);
-                    $theStruct = array_merge($theStruct, $substruct);
+                    $theStruct = $theStruct + $substruct;
                 }
             }
             if ($isArray) {
@@ -370,14 +395,21 @@ class JJ
         return $this->db()->pdo()->rollBack();
     }
 
-    function dao(string $tableName)
+    function dao(string $tableName, array $subtableNames = [])
     {
         $table = $this->getTableByTableName($tableName);
         if (is_null($table)) {
             return null;
         }
-        return (new DAObject())->init($this->db()->pdo(), $table);
-        // return (new DAObject())->init($this->da(), $tableName);
+        $subtables = [];
+        foreach ($subtableNames as $subtableName) {
+            $subtable = $this->getTableByTableName($subtableName);
+            if (is_null($subtable)) {
+                return null;
+            }
+            $subtables[] = $subtable;
+        }
+        return (new DAObject())->init($this->db()->pdo(), $table, $subtables);
     }
 
     public function getTableByTableName($tableName)
@@ -478,7 +510,7 @@ class JJ
     {
         if (isset($this->args[$this->dispatchKey])) {
             try {
-                $this->args[$this->dispatchKey]($this);
+                ($this->args[$this->dispatchKey])->bindTo($this, $this)();
             } catch (\Throwable $th) {
                 error_log(var_export($th, true));
                 $this->data = $th;

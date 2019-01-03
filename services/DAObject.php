@@ -11,11 +11,13 @@ class DAObject
 {
     public $pdo;
     public $table;
+    public $subtables;
 
-    public function init($pdo, $table)
+    public function init(PDO $pdo, array $table, array $subtables = [])
     {
         $this->pdo = $pdo;
         $this->table = $table;
+        $this->subtables = $subtables;
         return $this;
     }
 
@@ -62,11 +64,19 @@ class DAObject
         return $struct;
     }
 
-    public function getColumnByFieldName(string $fieldName) : array
+    public function getColumnByFieldName(string $fieldName, array $tables = []) : array
     {
-        foreach ($this->table['columns'] as $column) {
-            if ($column['fieldName'] === $fieldName) {
-                return $column;
+        $targetTables;
+        if (!empty($table)) {
+            $targetTables = $tables;
+        } else {
+            $targetTables = array_merge([$this->table], $this->subtables);
+        }
+        foreach ($targetTables as $table) {
+            foreach ($table['columns'] as $column) {
+                if ($column['fieldName'] === $fieldName) {
+                    return $column;
+                }
             }
         }
         return [];
