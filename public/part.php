@@ -5,29 +5,45 @@
             'parent_id' => 0
         ],
         'part',
+        'part_object',
         'commands' => [
             'register' => ''
+        ],
+        'context' => [
+            'has_parent' => false,
+            'is_parent_object' => false,
+            'is_update' => false,
+            'array_operatable' => false,
+            'object_operatable' => false,
         ],
         'views' => [
             'typeSelectable' => false,
             'arrayOperatable' => false,
-        ]
+        ],
     ],
     'get' => function () {
 
+        $ctx = &$this->data['context'];
         $this->data['parent']['parent_type'] = $this->getRequest('parent_type', '');
         $this->data['parent']['parent_id'] = $this->getRequest('parent_id', 0);
 
         $this->data['part']['id'] = $this->getRequest('id', 0);
         $this->data['part']['type'] = 'string';
+
+        $ctx['has_parent'] = 0 < $this->data['parent']['parent_id'];
+        $ctx['is_parent_object'] = 'object' === $this->data['parent']['parent_type'];
+        $ctx['array_operatable'] = false;
+        $ctx['object_operatable'] = false;
+
+        $ctx['is_update'] = false;
         if (($id = $this->data['part']['id']) > 0) {
             if ($part = $this->dao('part')->attFindOneById($id)) {
                 $this->data['part'] = $part;
+                $ctx['is_update'] = true;
             }
         }
 
         $this->data['views'] = new stdClass();
-
         ?>
 <html>
 <head>
@@ -56,6 +72,14 @@
                 <input type="hidden" name="parent_type">
                 <input type="hidden" name="parent_id">
                 <input type="hidden" name="id">
+                <div class="row has_parent none">
+                    <label>Parent Id</label>
+                    <span class="parent_id"></span>
+                </div>
+                <div class="row has_parent none">
+                    <label>Parent Type</label>
+                    <span class="parent_type"></span>
+                </div>
                 <div class="row type-select none">
                     <label for="type">Type</label>
                     <select name="type" disabled>
@@ -70,13 +94,21 @@
                     <span class="type"></span>
                     <input type="hidden" name="type" disabled>
                 </div>
+                <div class="row name is_parent_object none">
+                    <label for="name">Name</label>
+                    <input type="text" name="name">
+                </div>
                 <div class="row value">
                     <label for="value">Value</label>
                     <input type="text" name="value">
                 </div>
-                <div class="row array-operations none">
+                <div class="row array_operatable none">
                     <div><a class="array-new-item">New item</a></div>
                     <div><a class="array-items">Items</a></div>
+                </div>
+                <div class="row object_operatable none">
+                    <div><a class="object-new-prop">New property</a></div>
+                    <div><a class="object-props">Properties</a></div>
                 </div>
                 <div class="row">
                     <div class="label"></div>
@@ -113,29 +145,51 @@
 
         .parent
         .parent_type.withValue()
+        .also.toText()
         .parent_id.withValue()
+        .parent_id.toText()
         .end
 
         .part
         .id.withValue()
         .id.link(".array-new-item").toHref("part.php?parent_type=array&parent_id=:id")
         .id.link(".array-items").toHref("part-list.php?parent_type=array&parent_id=:id")
+        .id.link(".object-new-prop").toHref("part.php?parent_type=object&parent_id=:id")
+        .id.link(".object-props").toHref("part-list.php?parent_type=object&parent_id=:id")
         .type.withValue()
         .type.toText()
         .type.on("change", function() { booq.update(); })
         .value.withValue()
         .end
 
-        .views.setUpdate(function (data) {
-            data.typeSelectable = !booq.data.part.id;
-            data.arrayOperatable = booq.data.part.id && booq.data.part.type === "array";
-        })
-        .typeSelectable.link(".type-select").antitogglesClass("none")
-        .typeSelectable.link(".type-select select").antitogglesAttr("disabled", "")
-        .typeSelectable.link(".type-label").togglesClass("none")
-        .typeSelectable.link(".type-label input").togglesAttr("disabled", "")
-        .arrayOperatable.link(".array-operations").antitogglesClass("none")
+        .part_object
+        .name.withValue()
         .end
+        
+        .context.setUpdate(function (data) {
+            data.array_operatable = data.is_update && booq.data.part.type === "array";
+            data.object_operatable = data.is_update && booq.data.part.type === "object";
+        })
+        .has_parent.antitogglesClass("none")
+        .is_parent_object.antitogglesClass("none")
+        .is_update.link(".type-select").togglesClass("none")
+        .also.link(".type-select select").togglesAttr("disabled", "")
+        .also.link(".type-label").antitogglesClass("none")
+        .also.link(".type-label input").antitogglesAttr("disabled", "")
+        .array_operatable.antitogglesClass("none")
+        .object_operatable.antitogglesClass("none")
+        .end
+
+        // .views.setUpdate(function (data) {
+        //     data.typeSelectable = !booq.data.part.id;
+        //     data.arrayOperatable = booq.data.part.id && booq.data.part.type === "array";
+        // })
+        // .typeSelectable.link(".type-select").antitogglesClass("none")
+        // .typeSelectable.link(".type-select select").antitogglesAttr("disabled", "")
+        // .typeSelectable.link(".type-label").togglesClass("none")
+        // .typeSelectable.link(".type-label input").togglesAttr("disabled", "")
+        // .arrayOperatable.link(".array-operations").antitogglesClass("none")
+        // .end
         .setData(<?= $this->dataAsJSON() ?>)
         .update()
         ;
@@ -184,6 +238,19 @@
                 'parent_id' => $parent['parent_id'],
                 'child_id' => $part['id'],
                 'i' => $i,
+            ]);
+        }
+    } else if ($parent['parent_type'] === 'object') {
+        $partObjectDao = $this->dao('part_object');
+        $partObject = $partObjectDao->attFindOneBy([
+            'parent_id' => $parent['parent_id'],
+            'child_id' => $part['id']
+        ]);
+        if (is_null($partObject)) {
+            $partObjectDao->attInsert([
+                'parent_id' => $parent['parent_id'],
+                'child_id' => $part['id'],
+                'name' => $this->data['part_object']['name'],
             ]);
         }
     }

@@ -167,6 +167,10 @@ class JJ
             $this->initStructs($this->args['structs']);
         }
 
+        if ($this->isGet()) {
+            $this->data = array_merge($this->structs, $this->data);
+        }
+
         if ($this->isJsonPost()) {
             $this->loadJson();
         }

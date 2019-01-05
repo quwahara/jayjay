@@ -88,8 +88,8 @@ return [
             ],
         ],
         [
-            'tableName' => 'part_maps',
-            'tableName.singular' => 'part_map',
+            'tableName' => 'part_objects',
+            'tableName.singular' => 'part_object',
             'options' => [],
             'columns' => [
                 [
@@ -106,7 +106,7 @@ return [
                 ],
                 [
                     'fieldName' => 'name',
-                    'definition' => 'VARCHAR(50) CHARACTER SET latin1 NOT NULL'
+                    'definition' => 'VARCHAR(50) CHARACTER SET utf8mb4 NOT NULL'
                 ],
             ],
             'index_definitions' => [

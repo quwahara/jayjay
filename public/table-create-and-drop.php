@@ -7,22 +7,20 @@
         ],
         'command' => [
             'command' => '',
-            'args' => [
-                ''
-            ]
+            'args[]' => ''
         ],
     ],
-    'get' => function (\JJ\JJ $jj) {
+    'get' => function () {
         $models = [];
-        foreach ($jj->dbdec_['tables'] as $table) {
+        foreach ($this->dbdec_['tables'] as $table) {
             $models[] = [
                 'tableName' => $table['tableName'],
-                'createTableDDL' => $jj->dao($table['tableName'])->createTableDDL(),
-                'dropTableDDL' => $jj->dao($table['tableName'])->dropTableDDL(),
+                'createTableDDL' => $this->dao($table['tableName'])->createTableDDL(),
+                'dropTableDDL' => $this->dao($table['tableName'])->dropTableDDL(),
             ];
         }
-        $jj->data['models'] = $models;
-        $jj->data['command'] = [
+        $this->data['models'] = $models;
+        $this->data['command'] = [
             'command' => '',
             'args' => []
         ];
@@ -35,7 +33,7 @@
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/brx/booq.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $jj->css()->style . '</style>' ?>
+    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Table create and drop</title>
 </head>
@@ -78,7 +76,7 @@
     window.onload = function() {
         Global.snackbar("#snackbar");
 
-        var booq = new Booq(<?= $jj->structsAsJSON() ?>);
+        var booq = new Booq(<?= $this->structsAsJSON() ?>);
 
         booq
         .message.toText()
@@ -107,7 +105,7 @@
             ;
         });
 
-        booq.data = <?= $jj->dataAsJSON() ?>;
+        booq.data = <?= $this->dataAsJSON() ?>;
     };
     </script>
 </body>
@@ -115,42 +113,42 @@
 <?php
 
 },
-'post multipart/form-data' => function (\JJ\JJ $jj) {
+'post multipart/form-data' => function () {
 
     $command = $_POST['command'];
     $tableName = $_POST['tableName'];
 
     if (!in_array($command, ['create', 'drop'], true)) {
-        $jj->data['message'] = 'Not supported command.';
-        $jj->responseJsonThenExit();
+        $this->data['message'] = 'Not supported command.';
+        $this->responseJsonThenExit();
     }
 
-    $table = $jj->dao($tableName);
+    $table = $this->dao($tableName);
     if (is_null($table)) {
-        $jj->data['message'] = 'Not defined table name.';
-        $jj->responseJsonThenExit();
+        $this->data['message'] = 'Not defined table name.';
+        $this->responseJsonThenExit();
     }
 
     try {
         if ($command === 'create') {
             $ddl = $table->createTableDDL();
             $table->execute($ddl);
-            $jj->data['message'] = 'OK';
-            $jj->responseJsonThenExit();
+            $this->data['message'] = 'OK';
+            $this->responseJsonThenExit();
         } else if ($command === 'drop') {
             $ddl = $table->dropTableDDL();
             $table->execute($ddl);
-            $jj->data['message'] = 'OK';
-            $jj->responseJsonThenExit();
+            $this->data['message'] = 'OK';
+            $this->responseJsonThenExit();
         }
     } catch (\Throwable $th) {
-        $jj->data['message'] = 'NG';
-        $jj->data['detail'] = $th;
-        $jj->responseJsonThenExit();
+        $this->data['message'] = 'NG';
+        $this->data['detail'] = $th;
+        $this->responseJsonThenExit();
     }
 
-    $jj->data['message'] = 'NOP';
-    $jj->responseJsonThenExit();
+    $this->data['message'] = 'NOP';
+    $this->responseJsonThenExit();
 },
 ]);
 ?>
