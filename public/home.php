@@ -28,11 +28,9 @@
             <div><a href="logout.php">Log out</a></div>
             <div><a href="table-definition.php">Table definition</a></div>
             <div><a href="part-list.php">Part list</a></div>
-            <div><a href="object-list.php">Object list</a></div>
             <div><a href="lab.php">Lab</a></div>
             <div><a href="table-create-and-drop.php">Table create and drop</a></div>
             <div><a href="part.php">Part</a></div>
-            <div><a href="object.php">Object</a></div>
             <div><a href="phpinfo.php">PHP Info</a></div>
         </div>
 

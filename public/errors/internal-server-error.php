@@ -2,7 +2,7 @@
     // Giving permission to access without logged in
     'access' => 'public',
     'models' => [],
-    'get' => function (\JJ\JJ $jj) {
+    'get' => function () {
         ?>
 <html>
 <head>
@@ -12,7 +12,7 @@
     <script src="../js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="../js/brx/brx.js"></script>
     <script src="../js/lib/global.js"></script>
-    <?= '<style>' . $jj->css()->style . '</style>' ?>
+    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Internal server error</title>
 </head>

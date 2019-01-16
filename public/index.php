@@ -2,7 +2,7 @@
     // Giving permission to access without logged in
     'access' => 'public',
     'structs' => ['user'],
-    'get' => function (\JJ\JJ $jj) {
+    'get' => function () {
         ?>
 <html>
 <head>
@@ -12,7 +12,7 @@
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/brx/booq.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $jj->css()->style . '</style>' ?>
+    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
 </head>
@@ -47,7 +47,7 @@
     <script>
     window.onload = function() {
         Global.snackbar("#snackbar");
-        var booq = new Booq(<?= $jj->structsAsJSON() ?>);
+        var booq = new Booq(<?= $this->structsAsJSON() ?>);
 
         booq
         .message.toText()
@@ -83,13 +83,13 @@
 <?php
 
 },
-'post application/json' => function (\JJ\JJ $jj) {
-    $user = $jj->dao('user')->attFindOneBy(['name' => $jj->data['user']['name']]);
-    if ($user && password_verify($jj->data['user']['password'], $user['password'])) {
-        $jj->login(['user_id' => $user['name']]);
-        $jj->data['status'] = '#login-succeeded';
+'post application/json' => function () {
+    $user = $this->dao('user')->attFindOneBy(['name' => $this->data['user']['name']]);
+    if ($user && password_verify($this->data['user']['password'], $user['password'])) {
+        $this->login(['user_id' => $user['name']]);
+        $this->data['status'] = '#login-succeeded';
     } else {
-        $jj->data['status'] = '#login-failed';
+        $this->data['status'] = '#login-failed';
     }
 }
 ]);

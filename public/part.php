@@ -6,44 +6,62 @@
         ],
         'part',
         'part_object',
+        'part_array',
         'commands' => [
             'register' => ''
         ],
         'context' => [
+            'id' => 0,
+            'parent_type' => '',
+            'parent_id' => 0,
             'has_parent' => false,
             'is_parent_object' => false,
             'is_update' => false,
+            'value_available' => false,
             'array_operatable' => false,
             'object_operatable' => false,
+            'register_available' => false,
         ],
-        'views' => [
-            'typeSelectable' => false,
-            'arrayOperatable' => false,
-        ],
+        // 'views' => [
+        //     'typeSelectable' => false,
+        //     'arrayOperatable' => false,
+        // ],
     ],
     'get' => function () {
 
         $ctx = &$this->data['context'];
-        $this->data['parent']['parent_type'] = $this->getRequest('parent_type', '');
-        $this->data['parent']['parent_id'] = $this->getRequest('parent_id', 0);
-
-        $this->data['part']['id'] = $this->getRequest('id', 0);
-        $this->data['part']['type'] = 'string';
-
-        $ctx['has_parent'] = 0 < $this->data['parent']['parent_id'];
-        $ctx['is_parent_object'] = 'object' === $this->data['parent']['parent_type'];
+        $ctx['id'] = $this->getRequestAsInt('id', 0);
+        $ctx['parent_type'] = $this->getRequest('parent_type', '');
+        $ctx['parent_id'] = $this->getRequestAsInt('parent_id', 0);
+        $ctx['has_parent'] = 0 < $ctx['parent_id'];
+        $ctx['is_parent_object'] = 'object' === $ctx['parent_type'];
+        $ctx['value_available'] = true;
         $ctx['array_operatable'] = false;
         $ctx['object_operatable'] = false;
+        $ctx['register_available'] = false;
+
+        // $this->data['parent']['parent_type'] = $this->getRequest('parent_type', '');
+        // $this->data['parent']['parent_id'] = $this->getRequest('parent_id', 0);
+
+        $this->data['part']['id'] = '';
+        $this->data['part']['type'] = 'string';
 
         $ctx['is_update'] = false;
-        if (($id = $this->data['part']['id']) > 0) {
-            if ($part = $this->dao('part')->attFindOneById($id)) {
+        if ($ctx['id'] > 0) {
+            if ($part = $this->dao('part')->attFindOneById($ctx['id'])) {
                 $this->data['part'] = $part;
                 $ctx['is_update'] = true;
+
+                if ($ctx['parent_type'] === 'object' && ($partObject = $partObjectDao->attFindOneBy([
+                    'parent_id' => $ctx['parent_id'],
+                    'child_id' => $ctx['id']
+                ]))) {
+                    $this->data['part_object'] = $partObject;
+                }
             }
         }
 
-        $this->data['views'] = new stdClass();
+        // $this->data['views'] = new stdClass();
         ?>
 <html>
 <head>
@@ -80,6 +98,10 @@
                     <label>Parent Type</label>
                     <span class="parent_type"></span>
                 </div>
+                <div class="row">
+                    <label>Id</label>
+                    <span class="id"></span>
+                </div>
                 <div class="row type-select none">
                     <label for="type">Type</label>
                     <select name="type" disabled>
@@ -98,7 +120,7 @@
                     <label for="name">Name</label>
                     <input type="text" name="name">
                 </div>
-                <div class="row value">
+                <div class="row value value_available none">
                     <label for="value">Value</label>
                     <input type="text" name="value">
                 </div>
@@ -110,7 +132,7 @@
                     <div><a class="object-new-prop">New property</a></div>
                     <div><a class="object-props">Properties</a></div>
                 </div>
-                <div class="row">
+                <div class="row register_available none">
                     <div class="label"></div>
                     <button type="button" name="register">Register</button>
                 </div>
@@ -132,7 +154,11 @@
                 axios.post("part.php", booq.data)
                 .then(function (response) {
                     console.log(response.data);
-                    booq.data = response.data;
+                    // booq.data = response.data;
+                    booq
+                    .setData(response.data)
+                    .update()
+                    ;
                     // booq.data.message = response.data.message;
                     // if ("" !== booq.data.message) {
                     //     Global.snackbar.messageDiv.classList.add("warning");
@@ -143,15 +169,16 @@
         })
         .end
 
-        .parent
-        .parent_type.withValue()
-        .also.toText()
-        .parent_id.withValue()
-        .parent_id.toText()
-        .end
+        // .parent
+        // .parent_type.withValue()
+        // .also.toText()
+        // .parent_id.withValue()
+        // .parent_id.toText()
+        // .end
 
         .part
         .id.withValue()
+        .id.toText()
         .id.link(".array-new-item").toHref("part.php?parent_type=array&parent_id=:id")
         .id.link(".array-items").toHref("part-list.php?parent_type=array&parent_id=:id")
         .id.link(".object-new-prop").toHref("part.php?parent_type=object&parent_id=:id")
@@ -163,21 +190,35 @@
         .end
 
         .part_object
+        // .child_id.link("input[name='id']").withValue()
         .name.withValue()
         .end
         
+        // .part_array
+        // .child_id.link("input[name='id']").withValue()
+        // .end
+        
         .context.setUpdate(function (data) {
+            isPrimitiveType = booq.data.part.type === "string" || booq.data.part.type === "number";
+            data.value_available = isPrimitiveType;
             data.array_operatable = data.is_update && booq.data.part.type === "array";
             data.object_operatable = data.is_update && booq.data.part.type === "object";
+            data.register_available = !data.is_update || (data.is_update && isPrimitiveType);
         })
+        .parent_type.withValue()
+        .also.toText()
+        .parent_id.withValue()
+        .parent_id.toText()
         .has_parent.antitogglesClass("none")
         .is_parent_object.antitogglesClass("none")
         .is_update.link(".type-select").togglesClass("none")
         .also.link(".type-select select").togglesAttr("disabled", "")
         .also.link(".type-label").antitogglesClass("none")
         .also.link(".type-label input").antitogglesAttr("disabled", "")
+        .value_available.antitogglesClass("none")
         .array_operatable.antitogglesClass("none")
         .object_operatable.antitogglesClass("none")
+        .register_available.antitogglesClass("none")
         .end
 
         // .views.setUpdate(function (data) {
@@ -216,46 +257,48 @@
     } else {
         unset($part['id']);
         $part = $partDao->attFindOneById($partDao->attInsert($part));
-    }
 
-    $parent = $this->data['parent'];
-    if ($parent['parent_type'] === 'array') {
-        $partArrayDao = $this->dao('part_array');
-        $partArray = $partArrayDao->attFindOneBy([
-            'parent_id' => $parent['parent_id'],
-            'child_id' => $part['id']
-        ]);
-        if (is_null($partArray)) {
-            $maxI = $partArrayDao->attFetchOne(
-                'select max(i) as i_max from part_arrays '
-                    . 'where parent_id = :parent_id ',
-                ['parent_id' => $parent['parent_id']]
-            )['i_max'];
-
-            $i = is_null($maxI) ? 0 : ($maxI + 1);
-
-            $partArrayDao->attInsert([
-                'parent_id' => $parent['parent_id'],
-                'child_id' => $part['id'],
-                'i' => $i,
+        $ctx = &$this->data['context'];
+        if ($ctx['parent_type'] === 'array') {
+            $partArrayDao = $this->dao('part_array');
+            $partArray = $partArrayDao->attFindOneBy([
+                'parent_id' => $ctx['parent_id'],
+                'child_id' => $part['id']
             ]);
-        }
-    } else if ($parent['parent_type'] === 'object') {
-        $partObjectDao = $this->dao('part_object');
-        $partObject = $partObjectDao->attFindOneBy([
-            'parent_id' => $parent['parent_id'],
-            'child_id' => $part['id']
-        ]);
-        if (is_null($partObject)) {
-            $partObjectDao->attInsert([
-                'parent_id' => $parent['parent_id'],
-                'child_id' => $part['id'],
-                'name' => $this->data['part_object']['name'],
+            if (is_null($partArray)) {
+                $maxI = $partArrayDao->attFetchOne(
+                    'select max(i) as i_max from part_arrays '
+                        . 'where parent_id = :parent_id ',
+                    ['parent_id' => $ctx['parent_id']]
+                )['i_max'];
+
+                $i = is_null($maxI) ? 0 : ($maxI + 1);
+
+                $partArrayDao->attInsert([
+                    'parent_id' => $ctx['parent_id'],
+                    'child_id' => $part['id'],
+                    'i' => $i,
+                ]);
+            }
+        } else if ($ctx['parent_type'] === 'object') {
+            $partObjectDao = $this->dao('part_object');
+            $partObject = $partObjectDao->attFindOneBy([
+                'parent_id' => $ctx['parent_id'],
+                'child_id' => $part['id']
             ]);
+            if (is_null($partObject)) {
+                $partObjectDao->attInsert([
+                    'parent_id' => $ctx['parent_id'],
+                    'child_id' => $part['id'],
+                    'name' => $this->data['part_object']['name'],
+                ]);
+            }
         }
     }
 
     $this->data['part'] = $part;
+    $ctx['is_update'] = true;
+
     $this->data['status'] = 'OK';
 }
 ]);

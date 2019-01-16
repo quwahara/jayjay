@@ -501,6 +501,15 @@ class JJ
         }
     }
 
+    public function getRequestAsInt($key, $val = null)
+    {
+        if (array_key_exists($key, $_REQUEST)) {
+            return intVal($_REQUEST[$key]);
+        } else {
+            return intVal($val);
+        }
+    }
+
     public function getMediaType()
     {
         if (array_key_exists('CONTENT_TYPE', $_SERVER)) {

@@ -6,6 +6,7 @@
         ],
         'partxs[]' => [
             'parts',
+            'part_objects',
             'part_arrays',
         ],
         'commands' => [
@@ -27,6 +28,16 @@
                         . ' inner join part_arrays a '
                         . '     on p.id = a.child_id '
                         . 'where a.parent_id = :parent_id '
+                        . ' ',
+                    ['parent_id' => $context['parent_id']]
+                );
+            } else if ($this->data['context']['parent_type'] === 'object') {
+                $this->data['partxs'] = $this->dao('parts', ['part_objects'])->attFetchAll(
+                    'select p.*, o.parent_id, o.child_id, o.name '
+                        . 'from parts p'
+                        . ' inner join part_objects o '
+                        . '     on p.id = o.child_id '
+                        . 'where o.parent_id = :parent_id '
                         . ' ',
                     ['parent_id' => $context['parent_id']]
                 );
@@ -76,7 +87,7 @@
 
         <div class="contents">
             <div class="row">
-                <a href="part.php">New</a>
+                <a class="new_child" href="part.php">New</a>
             </div>
 
             <form method="post">
@@ -85,6 +96,7 @@
                         <thead>
                             <tr>
                                 <th class="">&times;</th>
+                                <th class="">name</th>
                                 <th class="">i</th>
                                 <th class="">id</th>
                                 <th class="">type</th>
@@ -94,6 +106,7 @@
                         <tbody class="partxs">
                             <tr>
                                 <td><button type="button" class="delete">&times;</button></td>
+                                <td><a class="name"></a></td>
                                 <td><a class="i"></a></td>
                                 <td><a class="id"></a></td>
                                 <td class="type"></td>
@@ -113,8 +126,15 @@
 
         var booq;
         (booq = new Booq(<?= $this->structsAsJSON() ?>))
+        .context
+        .toHref(function (value) {
+            return "part.php?parent_type=" + value.parent_type + "&parent_id= " + value.parent_id;
+        })
+        .end
+
         .partxs.each(function (element) {
             this
+            .name.toText()
             .i.toText()
             .id.toText()
             .id.toHref("part.php?id=:id")
