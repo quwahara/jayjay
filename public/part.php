@@ -82,7 +82,9 @@
         </div>
 
         <div class="belt bg-mono-09">
-            <div><a href="home.php">Home</a><a href="part-list.php">List</a></div>
+            <a href="home.php">Home</a>
+            <a href="part-list.php">List</a>
+            <a href="part-list.php">Parent</a>
         </div>
 
         <div class="contents">

@@ -19,35 +19,53 @@
 
             $this->data['context']['parent_type'] = $this->getRequest('parent_type', '');
             $this->data['context']['parent_id'] = $this->getRequest('parent_id', 0);
-            $context = $this->data['context'];
+            $ctx = &$this->data['context'];
 
-            if ($this->data['context']['parent_type'] === 'array') {
+            if ($ctx['parent_type'] === 'array') {
                 $this->data['partxs'] = $this->dao('parts', ['part_arrays'])->attFetchAll(
-                    'select p.*, a.parent_id, a.child_id, a.i  '
-                        . 'from parts p'
+                    'select p.*  '
+                        . ', a.parent_id '
+                        . ', \'' . $ctx['parent_type'] . '\' as parent_type '
+                        . ', a.child_id '
+                        . ', a.i '
+                        . ', null as name '
+                        . 'from parts p '
                         . ' inner join part_arrays a '
                         . '     on p.id = a.child_id '
                         . 'where a.parent_id = :parent_id '
                         . ' ',
-                    ['parent_id' => $context['parent_id']]
+                    ['parent_id' => $ctx['parent_id']]
                 );
-            } else if ($this->data['context']['parent_type'] === 'object') {
+            } else if ($ctx['parent_type'] === 'object') {
                 $this->data['partxs'] = $this->dao('parts', ['part_objects'])->attFetchAll(
-                    'select p.*, o.parent_id, o.child_id, o.name '
-                        . 'from parts p'
+                    'select p.* '
+                        . ', o.parent_id '
+                        . ', \'' . $ctx['parent_type'] . '\' as parent_type '
+                        . ', o.child_id '
+                        . ', null as i '
+                        . ', o.name '
+                        . 'from parts p '
                         . ' inner join part_objects o '
                         . '     on p.id = o.child_id '
                         . 'where o.parent_id = :parent_id '
                         . ' ',
-                    ['parent_id' => $context['parent_id']]
+                    ['parent_id' => $ctx['parent_id']]
                 );
             } else {
                 $this->data['partxs'] = $this->dao('parts')->attFetchAll(
-                    'select p.*, \'\' as i  '
-                        . 'from parts p'
+                    'select p.* '
+                        . ', null as parent_id '
+                        . ', null as parent_type '
+                        . ', p.id as child_id '
+                        . ', null as i '
+                        . ', null as name '
+                        . 'from parts p '
                         . ' left outer join part_arrays a '
                         . '     on p.id = a.child_id '
+                        . ' left outer join part_objects o '
+                        . '     on p.id = o.child_id '
                         . 'where a.child_id is null '
+                        . 'and o.child_id is null '
                         . ' ',
                     []
                 );
@@ -134,10 +152,24 @@
 
         .partxs.each(function (element) {
             this
+            .link(".id").toHref(function (value) {
+                if (value.type === "string" || value.type === "number") {
+                    return "part.php"
+                    + "?id=" + value.id
+                    + "&parent_type=" + (value.parent_type || "")
+                    + "&parent_id=" + (value.parent_id || "")
+                    ;
+                } else {
+                    return "part-list.php"
+                    + "?parent_type=" + value.type
+                    + "&parent_id=" + value.id
+                    ;
+                }
+            })
             .name.toText()
             .i.toText()
             .id.toText()
-            .id.toHref("part.php?id=:id")
+            // .id.toHref("part.php?id=:id")
             .type.toText()
             .value.toText()
             ;
