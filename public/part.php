@@ -14,12 +14,14 @@
             'id' => 0,
             'parent_type' => '',
             'parent_id' => 0,
-            'has_parent' => false,
-            'is_parent_object' => false,
+            'parent_part_array' => false,
+
+            // 'has_parent' => false,
+            // 'is_parent_object' => false,
             'is_update' => false,
             'value_available' => false,
-            'array_operatable' => false,
-            'object_operatable' => false,
+            // 'array_operatable' => false,
+            // 'object_operatable' => false,
             'register_available' => false,
         ],
         // 'views' => [
@@ -33,11 +35,13 @@
         $ctx['id'] = $this->getRequestAsInt('id', 0);
         $ctx['parent_type'] = $this->getRequest('parent_type', '');
         $ctx['parent_id'] = $this->getRequestAsInt('parent_id', 0);
-        $ctx['has_parent'] = 0 < $ctx['parent_id'];
-        $ctx['is_parent_object'] = 'object' === $ctx['parent_type'];
+        $ctx['parent_part_array'] = $ctx['parent_type'] === 'array';
+
+        // $ctx['has_parent'] = 0 < $ctx['parent_id'];
+        // $ctx['is_parent_object'] = 'object' === $ctx['parent_type'];
         $ctx['value_available'] = true;
-        $ctx['array_operatable'] = false;
-        $ctx['object_operatable'] = false;
+        // $ctx['array_operatable'] = false;
+        // $ctx['object_operatable'] = false;
         $ctx['register_available'] = false;
 
         // $this->data['parent']['parent_type'] = $this->getRequest('parent_type', '');
@@ -52,12 +56,13 @@
                 $this->data['part'] = $part;
                 $ctx['is_update'] = true;
 
-                if ($ctx['parent_type'] === 'object' && ($partObject = $partObjectDao->attFindOneBy([
-                    'parent_id' => $ctx['parent_id'],
-                    'child_id' => $ctx['id']
-                ]))) {
-                    $this->data['part_object'] = $partObject;
+                if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
+                    $ctx['parent_type'] = 'array';
+                    $ctx['parent_id'] = $part_array['parent_id'];
+                    $ctx['parent_part_array'] = true;
                 }
+
+
             }
         }
 
@@ -83,8 +88,8 @@
 
         <div class="belt bg-mono-09">
             <a href="home.php">Home</a>
-            <a href="part-list.php">List</a>
-            <a href="part-list.php">Parent</a>
+            <a href="part-global.php">Part global</a>
+            <a class="parent_part_array none">Parent array</a>
         </div>
 
         <div class="contents">
@@ -207,19 +212,22 @@
             data.object_operatable = data.is_update && booq.data.part.type === "object";
             data.register_available = !data.is_update || (data.is_update && isPrimitiveType);
         })
+        .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
         .parent_type.withValue()
         .also.toText()
         .parent_id.withValue()
         .parent_id.toText()
-        .has_parent.antitogglesClass("none")
-        .is_parent_object.antitogglesClass("none")
+        .parent_part_array.antitogglesClass("none")
+        // .also.toHref("part-array.php?id=:parent_id")
+        // .has_parent.antitogglesClass("none")
+        // .is_parent_object.antitogglesClass("none")
         .is_update.link(".type-select").togglesClass("none")
         .also.link(".type-select select").togglesAttr("disabled", "")
         .also.link(".type-label").antitogglesClass("none")
         .also.link(".type-label input").antitogglesAttr("disabled", "")
         .value_available.antitogglesClass("none")
-        .array_operatable.antitogglesClass("none")
-        .object_operatable.antitogglesClass("none")
+        // .array_operatable.antitogglesClass("none")
+        // .object_operatable.antitogglesClass("none")
         .register_available.antitogglesClass("none")
         .end
 
