@@ -14,6 +14,7 @@
             'id' => 0,
             'parent_type' => '',
             'parent_id' => 0,
+            'parent_part_object' => false,
             'parent_part_array' => false,
 
             // 'has_parent' => false,
@@ -35,7 +36,8 @@
         $ctx['id'] = $this->getRequestAsInt('id', 0);
         $ctx['parent_type'] = $this->getRequest('parent_type', '');
         $ctx['parent_id'] = $this->getRequestAsInt('parent_id', 0);
-        $ctx['parent_part_array'] = $ctx['parent_type'] === 'array';
+        $ctx['parent_part_object'] = false;
+        $ctx['parent_part_array'] = false;
 
         // $ctx['has_parent'] = 0 < $ctx['parent_id'];
         // $ctx['is_parent_object'] = 'object' === $ctx['parent_type'];
@@ -56,12 +58,23 @@
                 $this->data['part'] = $part;
                 $ctx['is_update'] = true;
 
-                if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
+                if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
+                    $ctx['parent_type'] = 'object';
+                    $ctx['parent_id'] = $part_object['parent_id'];
+                    $ctx['parent_part_object'] = true;
+
+                } else if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
                     $ctx['parent_type'] = 'array';
                     $ctx['parent_id'] = $part_array['parent_id'];
                     $ctx['parent_part_array'] = true;
                 }
+            }
 
+        } else if ($ctx['parent_id'] > 0) {
+            if ($parent_part = $this->dao('part')->attFindOneBy(['id' => $ctx['parent_id']])) {
+                $ctx['parent_type'] = $parent_part['type'];
+                $ctx['parent_part_object'] = 'object' === $ctx['parent_type'];
+                $ctx['parent_part_array'] = 'array' === $ctx['parent_type'];
 
             }
         }
@@ -123,7 +136,7 @@
                     <span class="type"></span>
                     <input type="hidden" name="type" disabled>
                 </div>
-                <div class="row name is_parent_object none">
+                <div class="row name parent_part_object none">
                     <label for="name">Name</label>
                     <input type="text" name="name">
                 </div>
@@ -225,6 +238,7 @@
         .also.link(".type-select select").togglesAttr("disabled", "")
         .also.link(".type-label").antitogglesClass("none")
         .also.link(".type-label input").antitogglesAttr("disabled", "")
+        .parent_part_object.antitogglesClass("none")
         .value_available.antitogglesClass("none")
         // .array_operatable.antitogglesClass("none")
         // .object_operatable.antitogglesClass("none")
@@ -269,7 +283,7 @@
         $part = $partDao->attFindOneById($partDao->attInsert($part));
 
         $ctx = &$this->data['context'];
-        if ($ctx['parent_type'] === 'array') {
+        if ($ctx['parent_part_array']) {
             $partArrayDao = $this->dao('part_array');
             $partArray = $partArrayDao->attFindOneBy([
                 'parent_id' => $ctx['parent_id'],
@@ -290,7 +304,7 @@
                     'i' => $i,
                 ]);
             }
-        } else if ($ctx['parent_type'] === 'object') {
+        } else if ($ctx['parent_part_object']) {
             $partObjectDao = $this->dao('part_object');
             $partObject = $partObjectDao->attFindOneBy([
                 'parent_id' => $ctx['parent_id'],

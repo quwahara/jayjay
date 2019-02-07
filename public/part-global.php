@@ -75,8 +75,6 @@
                         <thead>
                             <tr>
                                 <th class="">&times;</th>
-                                <th class="">name</th>
-                                <th class="">i</th>
                                 <th class="">id</th>
                                 <th class="">type</th>
                                 <th class="">value</th>
@@ -85,8 +83,6 @@
                         <tbody class="partxs">
                             <tr>
                                 <td><button type="button" class="delete">&times;</button></td>
-                                <td><a class="name"></a></td>
-                                <td><a class="i"></a></td>
                                 <td><a class="id"></a></td>
                                 <td class="type"></td>
                                 <td class="value"></td>
@@ -148,7 +144,7 @@
                                 booq.data.status = "";
                                 booq.data.commands.command = "delete";
                                 booq.data.commands.delete_id = self.data.id;
-                                axios.post("part-list.php", booq.data)
+                                axios.post("part-global.php", booq.data)
                                 .then(function (response) {
                                     console.log(response.data);
                                     booq.data = response.data;
@@ -181,14 +177,7 @@
     $command = $this->data['commands']['command'];
     if ($command === 'delete') {
         $delete_id = $this->data['commands']['delete_id'];
-        $this->dao('part')->attDeleteById($delete_id);
-        $context = $this->data['context'];
-        if ($context['parent_type'] === 'array') {
-            $this->dao('part_arrays')->attDeleteBy([
-                'parent_id' => $context['parent_id'],
-                'child_id' => $delete_id
-            ]);
-        }
+        $this->part()->delete($delete_id);
     }
     $this->refreshData();
 

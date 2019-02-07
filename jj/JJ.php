@@ -9,6 +9,7 @@ use Services\CSSService;
 use Services\DAObject;
 use Services\DAService;
 use Services\DBService;
+use Services\PartService;
 
 function bool_in_ini($var)
 {
@@ -26,6 +27,7 @@ class JJ
     public $da_;
     public $db_;
     public $tables_;
+    public $part_;
 
     public $accessAllowed;
     public $daos;
@@ -109,7 +111,7 @@ class JJ
     /**
      * Response forbidden
      * 
-     * This method exits and never returns.
+     * This method exits but never returns.
      *
      * @return void
      */
@@ -128,7 +130,7 @@ class JJ
     /**
      * Response internal server error
      * 
-     * This method exits and never returns.
+     * This method exits but never returns.
      *
      * @return void
      */
@@ -426,6 +428,15 @@ class JJ
             }
         }
         return null;
+    }
+
+    function part()
+    {
+        if (!$this->part_) {
+            $this->part_ = (new PartService())
+                ->init($this->dao('part'), $this->dao('part_object'), $this->dao('part_array'));
+        }
+        return $this->part_;
     }
 
     public function isGet() : bool

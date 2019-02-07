@@ -8,7 +8,7 @@
         ],
         'partxs[]' => [
             'parts',
-            'part_arrays',
+            'part_objects',
         ],
         'commands' => [
             'command' => '',
@@ -20,30 +20,21 @@
 
             $ctx = &$this->data['context'];
             $ctx['id'] = $this->getRequest('id', 0);
-            // $ctx['parent_id'] = $this->getRequest('id', 0);
-            // $ctx['parent_type'] = 'array';
 
-            $this->data['partxs'] = $this->dao('parts', ['part_arrays'])->attFetchAll(
-                'select p.*  '
-                    . ', a.parent_id '
-                    . ', a.child_id '
-                    . ', a.i '
+            $this->data['partxs'] = $this->dao('parts', ['part_objects'])->attFetchAll(
+                'select p.* '
+                    . ', o.parent_id '
+                    . ', o.child_id '
+                    . ', o.name '
                     . 'from parts p '
-                    . ' inner join part_arrays a '
-                    . '     on p.id = a.child_id '
-                    . 'where a.parent_id = :id '
+                    . ' inner join part_objects o '
+                    . '     on p.id = o.child_id '
+                    . 'where o.parent_id = :id '
                     . 'order by '
-                    . ' a.i '
+                    . ' o.name '
                     . ' ',
                 ['id' => $ctx['id']]
             );
-
-            $ctx['parent_part_array'] = false;
-            if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
-                $ctx['parent_type'] = 'array';
-                $ctx['parent_id'] = $part_array['parent_id'];
-                $ctx['parent_part_array'] = true;
-            }
 
             $this->data['commands'] = [
                 'command' => '',
@@ -65,18 +56,17 @@
     <script src="js/lib/global.js"></script>
     <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Part array</title>
+    <title>Part list</title>
 </head>
 <body>
     <div>
         <div class="belt">
-            <h1>Part array</h1>
+            <h1>Part object</h1>
         </div>
 
         <div class="belt bg-mono-09">
             <a href="home.php">Home</a>
             <a href="part-global.php">Part global</a>
-            <a class="parent_part_array none">Parent array</a>
         </div>
 
         <div class="contents">
@@ -91,7 +81,7 @@
                         <thead>
                             <tr>
                                 <th class="">&times;</th>
-                                <th class="">i</th>
+                                <th class="">name</th>
                                 <th class="">id</th>
                                 <th class="">type</th>
                                 <th class="">value</th>
@@ -100,7 +90,7 @@
                         <tbody class="partxs">
                             <tr>
                                 <td><button type="button" class="delete">&times;</button></td>
-                                <td><a class="i"></a></td>
+                                <td><a class="name"></a></td>
                                 <td><a class="id"></a></td>
                                 <td class="type"></td>
                                 <td class="value"></td>
@@ -111,9 +101,8 @@
                 </div>
             </form>
             <div class="row">
-                <a class="add_item">Add an item</a>
+                <a class="add_property">Add a property</a>
             </div>
-
         </div>
         <div id="snackbar"></div>
     </div>
@@ -123,11 +112,10 @@
 
         var booq;
         (booq = new Booq(<?= $this->structsAsJSON() ?>))
+        
         .context
         .id.toText()
-        .parent_part_array.antitogglesClass("none")
-        .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
-        .link(".add_item").toHref("part.php?parent_type=array&parent_id=:id")
+        .link(".add_property").toHref("part.php?parent_type=object&parent_id=:id")
         .end
 
         .partxs.each(function (element) {
@@ -136,22 +124,27 @@
                 if (value.type === "string" || value.type === "number") {
                     return "part.php"
                     + "?id=" + value.id
+                    + "&parent_type=global"
+                    + "&parent_id="
                     ;
                 } else if (value.type === "array") {
                     return "part-array.php"
                     + "?id=" + value.id
+                    + "&parent_type=global"
+                    + "&parent_id="
                     ;
                 } else if (value.type === "object") {
                     return "part-object.php"
                     + "?id=" + value.id
+                    + "&parent_type=global"
+                    + "&parent_id="
                     ;
                 } else {
                     //
                 }
             })
-            .i.toText()
+            .name.toText()
             .id.toText()
-            // .id.toHref("part.php?id=:id")
             .type.toText()
             .value.toText()
             ;
@@ -165,7 +158,7 @@
                                 booq.data.status = "";
                                 booq.data.commands.command = "delete";
                                 booq.data.commands.delete_id = self.data.id;
-                                axios.post("part-array.php", booq.data)
+                                axios.post("part-object.php", booq.data)
                                 .then(function (response) {
                                     console.log(response.data);
                                     booq.data = response.data;
