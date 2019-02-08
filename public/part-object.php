@@ -4,6 +4,7 @@
             'id' => 0,
             'parent_id' => 0,
             'parent_type' => '',
+            'parent_part_object' => false,
             'parent_part_array' => false,
         ],
         'partxs[]' => [
@@ -36,6 +37,20 @@
                 ['id' => $ctx['id']]
             );
 
+            $ctx['parent_part_object'] = false;
+            if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
+                $ctx['parent_type'] = 'object';
+                $ctx['parent_id'] = $part_object['parent_id'];
+                $ctx['parent_part_object'] = true;
+            }
+
+            $ctx['parent_part_array'] = false;
+            if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
+                $ctx['parent_type'] = 'array';
+                $ctx['parent_id'] = $part_array['parent_id'];
+                $ctx['parent_part_array'] = true;
+            }
+
             $this->data['commands'] = [
                 'command' => '',
                 'delete_id' => 0,
@@ -56,7 +71,7 @@
     <script src="js/lib/global.js"></script>
     <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Part list</title>
+    <title>Part object</title>
 </head>
 <body>
     <div>
@@ -67,6 +82,8 @@
         <div class="belt bg-mono-09">
             <a href="home.php">Home</a>
             <a href="part-global.php">Part global</a>
+            <a class="parent_part_object none">Parent object</a>
+            <a class="parent_part_array none">Parent array</a>
         </div>
 
         <div class="contents">
@@ -115,6 +132,10 @@
         
         .context
         .id.toText()
+        .parent_part_object.antitogglesClass("none")
+        .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
+        .parent_part_array.antitogglesClass("none")
+        .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
         .link(".add_property").toHref("part.php?parent_type=object&parent_id=:id")
         .end
 
@@ -124,20 +145,14 @@
                 if (value.type === "string" || value.type === "number") {
                     return "part.php"
                     + "?id=" + value.id
-                    + "&parent_type=global"
-                    + "&parent_id="
                     ;
                 } else if (value.type === "array") {
                     return "part-array.php"
                     + "?id=" + value.id
-                    + "&parent_type=global"
-                    + "&parent_id="
                     ;
                 } else if (value.type === "object") {
                     return "part-object.php"
                     + "?id=" + value.id
-                    + "&parent_type=global"
-                    + "&parent_id="
                     ;
                 } else {
                     //

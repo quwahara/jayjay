@@ -16,8 +16,8 @@
             'parent_id' => 0,
             'parent_part_object' => false,
             'parent_part_array' => false,
+            'has_parent' => false,
 
-            // 'has_parent' => false,
             // 'is_parent_object' => false,
             'is_update' => false,
             'value_available' => false,
@@ -59,14 +59,18 @@
                 $ctx['is_update'] = true;
 
                 if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
+                    $this->data['part_object'] = $part_object;
                     $ctx['parent_type'] = 'object';
                     $ctx['parent_id'] = $part_object['parent_id'];
                     $ctx['parent_part_object'] = true;
+                    $ctx['has_parent'] = true;
 
                 } else if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
+                    $this->data['part_array'] = $part_array;
                     $ctx['parent_type'] = 'array';
                     $ctx['parent_id'] = $part_array['parent_id'];
                     $ctx['parent_part_array'] = true;
+                    $ctx['has_parent'] = true;
                 }
             }
 
@@ -75,7 +79,7 @@
                 $ctx['parent_type'] = $parent_part['type'];
                 $ctx['parent_part_object'] = 'object' === $ctx['parent_type'];
                 $ctx['parent_part_array'] = 'array' === $ctx['parent_type'];
-
+                $ctx['has_parent'] = true;
             }
         }
 
@@ -102,6 +106,7 @@
         <div class="belt bg-mono-09">
             <a href="home.php">Home</a>
             <a href="part-global.php">Part global</a>
+            <a class="parent_part_object none">Parent object</a>
             <a class="parent_part_array none">Parent array</a>
         </div>
 
@@ -117,6 +122,10 @@
                 <div class="row has_parent none">
                     <label>Parent Type</label>
                     <span class="parent_type"></span>
+                </div>
+                <div class="row parent_part_array none">
+                    <label>I</label>
+                    <span class="array_index"></span>
                 </div>
                 <div class="row">
                     <label>Id</label>
@@ -214,9 +223,9 @@
         .name.withValue()
         .end
         
-        // .part_array
-        // .child_id.link("input[name='id']").withValue()
-        // .end
+        .part_array
+        .i.link(".array_index").toText()
+        .end
         
         .context.setUpdate(function (data) {
             isPrimitiveType = booq.data.part.type === "string" || booq.data.part.type === "number";
@@ -227,12 +236,16 @@
         })
         .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
         .parent_type.withValue()
+        .parent_type.antitogglesClass("none")
         .also.toText()
         .parent_id.withValue()
         .parent_id.toText()
+        .parent_part_object.antitogglesClass("none")
+        .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
         .parent_part_array.antitogglesClass("none")
+        .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
         // .also.toHref("part-array.php?id=:parent_id")
-        // .has_parent.antitogglesClass("none")
+        .has_parent.antitogglesClass("none")
         // .is_parent_object.antitogglesClass("none")
         .is_update.link(".type-select").togglesClass("none")
         .also.link(".type-select select").togglesAttr("disabled", "")

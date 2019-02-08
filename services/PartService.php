@@ -29,6 +29,11 @@ class PartService
     //     return !is_null($this->pa_->attFindOneBy(['parent_id' => $parent_id]));
     // }
 
+    public function isProperty($child_id)
+    {
+        return !is_null($this->po_->attFindOneBy(['child_id' => $child_id]));
+    }
+
     public function isItem($child_id)
     {
         return !is_null($this->pa_->attFindOneBy(['child_id' => $child_id]));
@@ -39,12 +44,23 @@ class PartService
         return $this->p_->attFindOneBy(['id' => $id]);
     }
 
+    public function findProperty($child_id)
+    {
+        return $this->po_->attFindOneBy(['child_id' => $child_id]);
+    }
+
     public function findItem($child_id)
     {
         return $this->pa_->attFindOneBy(['child_id' => $child_id]);
     }
 
-    public function findAllArrayOrderByI($parent_id)
+    public function findAllPropertiesOrderByName($parent_id)
+    {
+        $tableName = $this->po_->table['tableName'];
+        return $this->po_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by name", ['parent_id' => $parent_id]);
+    }
+
+    public function findAllItemsOrderByI($parent_id)
     {
         $tableName = $this->pa_->table['tableName'];
         return $this->pa_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by i", ['parent_id' => $parent_id]);
@@ -57,14 +73,20 @@ class PartService
             return false;
         }
 
+        $property = $this->findProperty($id);
+
         $item = $this->findItem($id);
 
         if ($part['type'] === 'object') {
-            throw new Exception('Not implemented');
+            $this->deleteObject($id);
         } else if ($part['type'] === 'array') {
             $this->deleteArray($id);
         } else {
             $this->deletePart($id);
+        }
+
+        if (!is_null($property)) {
+            $this->deleteProperty($property['child_id'], $property['parent_id']);
         }
 
         if (!is_null($item)) {
@@ -77,6 +99,27 @@ class PartService
     public function deletePart($id)
     {
         $this->p_->attDeleteBy(['id' => $id]);
+    }
+
+    public function deleteObject($parent_id)
+    {
+        $part = $this->findPart($parent_id);
+        if (is_null($part)) {
+            return false;
+        }
+
+        if ($part['type'] !== 'object') {
+            throw new Exception("The id:{$parent_id} was not an object.");
+        }
+
+        $properties = $this->findAllPropertiesOrderByName($parent_id);
+        foreach ($properties as $property) {
+            $this->delete($property['child_id']);
+        }
+
+        $this->deletePart($parent_id);
+
+        return true;
     }
 
     /**
@@ -100,14 +143,24 @@ class PartService
             throw new Exception("The id:{$parent_id} was not an array.");
         }
 
-        $array = $this->findAllArrayOrderByI($parent_id);
-        foreach ($array as $item) {
+        $items = $this->findAllItemsOrderByI($parent_id);
+        foreach ($items as $item) {
             $this->delete($item['child_id']);
         }
 
         $this->deletePart($parent_id);
 
         return true;
+    }
+
+    public function deleteProperty($child_id, $parent_id)
+    {
+        if (!$this->isProperty($child_id)) {
+            throw new Exception("The id:{$child_id} was not a property of object.");
+        }
+
+        // Delete the property in the object.
+        $this->po_->attDeleteBy(['parent_id' => $parent_id, 'child_id' => $child_id]);
     }
 
     /**
@@ -143,7 +196,7 @@ class PartService
             throw new Exception("The id:{$parent_id} was not an array.");
         }
 
-        $array = $this->findAllArrayOrderByI($parent_id);
+        $array = $this->findAllItemsOrderByI($parent_id);
         $i = 0;
         foreach ($array as $item) {
             $item['i'] = $i;

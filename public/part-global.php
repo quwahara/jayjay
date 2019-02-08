@@ -51,7 +51,7 @@
     <script src="js/lib/global.js"></script>
     <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Part list</title>
+    <title>Part global</title>
 </head>
 <body>
     <div>
@@ -108,20 +108,14 @@
                 if (value.type === "string" || value.type === "number") {
                     return "part.php"
                     + "?id=" + value.id
-                    + "&parent_type=global"
-                    + "&parent_id="
                     ;
                 } else if (value.type === "array") {
                     return "part-array.php"
                     + "?id=" + value.id
-                    + "&parent_type=global"
-                    + "&parent_id="
                     ;
                 } else if (value.type === "object") {
                     return "part-object.php"
                     + "?id=" + value.id
-                    + "&parent_type=global"
-                    + "&parent_id="
                     ;
                 } else {
                     //

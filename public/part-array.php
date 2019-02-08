@@ -4,6 +4,7 @@
             'id' => 0,
             'parent_id' => 0,
             'parent_type' => '',
+            'parent_part_object' => false,
             'parent_part_array' => false,
         ],
         'partxs[]' => [
@@ -37,6 +38,13 @@
                     . ' ',
                 ['id' => $ctx['id']]
             );
+
+            $ctx['parent_part_object'] = false;
+            if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
+                $ctx['parent_type'] = 'object';
+                $ctx['parent_id'] = $part_object['parent_id'];
+                $ctx['parent_part_object'] = true;
+            }
 
             $ctx['parent_part_array'] = false;
             if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
@@ -76,6 +84,7 @@
         <div class="belt bg-mono-09">
             <a href="home.php">Home</a>
             <a href="part-global.php">Part global</a>
+            <a class="parent_part_object none">Parent object</a>
             <a class="parent_part_array none">Parent array</a>
         </div>
 
@@ -125,6 +134,8 @@
         (booq = new Booq(<?= $this->structsAsJSON() ?>))
         .context
         .id.toText()
+        .parent_part_object.antitogglesClass("none")
+        .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
         .parent_part_array.antitogglesClass("none")
         .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
         .link(".add_item").toHref("part.php?parent_type=array&parent_id=:id")
