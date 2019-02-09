@@ -29,9 +29,9 @@
 }
 
 .bdr1 {
-    border-left: 1px solid #555;    
-    border-top: 1px solid #555;    
-    border-right: 1px solid #555;    
+    border-left: 1px solid #555;
+    border-top: 1px solid #555;
+    border-right: 1px solid #555;
 }
 
 .pad4 {
@@ -39,32 +39,39 @@
 }
 
 html {
-  /* 10px */
-  /* font-size: 62.5%; */
-  /* 12px */
-  /* font-size: 75.0%; */
-  /* 14px */
-  font-size: 87.5%;
+    font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Meiryo, メイリオ, Osaka, 'MS PGothic', arial, helvetica, sans-serif;
+    /* 10px */
+    /* font-size: 62.5%; */
+    /* 12px */
+    /* font-size: 75.0%; */
+    /* 14px */
+    font-size: 87.5%;
 }
+
 form {
     display: inline-block;
     margin: 0;
     padding: 0;
 }
+
 h1 {
-  font-size: 1.6rem;
+    font-size: 1.6rem;
 }
+
 h2 {
-  font-size: 1.4rem;
+    font-size: 1.4rem;
 }
+
 h3 {
-  font-size: 1.2rem;
+    font-size: 1.2rem;
 }
+
 h4 {
-  font-size: 1.1rem;
+    font-size: 1.1rem;
 }
+
 h5 {
-  font-size: 1.0rem;
+    font-size: 1.0rem;
 }
 
 input[type='text'].h5v:invalid {
@@ -77,98 +84,100 @@ input[type='text'].h5v:invalid {
 /* The Modal (background) */
 
 .modal {
-  display: none;
-  /* Hidden by default */
-  position: fixed;
-  /* Stay in place */
-  z-index: 1;
-  /* Sit on top */
-  padding-top: 100px;
-  /* Location of the box */
-  left: 0;
-  top: 0;
-  width: 100%;
-  /* Full width */
-  height: 100%;
-  /* Full height */
-  overflow: auto;
-  /* Enable scroll if needed */
-  background-color: rgb(0, 0, 0);
-  /* Fallback color */
-  background-color: rgba(0, 0, 0, 0.4);
-  /* Black w/ opacity */
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    z-index: 1;
+    /* Sit on top */
+    padding-top: 100px;
+    /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    overflow: auto;
+    /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
 }
 
 /* Modal Content */
 
 .modal-content {
-  position: relative;
-  background-color: #fefefe;
-  margin: auto;
-  padding: 0;
-  border: 1px solid #888;
-  width: 80%;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  -webkit-animation-name: animatetop;
-  -webkit-animation-duration: 0.4s;
-  animation-name: animatetop;
-  animation-duration: 0.4s
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
 }
 
 /* Add Animation */
 
 @-webkit-keyframes animatetop {
-  from {
-    top: -300px;
-    opacity: 0
-  }
-  to {
-    top: 0;
-    opacity: 1
-  }
+    from {
+        top: -300px;
+        opacity: 0
+    }
+
+    to {
+        top: 0;
+        opacity: 1
+    }
 }
 
 @keyframes animatetop {
-  from {
-    top: -300px;
-    opacity: 0
-  }
-  to {
-    top: 0;
-    opacity: 1
-  }
+    from {
+        top: -300px;
+        opacity: 0
+    }
+
+    to {
+        top: 0;
+        opacity: 1
+    }
 }
 
 /* The Close Button */
 
 .modal-close {
-  color: white;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
 }
 
 .modal-close:hover,
 .modal-close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .modal-header {
-  padding: 2px 16px;
-  background-color: #5cb85c;
-  color: white;
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
 }
 
 .modal-body {
-  padding: 2px 16px;
+    padding: 2px 16px;
 }
 
 .modal-footer {
-  padding: 2px 16px;
-  background-color: #5cb85c;
-  color: white;
+    padding: 2px 16px;
+    background-color: #5cb85c;
+    color: white;
 }
 
 /********************************************************************************
@@ -177,7 +186,7 @@ input[type='text'].h5v:invalid {
 .snackbar {
     position: fixed;
     width: 100%;
-     /* Hidden by default. Visible on click */
+    /* Hidden by default. Visible on click */
     top: 100%;
     -webkit-transition: top 0.6s ease-in-out;
     transition: top 0.6s ease-in-out;
