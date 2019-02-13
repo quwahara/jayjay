@@ -200,7 +200,7 @@ class JJ
         if (!is_callable($this->$name)) {
             throw new \RuntimeException("Method {$name} was not callable");
         }
-        return call_user_func($this->$name, $args);
+        return call_user_func_array($this->$name, $args);
     }
 
     public function initStructs(array $structs) : JJ

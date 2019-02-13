@@ -66,6 +66,47 @@ class PartService
         return $this->pa_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by i", ['parent_id' => $parent_id]);
     }
 
+    public function addPart($type, $value)
+    {
+        $part = $this->p_->createStruct();
+        $part['type'] = $type;
+        $part['value'] = $value;
+
+        $id = $this->p_->attInsert($part);
+        $part = $this->p_->attFindOneById($id);
+
+        return $part;
+    }
+
+    public function addPartObject($parent_id, $child_id, $name)
+    {
+        $part_object = $this->po_->createStruct();
+        $part_object['parent_id'] = $parent_id;
+        $part_object['child_id'] = $child_id;
+        $part_object['name'] = $name;
+
+        $id = $this->po_->attInsert($part_object);
+        $part_object = $this->po_->attFindOneById($id);
+
+        return $part_object;
+    }
+
+    public function addPrimitiveProperty($parent_id, $name, $type, $value)
+    {
+        $parent_part = $this->findPart($parent_id);
+        if (is_null($parent_part)) {
+            return false;
+        }
+
+        if ($parent_part['type'] !== 'object') {
+            throw new Exception("The id:{$parent_id} was not an object.");
+        }
+
+        $part = $this->addPart($type, $value);
+
+        return $this->addPartObject($parent_id, $part['id'], $name);
+    }
+
     public function delete($id)
     {
         $part = $this->findPart($id);

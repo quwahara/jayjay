@@ -44,6 +44,18 @@ class DAObject
         }
     }
 
+    public function eliminateByFieldName(array $ar)
+    {
+        $ar2 = [];
+        foreach ($ar as $name => $value) {
+            $column = $this->getColumnByFieldName($name);
+            if (!empty($column)) {
+                $ar[$name] = $value;
+            }
+        }
+        return $ar2;
+    }
+
     public function getAttrByFieldName(string $fieldName)
     {
         $column = $this->getColumnByFieldName($fieldName);
