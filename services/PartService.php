@@ -104,7 +104,7 @@ class PartService
         return $part_array;
     }
 
-    public function addPrimitiveProperty($parent_id, $name, $type, $value)
+    public function addNewProperty($parent_id, $name, $type, $value)
     {
         $parent_part = $this->findPart($parent_id);
         if (is_null($parent_part)) {
