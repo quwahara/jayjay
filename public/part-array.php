@@ -11,16 +11,20 @@
             'parts',
             'part_arrays',
         ],
+        'add_part' => [
+            'part',
+            'part_array',
+        ],
         'commands' => [
             'command' => '',
             'delete_id' => 0,
         ]
     ],
     'methods' => [
-        'refreshData' => function () {
+        'refreshData' => function ($id) {
 
             $ctx = &$this->data['context'];
-            $ctx['id'] = $this->getRequest('id', 0);
+            $ctx['id'] = $id;
             // $ctx['parent_id'] = $this->getRequest('id', 0);
             // $ctx['parent_type'] = 'array';
 
@@ -61,7 +65,7 @@
         },
     ],
     'get' => function () {
-        $this->refreshData();
+        $this->refreshData($this->getRequest('id', 0));
         ?>
 <html>
 <head>
@@ -116,7 +120,27 @@
                             </tr>
                         </tbody>
                     </table>
-
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="">+</th>
+                                <th class="">type</th>
+                                <th class="">value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><button type="button" class="add">+</button></td>
+                                <td>
+                                    <select class="add_type" name="type">
+                                        <option value="string">String</option>
+                                        <option value="number">Number</option>
+                                    </select>
+                                </td>
+                                <td><input class="add_value" type="text"></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </form>
             <div class="row">
@@ -195,8 +219,37 @@
                     };
             })(this));
         })
+        .add_part
+        .type.link("select.add_type").withValue()
+        .value.link("input.add_value").withValue()
+        .end
         .setData(<?= $this->dataAsJSON() ?>)
         ;
+
+        Booq.q("button.add").on("click", function (event) {
+            Global.modal.create({
+                body: "追加してもよろしいですか",
+                ok: {
+                    onclick: function () {
+                        booq.data.status = "";
+                        booq.data.commands.command = "add";
+                        axios.post("part-array.php", booq.data)
+                        .then(function (response) {
+                            console.log(response.data);
+                            booq.data = response.data;
+                            // booq.data.message = response.data.message;
+                            // if ("" !== booq.data.message) {
+                            //     Global.snackbar.messageDiv.classList.add("warning");
+                            //     Global.snackbar.maximize();
+                            // }
+                        })
+                        .catch(Global.catcher(booq.data));
+                    }
+                }
+            })
+            .open();
+        });
+
     };
     </script>
 </body>
@@ -205,13 +258,18 @@
 
 },
 'post application/json' => function () {
-    $data = $this->data;
+    $data = &$this->data;
     $command = $this->data['commands']['command'];
     if ($command === 'delete') {
         $delete_id = $this->data['commands']['delete_id'];
         $this->part()->delete($delete_id);
+    } else if ($command === 'add') {
+        $add_part = &$data['add_part'];
+        $this->part()->addPrimitiveItem($data['context']['id'], $add_part['type'], $add_part['value']);
+        $add_part['type'] = '';
+        $add_part['value'] = '';
     }
-    $this->refreshData();
+    $this->refreshData($data['context']['id']);
 
     $this->data['status'] = 'OK';
 }

@@ -91,6 +91,19 @@ class PartService
         return $part_object;
     }
 
+    public function addPartArray($parent_id, $child_id)
+    {
+        $part_array = $this->pa_->createStruct();
+        $part_array['parent_id'] = $parent_id;
+        $part_array['child_id'] = $child_id;
+        $part_array['i'] = $this->maxI($parent_id) + 1;
+
+        $id = $this->pa_->attInsert($part_array);
+        $part_array = $this->pa_->attFindOneById($id);
+
+        return $part_array;
+    }
+
     public function addPrimitiveProperty($parent_id, $name, $type, $value)
     {
         $parent_part = $this->findPart($parent_id);
@@ -105,6 +118,22 @@ class PartService
         $part = $this->addPart($type, $value);
 
         return $this->addPartObject($parent_id, $part['id'], $name);
+    }
+
+    public function addPrimitiveItem($parent_id, $type, $value)
+    {
+        $part = $this->findPart($parent_id);
+        if (is_null($part)) {
+            return false;
+        }
+
+        if ($part['type'] !== 'array') {
+            throw new Exception("The id:{$parent_id} was not an array.");
+        }
+
+        $part = $this->addPart($type, $value);
+
+        return $this->addPartArray($parent_id, $part['id']);
     }
 
     public function delete($id)
@@ -246,6 +275,17 @@ class PartService
         }
 
         return true;
+    }
+
+    public function maxI($parent_id)
+    {
+        $maxI = $this->pa_->attFetchOne(
+            'select max(i) as i_max from part_arrays '
+                . 'where parent_id = :parent_id ',
+            ['parent_id' => $parent_id]
+        )['i_max'];
+
+        return is_null($maxI) ? -1 : $maxI;
     }
 
 }
