@@ -14,6 +14,7 @@
         'add_part' => [
             'part',
             'part_array',
+            'add_value_available' => false,
         ],
         'commands' => [
             'command' => '',
@@ -56,6 +57,8 @@
                 $ctx['parent_id'] = $part_array['parent_id'];
                 $ctx['parent_part_array'] = true;
             }
+
+            $this->data['add_part']['type'] = 'string';
 
             $this->data['commands'] = [
                 'command' => '',
@@ -125,7 +128,7 @@
                             <tr>
                                 <th class="">+</th>
                                 <th class="">type</th>
-                                <th class="">value</th>
+                                <th class="add_value_available none">value</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -133,11 +136,13 @@
                                 <td><button type="button" class="add">+</button></td>
                                 <td>
                                     <select class="add_type" name="type">
-                                        <option value="string">String</option>
+                                    <option value="string">String</option>
                                         <option value="number">Number</option>
+                                        <option value="object">Object</option>
+                                        <option value="array">Array</option>
                                     </select>
                                 </td>
-                                <td><input class="add_value" type="text"></td>
+                                <td><input class="add_value add_value_available none" type="text"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -221,9 +226,15 @@
         })
         .add_part
         .type.link("select.add_type").withValue()
+        .type.link("select.add_type").on("change", function() { booq.update(); })
+        .setUpdate(function (data) {
+            data.add_value_available = data.type === "string" || data.type === "number";
+        })
+        .add_value_available.antitogglesClass("none")
         .value.link("input.add_value").withValue()
         .end
         .setData(<?= $this->dataAsJSON() ?>)
+        .update()
         ;
 
         Booq.q("button.add").on("click", function (event) {
@@ -265,7 +276,7 @@
         $this->part()->delete($delete_id);
     } else if ($command === 'add') {
         $add_part = &$data['add_part'];
-        $this->part()->addPrimitiveItem($data['context']['id'], $add_part['type'], $add_part['value']);
+        $this->part()->addNewItem($data['context']['id'], $add_part['type'], $add_part['value']);
         $add_part['type'] = '';
         $add_part['value'] = '';
     }

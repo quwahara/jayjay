@@ -120,7 +120,7 @@ class PartService
         return $this->addPartObject($parent_id, $part['id'], $name);
     }
 
-    public function addPrimitiveItem($parent_id, $type, $value)
+    public function addNewItem($parent_id, $type, $value)
     {
         $part = $this->findPart($parent_id);
         if (is_null($part)) {
