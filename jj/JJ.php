@@ -30,6 +30,13 @@ class JJ
     public $part_;
 
     public $accessAllowed;
+
+    /**
+     * Starting up parameters
+     *
+     * @var array
+     */
+    public $args;
     public $daos;
     public $data;
     public $dispatchKey;
@@ -158,6 +165,8 @@ class JJ
         $this->methods = $this->config_['methods'];
 
         $this->structs = $this->config_['structs'];
+        
+        $this->attrs = $this->config_['attrs'];
 
         $this->data = $this->config_['data'];
 
@@ -167,6 +176,10 @@ class JJ
 
         if (array_key_exists('structs', $this->args)) {
             $this->initStructs($this->args['structs']);
+        }
+
+        if (array_key_exists('attrs', $this->args)) {
+            $this->initAttrs($this->args['attrs']);
         }
 
         if ($this->isGet()) {
@@ -214,10 +227,26 @@ class JJ
         return $this;
     }
 
+    /**
+     * Parse key and value to struct
+     *
+     * Case 1, $key is int and $value is string
+     * In this case, the $value is assumed table named and it loads strunct by table name.
+     * 
+     * Case 2, $key is string and $value is array
+     * It accumrates each items in array that were divided from $value. 
+     * 
+     * Case 3, $key is string and $value is primitive value, like string, int and bool.
+     * In this case, $key and $value is struct itself.
+     * 
+     * @param [type] $key
+     * @param [type] $value
+     * @return array
+     */
     public function parseStruct($key, $value) : array
     {
         if (is_int($key) && is_string($value)) {
-            return $this->parseStructForName($value);
+            return $this->loadStructByTableName($value);
 
         } else if (is_string($key) && is_array($value)) {
 
@@ -234,7 +263,7 @@ class JJ
                 // In case of $value3 is model name
                 if (is_int($key3) && is_string($value3)) {
                     // Using only structure of model. Ripping $key3 having model name.
-                    $substruct = $this->parseStructForName($value3);
+                    $substruct = $this->loadStructByTableName($value3);
                     foreach ($substruct as $key4 => $value4) {
                         $theStruct = $theStruct + $value4;
                     }
@@ -264,7 +293,13 @@ class JJ
         }
     }
 
-    public function parseStructForName($name) : array
+    /**
+     * Load struct by Table name
+     *
+     * @param [string] $name Table name to be loaded. This load struct as array if $name is ending with "[]".
+     * @return array loaded struct
+     */
+    public function loadStructByTableName($name) : array
     {
         $theStruct = [];
         $isArray = $this->endsWith($name, '[]');
@@ -283,9 +318,12 @@ class JJ
 
     public function initAttrs(array $attrs) : JJ
     {
+        $theAttrs = [];
         foreach ($attrs as $attr) {
-            $this->data['attrs'][$attr] = $this->dao($attr)->getAttrsAll();;
+            $subattr = $this->dao($attr)->getAttrsAll();
+            $theAttrs = $theAttrs + $subattr;
         }
+        $this->attrs = array_merge($this->attrs, $theAttrs);
         return $this;
     }
 
@@ -457,6 +495,11 @@ class JJ
     function structsAsJSON()
     {
         return $this->json($this->structs);
+    }
+
+    function attrsAsJSON()
+    {
+        return $this->json($this->attrs);
     }
 
     public function isJsonRequested()

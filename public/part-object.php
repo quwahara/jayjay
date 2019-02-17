@@ -21,6 +21,10 @@
             'delete_id' => 0,
         ]
     ],
+    'attrs' => [
+        'part',
+        'part_object',
+    ],
     'methods' => [
         'refreshData' => function ($id) {
 
@@ -133,7 +137,7 @@
                         <tbody>
                             <tr>
                                 <td><button type="button" class="add">+</button></td>
-                                <td><input class="add_name" type="text"></td>
+                                <td><input class="add_name h5v" type="text"></td>
                                 <td>
                                     <select class="add_type" name="type">
                                         <option value="string">String</option>
@@ -142,7 +146,7 @@
                                         <option value="array">Array</option>
                                     </select>
                                 </td>
-                                <td><input class="add_value add_value_available none" type="text"></td>
+                                <td><input class="add_value add_value_available none h5v" type="text"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -157,6 +161,14 @@
     <script>
     window.onload = function() {
         Global.snackbar("#snackbar");
+
+        var attrs;
+        (attrs = new Booq(<?= $this->attrsAsJSON() ?>))
+        .name.link(".add_name").toAttrs()
+        .value.link(".add_value").toAttrs()
+        .setStructureAsData()
+        ;
+
 
         var booq;
         (booq = new Booq(<?= $this->structsAsJSON() ?>))

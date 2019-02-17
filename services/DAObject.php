@@ -27,18 +27,20 @@ class DAObject
         foreach ($this->table['columns'] as $column) {
             $fieldName = $column['fieldName'];
             $attrs[$fieldName] = $this->getAttrByFieldName($fieldName);
-
-            // $attr = $this->getAttrByFieldName($fieldName);
-            // // Empty PHP array turns to empty JS array by json_encode().
-            // // Not empty assoc PHP array turns to JS Object.
-            // // Attr is expected to be JS Object.
-            // // This method doesn't returns empty PHP array to avoid producing empty JS array.
-            // if (count($attr) > 0) {
-            //     $attrs[$fieldName] = $this->getAttrByFieldName($fieldName);
-            // }
         }
         if (count($attrs) > 0) {
             return $attrs;
+        } else {
+            return new \stdClass();
+        }
+    }
+
+    public function getAttrByFieldName(string $fieldName)
+    {
+        $column = $this->getColumnByFieldName($fieldName);
+        $attr = !empty($column) && array_key_exists('attr', $column) ? $column['attr'] : [];
+        if (count($attr) > 0) {
+            return $attr;
         } else {
             return new \stdClass();
         }
@@ -54,17 +56,6 @@ class DAObject
             }
         }
         return $ar2;
-    }
-
-    public function getAttrByFieldName(string $fieldName)
-    {
-        $column = $this->getColumnByFieldName($fieldName);
-        $attr = !empty($column) && array_key_exists('attr', $column) ? $column['attr'] : [];
-        if (count($attr) > 0) {
-            return $attr;
-        } else {
-            return new \stdClass();
-        }
     }
 
     public function createStruct() : array

@@ -30,8 +30,7 @@ return [
                     ]
                 ],
             ],
-            'index_definitions' => [
-            ],
+            'index_definitions' => [],
         ],
         [
             'tableName' => 'users',
@@ -81,11 +80,15 @@ return [
                 ],
                 [
                     'fieldName' => 'value',
-                    'definition' => 'TEXT NOT NULL'
+                    'definition' => 'TEXT NOT NULL',
+                    'attr' => [
+                        'required' => '',   // Turns required attribute on
+                        'minlength' => 3,
+                        'maxlength' => 5,
+                    ]
                 ],
             ],
-            'index_definitions' => [
-            ],
+            'index_definitions' => [],
         ],
         [
             'tableName' => 'part_objects',
@@ -106,7 +109,13 @@ return [
                 ],
                 [
                     'fieldName' => 'name',
-                    'definition' => 'VARCHAR(50) CHARACTER SET utf8mb4 NOT NULL'
+                    'definition' => 'VARCHAR(50) CHARACTER SET utf8mb4 NOT NULL',
+                    'attr' => [
+                        'required' => '',   // Turns required attribute on
+                        'pattern' => '[A-Za-z_$][A-Za-z_$0-9]+',
+                        'minlength' => 1,
+                        'maxlength' => 60,
+                    ]
                 ],
             ],
             'index_definitions' => [
@@ -167,8 +176,7 @@ return [
                     'definition' => 'TEXT NOT NULL'
                 ],
             ],
-            'index_definitions' => [
-            ],
+            'index_definitions' => [],
         ],
         [
             'tableName' => 'object_graphs',

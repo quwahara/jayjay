@@ -16,6 +16,9 @@ return [
         'message' => '',
         'context' => [],
     ],
+    // global attrs parameters
+    'attrs' => [
+    ],
     // global data parameters
     'data' => [
         'status' => '',
