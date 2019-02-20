@@ -15,6 +15,10 @@
     var Global = {};
     var G = Global;
 
+    G.config = {
+      snackbarAutoloading: true,
+    };
+
     G.RID_MIN = 100000000000000;
     G.RID_MAX = G.RID_MIN * 10 - 1;
     G.rid = function rid() {
@@ -23,6 +27,14 @@
 
     G.clone = function clone(origin) {
       return JSON.parse(JSON.stringify(origin));
+    };
+
+    G.camelToKebab = function camelToKebab(p) {
+      return p.replace(/([A-Z])/g,
+        function (s) {
+          return '-' + s.charAt(0).toLowerCase();
+        }
+      );
     };
 
     G.language = window.navigator.language;
@@ -105,10 +117,14 @@
       en[key] = "Updated";
       ja[key] = "更新しました";
 
+      key = "#value-missing";
+      en[key] = "Required";
+      ja[key] = "必須です";
+
     })(G.messages);
 
     var keyRex = /(#[\w-]+)\s*(\{[^}]+\})?/;
-    G.getMsg = function (keyText) {
+    G.getMsg = function getMsg(keyText) {
       var result = keyRex.exec(keyText);
       if (result === null) return "";
       var key = result[1];
@@ -123,7 +139,7 @@
           for (var name in optsObj) {
             msg = msg.replace("{" + name + "}", optsObj[name]);
           }
-        } catch (e) { }
+        } catch (e) {}
       }
 
       return msg;
@@ -255,27 +271,27 @@
      * snackbar
      */
     Global.snackbar = (function () {
-      return function(selectors) {
+      return function (selectors) {
         var self = Global.snackbar;
         self.html = '' +
-        '<div class="snackbar">' +
-        '  <div class="window-btn-belt contact text-right" style="height: 20px; padding-right: 8px; border-bottom: 1px solid #555;">' +
-        '      <!-- https://fontawesome.com/icons?d=gallery&s=solid&m=free -->' +
-        '      <div class="window-btn min ib bdr1 pad4 none">' +
-        '          <i class="far fa-window-minimize"></i>' +
-        '      </div>' +
-        '      <div class="window-btn max ib bdr1 pad4 none">' +
-        '          <i class="far fa-window-maximize"></i>' +
-        '      </div>' +
-        '      <div class="window-btn close ib bdr1 pad4 none">' +
-        '          <i class="far fa-window-close"></i>' +
-        '      </div>' +
-        '  </div>' +
-        '  <div class="belt message">' +
-        '  </div>' +
-        '</div>' +
-        '';
-  
+          '<div class="snackbar">' +
+          '  <div class="window-btn-belt contact text-right" style="height: 20px; padding-right: 8px; border-bottom: 1px solid #555;">' +
+          '      <!-- https://fontawesome.com/icons?d=gallery&s=solid&m=free -->' +
+          '      <div class="window-btn min ib bdr1 pad4 none">' +
+          '          <i class="far fa-window-minimize"></i>' +
+          '      </div>' +
+          '      <div class="window-btn max ib bdr1 pad4 none">' +
+          '          <i class="far fa-window-maximize"></i>' +
+          '      </div>' +
+          '      <div class="window-btn close ib bdr1 pad4 none">' +
+          '          <i class="far fa-window-close"></i>' +
+          '      </div>' +
+          '  </div>' +
+          '  <div class="belt message">' +
+          '  </div>' +
+          '</div>' +
+          '';
+
         var elm = document.querySelector(selectors);
         elm.innerHTML = self.html;
         self.element = elm.querySelector(".snackbar");
@@ -283,19 +299,19 @@
         self.maxBtn = self.element.querySelector(".window-btn.max");
         self.closeBtn = self.element.querySelector(".window-btn.close");
         self.messageDiv = self.element.querySelector(".message");
-        self.maximize = function() {
+        self.maximize = function () {
           self.minBtn.classList.remove("none");
           self.maxBtn.classList.add("none");
           // self.closeBtn.classList.remove("none");
           self.element.style.top = "calc(100vh - " + self.element.clientHeight + "px)";
         };
-        self.minimize = function() {
+        self.minimize = function () {
           self.minBtn.classList.add("none");
           self.maxBtn.classList.remove("none");
           // self.closeBtn.classList.remove("none");
           self.element.style.top = "calc(100vh - " + self.element.querySelector(".window-btn-belt").clientHeight + "px)";
         };
-        self.close = function() {
+        self.close = function () {
           self.minBtn.classList.add("none");
           self.maxBtn.classList.add("none");
           self.closeBtn.classList.add("none");
@@ -308,6 +324,73 @@
       };
     })();
 
+    // Automatically prepare snackbar
+    window.addEventListener("load", function (event) {
+      if (Global.config.snackbarAutoloading) {
+        if (document.getElementById("snackbar")) {
+          Global.snackbar("#snackbar");
+        }
+      }
+    });
+
+    Global.snackbarByVlidity = function (src) {
+
+      if (!src) {
+        throw Error("src wasn't given.");
+      }
+
+      // Call this method again if src was an array.
+      if (Array.isArray(src)) {
+        for (var i = 0; i < src.length; ++i) {
+          if (!Global.snackbarByVlidity(src[i])) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      // Call this method again if src was selector string.
+      if (typeof src === "string") {
+        var elms = document.querySelectorAll(src);
+        for (var j = 0; j < elms.length; ++j) {
+          if (!Global.snackbarByVlidity(elms.item(j))) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      var v = null,
+        elm = null;
+      // src was an element
+      if (src.validity) {
+        v = src.validity;
+        elm = src;
+      } else if (typeof src.valid === "boolean") {
+        // src was a ValidityState Object
+        v = src;
+      }
+
+      if (!v) {
+        throw Error("It couldn't detect ValidityState Object by src.");
+      }
+
+      var props = ["valueMissing"];
+      for (var k = 0; k < props.length; ++k) {
+        if (v[props[k]]) {
+          Global.snackbar.messageDiv.innerText = Global.getMsg("#" + Global.camelToKebab(props[k]));
+          Global.snackbar.maximize();
+          if (elm) {
+            elm.focus();
+          }
+          break;
+        }
+      }
+
+      return v.valid;
+    };
+
     return Global;
   })();
+
 });

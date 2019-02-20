@@ -160,8 +160,6 @@
     </div>
     <script>
     window.onload = function() {
-        Global.snackbar("#snackbar");
-
         var attrs;
         (attrs = new Booq(<?= $this->attrsAsJSON() ?>))
         .name.link(".add_name").toAttrs()
@@ -250,6 +248,9 @@
         ;
 
         Booq.q("button.add").on("click", function (event) {
+            
+            if(!Global.snackbarByVlidity("input.add_name")) return;
+
             Global.modal.create({
                 body: "追加してもよろしいですか",
                 ok: {
