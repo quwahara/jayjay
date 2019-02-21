@@ -165,7 +165,7 @@ class JJ
         $this->methods = $this->config_['methods'];
 
         $this->structs = $this->config_['structs'];
-        
+
         $this->attrs = $this->config_['attrs'];
 
         $this->data = $this->config_['data'];
@@ -216,6 +216,12 @@ class JJ
         return call_user_func_array($this->$name, $args);
     }
 
+    /**
+     * Initialize $structs argument
+     *
+     * @param array $structs definition of structs
+     * @return JJ this instance
+     */
     public function initStructs(array $structs) : JJ
     {
         $theStructs = [];
@@ -241,7 +247,7 @@ class JJ
      * 
      * @param [type] $key
      * @param [type] $value
-     * @return array
+     * @return array derived struct
      */
     public function parseStruct($key, $value) : array
     {
@@ -262,7 +268,7 @@ class JJ
             foreach ($value as $key3 => $value3) {
                 // In case of $value3 is model name
                 if (is_int($key3) && is_string($value3)) {
-                    // Using only structure of model. Ripping $key3 having model name.
+                    // Using only structure of model. Rips $key4 has model name.
                     $substruct = $this->loadStructByTableName($value3);
                     foreach ($substruct as $key4 => $value4) {
                         $theStruct = $theStruct + $value4;
@@ -316,15 +322,71 @@ class JJ
         }
     }
 
+    /**
+     * Initialize $attr argument
+     *
+     * @param array $attrs definition of attrs
+     * @return JJ this instance
+     */
     public function initAttrs(array $attrs) : JJ
     {
         $theAttrs = [];
-        foreach ($attrs as $attr) {
-            $subattr = $this->dao($attr)->getAttrsAll();
+        foreach ($attrs as $key => $value) {
+            $subattr = $this->parseAttr($key, $value);
             $theAttrs = $theAttrs + $subattr;
         }
         $this->attrs = array_merge($this->attrs, $theAttrs);
         return $this;
+    }
+
+    /**
+     * Parse key and value to attr
+     *
+     * Case 1, $key is int and $value is string
+     * In this case, the $value is assumed table named and it loads attr by table name.
+     * 
+     * Case 2, $key is string and $value is array
+     * It accumrates each items in array that were divided from $value. 
+     * 
+     * Case 3, $key is string and $value is primitive value, like string, int and bool.
+     * In this case, $key and $value is attr itself.
+     * 
+     * @param [type] $key
+     * @param [type] $value
+     * @return array derived attr
+     */
+    public function parseAttr($key, $value) : array
+    {
+        if (is_int($key) && is_string($value)) {
+            return $this->dao($value)->getAttrsAll();
+
+        } else if (is_string($key) && is_array($value)) {
+            
+            // merge everything
+            $theAttr = [];
+            foreach ($value as $key3 => $value3) {
+                // In case of $value3 is model name
+                if (is_int($key3) && is_string($value3)) {
+                    // Using only structure of model. Rips $key4 that has model name.
+                    $subattr = $this->dao($value3)->getAttrsAll();
+                    foreach ($subattr as $key4 => $value4) {
+                        $theAttr = $theAttr + $value4;
+                    }
+                } else {
+                    $subattr = $this->parseAttr($key3, $value3);
+                    $theAttr = $theAttr + $subattr;
+                }
+            }
+            return [$key => $theAttr];
+
+        } else if (is_string($key) && (is_string($value) || is_numeric($value) || is_bool($value))) {
+            // create a key-value pair
+            // This is going to be merged after this function returns.
+            return [$key => $value];
+
+        } else {
+            throw new Exception('The form of attrs argument was bad.');
+        }
     }
 
     function css()
