@@ -112,7 +112,7 @@ return [
                     'definition' => 'VARCHAR(50) CHARACTER SET utf8mb4 NOT NULL',
                     'attr' => [
                         'required' => '',   // Turns required attribute on
-                        'pattern' => '[A-Za-z_$][A-Za-z_$0-9]+',
+                        'pattern' => '[A-Za-z_$][A-Za-z_$0-9]*',
                         'minlength' => 1,
                         'maxlength' => 60,
                     ]

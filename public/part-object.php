@@ -15,6 +15,11 @@
             'part',
             'part_object',
             'add_value_available' => false,
+
+            'add_value_string' => '',
+            'add_value_number' => '',
+            'add_value_string_available' => false,
+            'add_value_number_available' => false,
         ],
         'commands' => [
             'command' => '',
@@ -24,6 +29,15 @@
     'attrs' => [
         'part',
         'part_object',
+        'add_value_string' => [
+            'minlength' => 0,
+            'maxlength' => 1000,
+        ],
+        'add_value_number' => [
+            'min' => -9223372036854775808,
+            'max' => 9223372036854775807,
+        ],
+
     ],
     'methods' => [
         'refreshData' => function ($id) {
@@ -61,6 +75,8 @@
             }
 
             $this->data['add_part']['type'] = 'string';
+            $this->data['add_part']['add_value_string_available'] = 'string' === $this->data['add_part']['type'];
+            $this->data['add_part']['add_value_number_available'] = 'number'  === $this->data['add_part']['type'];
 
             $this->data['commands'] = [
                 'command' => '',
@@ -146,7 +162,11 @@
                                         <option value="array">Array</option>
                                     </select>
                                 </td>
-                                <td><input class="add_value add_value_available none h5v" type="text"></td>
+                                <td>
+                                    <input class="add_value add_value_available none h5v" type="text">
+                                    <input name="add_value_string" class="add_value_string_available none h5v" type="text">
+                                    <input name="add_value_number" class="add_value_number_available none h5v" type="text">
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -164,6 +184,8 @@
         (attrs = new Booq(<?= $this->attrsAsJSON() ?>))
         .name.link(".add_name").toAttrs()
         .value.link(".add_value").toAttrs()
+        .add_value_string.linkByName().toAttrs()
+        .add_value_number.linkByName().toAttrs()
         .setStructureAsData()
         ;
 
@@ -236,15 +258,17 @@
         .add_part
         .name.link("input.add_name").withValue()
         .type.link("select.add_type").withValue()
-        .type.link("select.add_type").on("change", function() { booq.update(); })
-        .setUpdate(function (data) {
-            data.add_value_available = data.type === "string" || data.type === "number";
+        .type.onReceive(function (value, data) {
+            data.add_value_string_available = value === "string";
+            data.add_value_number_available = value === "number";
         })
-        .add_value_available.antitogglesClass("none")
+        .add_value_string_available.antitogglesClass("none")
+        .add_value_number_available.antitogglesClass("none")
         .value.link("input.add_value").withValue()
+        .add_value_string.withValue()
+        .add_value_number.withValue()
         .end
         .setData(<?= $this->dataAsJSON() ?>)
-        .update()
         ;
 
         Booq.q("button.add").on("click", function (event) {
