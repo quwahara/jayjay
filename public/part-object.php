@@ -6,6 +6,7 @@
             'parent_type' => '',
             'parent_part_object' => false,
             'parent_part_array' => false,
+            'violations[]' => '',
         ],
         'partxs[]' => [
             'parts',
@@ -30,8 +31,10 @@
         'part',
         'part_object',
         'add_value_string' => [
-            'minlength' => 0,
-            'maxlength' => 1000,
+            'minlength' => 3,
+            'maxlength' => 5,
+            // 'minlength' => 0,
+            // 'maxlength' => 1000,
         ],
         'add_value_number' => [
             'min' => -9223372036854775808,
@@ -76,7 +79,7 @@
 
             $this->data['add_part']['type'] = 'string';
             $this->data['add_part']['add_value_string_available'] = 'string' === $this->data['add_part']['type'];
-            $this->data['add_part']['add_value_number_available'] = 'number'  === $this->data['add_part']['type'];
+            $this->data['add_part']['add_value_number_available'] = 'number' === $this->data['add_part']['type'];
 
             $this->data['commands'] = [
                 'command' => '',
@@ -147,7 +150,10 @@
                                 <th class="">+</th>
                                 <th class="">name</th>
                                 <th class="">type</th>
-                                <th class="add_value_available none">value</th>
+                                <th class="">
+                                    <span class="add_value_string add_value_string_available none">string value</span>
+                                    <span class="add_value_number add_value_number_available none">number value</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -182,10 +188,11 @@
     window.onload = function() {
         var attrs;
         (attrs = new Booq(<?= $this->attrsAsJSON() ?>))
-        .name.link(".add_name").toAttrs()
-        .value.link(".add_value").toAttrs()
-        .add_value_string.linkByName().toAttrs()
-        .add_value_number.linkByName().toAttrs()
+        //>>
+        // .name.link(".add_name").toAttrs()
+        // .value.link(".add_value").toAttrs()
+        // .add_value_string.linkByName().toAttrs()
+        // .add_value_number.linkByName().toAttrs()
         .setStructureAsData()
         ;
 
@@ -285,6 +292,9 @@
                         .then(function (response) {
                             console.log(response.data);
                             booq.data = response.data;
+                            
+                            if (!Global.snackbarByViolations(booq.data.context.violations)) return;
+
                             // booq.data.message = response.data.message;
                             // if ("" !== booq.data.message) {
                             //     Global.snackbar.messageDiv.classList.add("warning");
@@ -305,6 +315,7 @@
 
 },
 'post application/json' => function () {
+    $attrs = &$this->attrs;
     $data = &$this->data;
     $command = $data['commands']['command'];
     if ($command === 'delete') {
@@ -312,10 +323,19 @@
         $this->part()->delete($delete_id);
     } else if ($command === 'add') {
         $add_part = &$data['add_part'];
-        $this->part()->addNewProperty($data['context']['id'], $add_part['name'], $add_part['type'], $add_part['value']);
-        $add_part['name'] = '';
-        $add_part['type'] = '';
-        $add_part['value'] = '';
+        //>> Under construction
+        $type = $add_part['type'];
+        $name = "add_value_{$type}";
+        //TODO check $type is string or number
+        $violations = $this->validate($name, $type, $add_part[$name], $attrs["add_value_{$type}"]);
+        if (0 === count($violations)) {
+            $this->part()->addNewProperty($data['context']['id'], $add_part['name'], $add_part['type'], $add_part['value']);
+            $add_part['name'] = '';
+            $add_part['type'] = '';
+            $add_part['value'] = '';
+        } else {
+            $data['context']['violations'] = $violations;
+        }
     }
     $this->refreshData($data['context']['id']);
     $data['status'] = 'OK';

@@ -667,6 +667,97 @@ class JJ
         exit();
     }
 
+    function validate($name, $type, $value, $conditions) : array
+    {
+        $violations = [];
+        if ($type === 'string') {
+            $isEmpty = empty($value);
+            if (array_key_exists('required', $conditions)) {
+                if ($isEmpty) {
+                    $violations[] = [
+                        'name' => $name,
+                        'type' => $type,
+                        'value' => $value,
+                        'violation' => 'required'
+                    ];
+                }
+            }
+            if (!$isEmpty && !is_string($value)) {
+                throw new \RuntimeException("Type of \$value was not string");
+            }
+            $s = strval($value);
+            $len = mb_strlen($s);
+            if (array_key_exists('minlength', $conditions)) {
+                if ($len < $conditions['minlength']) {
+                    $violations[] = [
+                        'name' => $name,
+                        'type' => $type,
+                        'value' => $value,
+                        'violation' => 'minlength',
+                        'minlength' => $conditions['minlength']
+                    ];
+                }
+            }
+            if (array_key_exists('maxlength', $conditions)) {
+                if ($len > $conditions['maxlength']) {
+                    $violations[] = [
+                        'name' => $name,
+                        'type' => $type,
+                        'value' => $value,
+                        'violation' => 'maxlength',
+                        'maxlength' => $conditions['maxlength']
+                    ];
+                }
+            }
+            return $violations;
+
+        } else if ($type === 'number') {
+            $isNull = is_null($value);
+            if (array_key_exists('required', $conditions)) {
+                if ($isNull) {
+                    $violations[] = [
+                        'name' => $name,
+                        'type' => $type,
+                        'value' => $value,
+                        'violation' => 'required'
+                    ];
+                }
+            }
+            if (!$isNull && !is_numeric($value)) {
+                throw new \RuntimeException("Type of \$value was not string");
+            }
+            if (!$isNull) {
+                $n = floatval($value);
+                if (array_key_exists('min', $conditions)) {
+                    if ($n < $conditions['min']) {
+                        $violations[] = [
+                            'name' => $name,
+                            'type' => $type,
+                            'value' => $value,
+                            'violation' => 'min',
+                            'min' => $conditions['min']
+                        ];
+                    }
+                }
+                if (array_key_exists('max', $conditions)) {
+                    if ($n > $conditions['max']) {
+                        $violations[] = [
+                            'name' => $name,
+                            'type' => $type,
+                            'value' => $value,
+                            'violation' => 'max',
+                            'max' => $conditions['max']
+                        ];
+                    }
+                }
+            }
+            return $violations;
+
+        } else {
+            throw new \RuntimeException("Unsupported type: {$type} for validation");
+        }
+    }
+
     function startsWith($haystack, $needle)
     {
         $length = strlen($needle);

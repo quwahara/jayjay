@@ -53,6 +53,12 @@
       var ja = messages.ja;
       var key;
 
+      // key requires to begin with "#" because it's to retrieve in html comment.
+
+      key = "#a-for-b";
+      en[key] = "{a} for {b}";
+      ja[key] = "{b}には{a}";
+
       key = "#cancel";
       en[key] = "Cancel";
       ja[key] = "キャンセル";
@@ -118,28 +124,86 @@
       ja[key] = "更新しました";
 
       key = "#value-missing";
-      en[key] = "Required";
+      en[key] = "Requires";
       ja[key] = "必須です";
+
+      key = "#violation-minlength";
+      en[key] = "Requires {minlength} characters minimum";
+      ja[key] = "{minlength}文字以上必要です";
 
     })(G.messages);
 
     var keyRex = /(#[\w-]+)\s*(\{[^}]+\})?/;
-    G.getMsg = function getMsg(keyText) {
-      var result = keyRex.exec(keyText);
-      if (result === null) return "";
-      var key = result[1];
+    var paramsRex = /\{([^}]+)\}/g;
+
+    /**
+     * Retrieves message and replace placeholer by paramters
+     * 
+     * Examples.
+     * 
+     * Case 1:
+     * Only key, no paramters.
+     * keyText: '#key', params: undefined
+     * 
+     * Case 2:
+     * Key and inline paramters.
+     * keyText: '#key {"ppp": "vvv"}', params: undefined
+     * 
+     * Case 3:
+     * Key and argument paramters.
+     * keyText: '#key', params: {"ppp": "vvv"}
+     */
+    G.getMsg = function getMsg(keyText, params) {
+      var keyResult = keyRex.exec(keyText);
+      if (keyResult === null) return "";
+
+      // Peels key
+      // [1] is first captured string
+      var key = keyResult[1];
       key = (key || "").trim();
+
+      // Load message
       var msglng = this.messages[this.language] || this.messages.en;
       var msg = (msglng && msglng[key]) || "";
 
-      var opts = result[2];
-      if (opts) {
+      // Prepare inline params
+      // [2] is second captured string
+      var inlineParamsString = keyResult[2];
+      var inlineParams = null;
+      if (inlineParamsString) {
         try {
-          var optsObj = JSON.parse(opts);
-          for (var name in optsObj) {
-            msg = msg.replace("{" + name + "}", optsObj[name]);
-          }
+          inlineParams = JSON.parse(inlineParamsString);
         } catch (e) {}
+      }
+      if (!inlineParams || typeof inlineParams !== "object") {
+        inlineParams = {};
+      }
+
+      // Sanitize params argurment
+      if (!params || typeof params !== "object") {
+        params = {};
+      }
+
+      // Replace placeholders in the message by params or inline params
+      var paramResult;
+      paramsRex.lastIndex = 0;
+      paramResult = paramsRex.exec(msg);
+      while (paramResult) {
+        // paramResult[1] is 'aaa' if msg is '{aaa}'.
+        var name = paramResult[1];
+        var value;
+        if (name in params) {
+          value = params[name];
+        } else if (name in inlineParams) {
+          value = inlineParams[name];
+        } else {
+          value = "";
+        }
+
+        // paramResult[0] is '{aaa}' if msg is '{aaa}'.
+        msg = msg.replace(paramResult[0], value);
+
+        paramResult = paramsRex.exec(paramResult.input);
       }
 
       return msg;
@@ -388,6 +452,47 @@
       }
 
       return v.valid;
+    };
+
+    /**
+     * Show snackbar by violations that is validated in host
+     * 
+     * @returns false if violation exists
+     */
+    Global.snackbarByViolations = function (violations) {
+
+      if (!violations || !Array.isArray(violations)) {
+        throw Error("violations weren't given.");
+      }
+
+      if (violations.length === 0) return true;
+
+      var messages = [];
+      for (var i = 0; i < violations.length; ++i) {
+        var violation = violations[i];
+        var message = Global.getMsg("#violation-" + violation.violation, violation);
+
+        // Find label for the name
+        var name = violation.name;
+        var labelElm = document.querySelector("label[for='" + name + "'], th." + name + ", th ." + name);
+        if (labelElm) {
+          message = Global.getMsg("#a-for-b", {
+            a: message,
+            b: labelElm.textContent.trim()
+          });
+        }
+        messages.push(message);
+      }
+
+      var html = "";
+      for (var j = 0; j < messages.length; ++j) {
+        html += "<p>" + messages[j] + "</p>";
+      }
+
+      Global.snackbar.messageDiv.innerHTML = html;
+      Global.snackbar.maximize();
+
+      return false;
     };
 
     return Global;
