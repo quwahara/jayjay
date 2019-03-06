@@ -20,7 +20,8 @@
 
             // 'is_parent_object' => false,
             'is_update' => false,
-            'value_available' => false,
+            'value_string_available' => false,
+            'value_number_available' => false,
             // 'array_operatable' => false,
             // 'object_operatable' => false,
             'register_available' => false,
@@ -149,9 +150,13 @@
                     <label for="name">Name</label>
                     <input type="text" name="name">
                 </div>
-                <div class="row value value_available none">
-                    <label for="value">Value</label>
-                    <input type="text" name="value">
+                <div class="row value_string value_string_available none">
+                    <label for="value_string">String value</label>
+                    <input type="text" name="value_string">
+                </div>
+                <div class="row value_number value_number_available none">
+                    <label for="value_number">Number value</label>
+                    <input type="text" name="value_number">
                 </div>
                 <div class="row array_operatable none">
                     <div><a class="array-new-item">New item</a></div>
@@ -167,11 +172,9 @@
                 </div>
             </form>
         </div>
-        <div id="snackbar"></div>
     </div>
     <script>
     window.onload = function() {
-        Global.snackbar("#snackbar");
 
         var booq;
         (booq = new Booq(<?= $this->structsAsJSON() ?>))
@@ -194,7 +197,7 @@
                     //     Global.snackbar.maximize();
                     // }
                 })
-                .catch(Global.catcher(booq.data));
+                .catch(Global.snackbarByCatchFunction());
         })
         .end
 
@@ -215,7 +218,8 @@
         .type.withValue()
         .type.toText()
         .type.on("change", function() { booq.update(); })
-        .value.withValue()
+        .value_string.withValue()
+        .value_number.withValue()
         .end
 
         .part_object
@@ -229,7 +233,9 @@
         
         .context.setUpdate(function (data) {
             isPrimitiveType = booq.data.part.type === "string" || booq.data.part.type === "number";
-            data.value_available = isPrimitiveType;
+            // data.value_available = isPrimitiveType;
+            data.value_string_available = booq.data.part.type === "string";
+            data.value_number_available = booq.data.part.type === "number";
             data.array_operatable = data.is_update && booq.data.part.type === "array";
             data.object_operatable = data.is_update && booq.data.part.type === "object";
             data.register_available = !data.is_update || (data.is_update && isPrimitiveType);
@@ -252,7 +258,8 @@
         .also.link(".type-label").antitogglesClass("none")
         .also.link(".type-label input").antitogglesAttr("disabled", "")
         .parent_part_object.antitogglesClass("none")
-        .value_available.antitogglesClass("none")
+        .value_string_available.antitogglesClass("none")
+        .value_number_available.antitogglesClass("none")
         // .array_operatable.antitogglesClass("none")
         // .object_operatable.antitogglesClass("none")
         .register_available.antitogglesClass("none")
@@ -287,6 +294,13 @@
 
     if (array_key_exists('id', $part) && intval($part['id']) > 0) {
         $doUpdatePart = null !== $partDao->attFindOneById($part['id']);
+    }
+
+    if ($part['type'] !== 'string') {
+        $part['value_string'] = null;
+    }
+    if ($part['type'] !== 'number') {
+        $part['value_number'] = null;
     }
 
     if ($doUpdatePart) {

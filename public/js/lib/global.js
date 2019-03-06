@@ -37,6 +37,40 @@
       );
     };
 
+    function isUndefined(v) {
+      return typeof v === "undefined";
+    }
+
+    function isString(v) {
+      return typeof v === "string";
+    }
+
+    function isObject(v) {
+      return v && !Array.isArray(v) && (typeof v) === "object";
+    }
+
+    function isArray(v) {
+      return Array.isArray(v);
+    }
+
+    function isFunction(fun) {
+      return fun && {}.toString.call(fun) === '[object Function]';
+    }
+
+    function isElement(v) {
+      return v && v.nodeType === Node.ELEMENT_NODE;
+    }
+
+    function isDocument(v) {
+      return v === document;
+    }
+
+    function isPrimitive(v) {
+      if (v == null) return false;
+      var t = typeof v;
+      return t === "string" || t === "number" || t === "boolean";
+    }
+
     G.language = window.navigator.language;
 
     /********************************************************************************
@@ -339,7 +373,7 @@
      * snackbar
      */
     Global.snackbar = (function () {
-      return function (selectors) {
+      return function (arg) {
         var self = Global.snackbar;
         self.html = '' +
           '<div class="snackbar">' +
@@ -360,7 +394,18 @@
           '</div>' +
           '';
 
-        var elm = document.querySelector(selectors);
+        var elm;
+        if (isString(arg)) {
+          elm = document.querySelector(arg);
+          if (elm === null) {
+            throw Error("Target element was not found by the selector string");
+          }
+        } else if (isElement(arg)) {
+          elm = arg;
+        } else {
+          throw Error("Bad arg. The arg requires string for selector or target elemet");
+        }
+
         elm.innerHTML = self.html;
         self.element = elm.querySelector(".snackbar");
         self.minBtn = self.element.querySelector(".window-btn.min");
@@ -395,8 +440,14 @@
     // Automatically prepare snackbar
     window.addEventListener("load", function (event) {
       if (Global.config.snackbarAutoloading) {
-        if (document.getElementById("snackbar")) {
-          Global.snackbar("#snackbar");
+        var elm = document.getElementById("snackbar");
+        if (elm === null) {
+          elm = document.createElement("div");
+          elm.id = "snackbar";
+          document.body.appendChild(elm);
+        }
+        if (elm) {
+          Global.snackbar(elm);
         }
       }
     });

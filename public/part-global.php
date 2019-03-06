@@ -77,7 +77,8 @@
                                 <th class="">&times;</th>
                                 <th class="">id</th>
                                 <th class="">type</th>
-                                <th class="">value</th>
+                                <th class="">string value</th>
+                                <th class="">number value</th>
                             </tr>
                         </thead>
                         <tbody class="partxs">
@@ -85,19 +86,17 @@
                                 <td><button type="button" class="delete">&times;</button></td>
                                 <td><a class="id"></a></td>
                                 <td class="type"></td>
-                                <td class="value"></td>
+                                <td class="value_string"></td>
+                                <td class="value_number"></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </form>
         </div>
-        <div id="snackbar"></div>
     </div>
     <script>
     window.onload = function() {
-        Global.snackbar("#snackbar");
-
         var booq;
         (booq = new Booq(<?= $this->structsAsJSON() ?>))
 
@@ -125,7 +124,8 @@
             .id.toText()
             // .id.toHref("part.php?id=:id")
             .type.toText()
-            .value.toText()
+            .value_string.toText()
+            .value_number.toText()
             ;
             Booq.q(element).q("button").on("click", (function (self) {
                 return function (event) {

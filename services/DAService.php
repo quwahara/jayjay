@@ -300,12 +300,12 @@ class DAService
 
     public static function isNumber($definition)
     {
-        return \preg_match('/^((TINY|MEDIUM|LONG|BIG)?INT(EGER)?|(DEC(IMAL)?|NUMERIC|FIXED))/i', $definition);
+        return \preg_match('/^((TINY|MEDIUM|LONG|BIG)?INT(EGER)?|(DEC(IMAL)?|NUMERIC|FIXED|DOUBLE))/i', $definition);
     }
 
     public static function parsePDOParamType($definition)
     {
-        if (\preg_match('/^((VAR)?CHAR|(TINY|MEDIUM|LONG)?TEXT)/i', $definition)) {
+        if (\preg_match('/^((VAR)?CHAR|(TINY|MEDIUM|LONG)?TEXT|DOUBLE)/i', $definition)) {
             return PDO::PARAM_STR;
         } else if (\preg_match('/^((TINY|MEDIUM|LONG|BIG)?INT(EGER)?|(DEC(IMAL)?|NUMERIC|FIXED))/i', $definition)) {
             return PDO::PARAM_INT;

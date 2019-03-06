@@ -76,15 +76,23 @@ return [
                 ],
                 [
                     'fieldName' => 'type',
-                    'definition' => 'VARCHAR(50) CHARACTER SET latin1 NOT NULL'
-                ],
-                [
-                    'fieldName' => 'value',
-                    'definition' => 'TEXT NOT NULL',
+                    'definition' => 'VARCHAR(50) CHARACTER SET latin1 NOT NULL',
                     'attr' => [
                         'required' => '',   // Turns required attribute on
-                        'minlength' => 3,
-                        'maxlength' => 5,
+                    ]
+                ],
+                [
+                    'fieldName' => 'value_string',
+                    'definition' => 'TEXT CHARACTER SET utf8mb4',
+                    'attr' => [
+                        'minlength' => 0,
+                        'maxlength' => 10000,
+                    ]
+                ],
+                [
+                    'fieldName' => 'value_number',
+                    'definition' => 'DOUBLE',
+                    'attr' => [
                     ]
                 ],
             ],
