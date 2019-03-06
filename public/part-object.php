@@ -17,6 +17,7 @@
             'part_object',
             'add_value_available' => false,
 
+            'add_name' => '',
             'add_value_string' => '',
             'add_value_number' => '',
             'add_value_string_available' => false,
@@ -159,7 +160,7 @@
                         <tbody>
                             <tr>
                                 <td><button type="button" class="add">+</button></td>
-                                <td><input class="add_name h5v" type="text"></td>
+                                <td><input name="add_name" class="h5v" type="text"></td>
                                 <td>
                                     <select class="add_type" name="type">
                                         <option value="string">String</option>
@@ -263,7 +264,8 @@
             })(this));
         })
         .add_part
-        .name.link("input.add_name").withValue()
+        // .name.link("input.add_name").withValue()
+        .add_name.withValue()
         .type.link("select.add_type").withValue()
         .type.onReceive(function (value, data) {
             data.add_value_string_available = value === "string";
@@ -286,6 +288,7 @@
                 body: "追加してもよろしいですか",
                 ok: {
                     onclick: function () {
+                        Global.snackbar.close();
                         booq.data.status = "";
                         booq.data.commands.command = "add";
                         axios.post("part-object.php", booq.data)
@@ -301,7 +304,7 @@
                             //     Global.snackbar.maximize();
                             // }
                         })
-                        .catch(Global.catcher(booq.data));
+                        .catch(Global.snackbarByCatchFunction());
                     }
                 }
             })
@@ -325,17 +328,29 @@
         $add_part = &$data['add_part'];
         //>> Under construction
         $type = $add_part['type'];
-        $name = "add_value_{$type}";
+        $propName = $add_part['add_name'];
+        $fieldName = "add_value_{$type}";
+        $propValue = $add_part[$fieldName];
         //TODO check $type is string or number
-        $violations = $this->validate($name, $type, $add_part[$name], $attrs["add_value_{$type}"]);
+        $violations = $this->validate($fieldName, $type, $propValue, $attrs[$fieldName]);
         if (0 === count($violations)) {
-            $this->part()->addNewProperty($data['context']['id'], $add_part['name'], $add_part['type'], $add_part['value']);
-            $add_part['name'] = '';
-            $add_part['type'] = '';
-            $add_part['value'] = '';
-        } else {
-            $data['context']['violations'] = $violations;
+            if (!is_null($this->part()->findPropertyByName($propName))) {
+                $violations[] = [
+                    'name' => 'add_name',
+                    'type' => '',
+                    'value' => $propName,
+                    'violation' => 'duplication',
+                ];
+            }
         }
+        if (0 === count($violations)) {
+            $this->part()->addNewProperty($data['context']['id'], $propName, $type, $propValue);
+            $add_part['add_name'] = '';
+            $add_part['type'] = '';
+            $add_part['add_value_string'] = '';
+            $add_part['add_value_number'] = '';
+        }
+        $data['context']['violations'] = $violations;
     }
     $this->refreshData($data['context']['id']);
     $data['status'] = 'OK';

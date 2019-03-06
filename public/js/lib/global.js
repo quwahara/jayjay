@@ -127,6 +127,10 @@
       en[key] = "Requires";
       ja[key] = "必須です";
 
+      key = "#violation-duplication";
+      en[key] = "'{value}' was duplicated";
+      ja[key] = "'{value}' は重複しています";
+
       key = "#violation-minlength";
       en[key] = "Requires {minlength} characters minimum";
       ja[key] = "{minlength}文字以上必要です";
@@ -493,6 +497,26 @@
       Global.snackbar.maximize();
 
       return false;
+    };
+
+    /**
+     * Show snackbar from error produced by communication
+     * 
+     * @returns false if violation exists
+     */
+    Global.snackbarByCatchFunction = function () {
+      return function (error) {
+        var key;
+        if (error.response) {
+          key = "#http-status-" + error.response.status;
+        } else if (error.request) {
+          key = "#error-of-request";
+        } else {
+          key = "#error-of-setting-up-requesting";
+        }
+        Global.snackbar.messageDiv.textContent = Global.getMsg(key);
+        Global.snackbar.maximize();
+      };
     };
 
     return Global;
