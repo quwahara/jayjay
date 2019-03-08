@@ -71,11 +71,19 @@ class PartService
         return $this->pa_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by i", ['parent_id' => $parent_id]);
     }
 
-    public function addPart($type, $value)
+    public function addPart($type, $value_string, $value_number)
     {
         $part = $this->p_->createStruct();
         $part['type'] = $type;
-        $part['value'] = $value;
+        $part['value_string'] = null;
+        $part['value_number'] = null;
+
+        if ($type === 'string') {
+            $part['value_string'] = $value_string;
+        }
+        if ($type === 'number') {
+            $part['value_number'] = $value_number;
+        }
 
         $id = $this->p_->attInsert($part);
         $part = $this->p_->attFindOneById($id);
@@ -109,7 +117,7 @@ class PartService
         return $part_array;
     }
 
-    public function addNewProperty($parent_id, $name, $type, $value)
+    public function addNewProperty($parent_id, $name, $type, $value_string, $value_number)
     {
         $parent_part = $this->findPart($parent_id);
         if (is_null($parent_part)) {
@@ -124,12 +132,12 @@ class PartService
             throw new Exception("The object has the name:{$name} of property.");
         }
 
-        $part = $this->addPart($type, $value);
+        $part = $this->addPart($type, $value_string, $value_number);
 
         return $this->addPartObject($parent_id, $part['id'], $name);
     }
 
-    public function addNewItem($parent_id, $type, $value)
+    public function addNewItem($parent_id, $type, $value_string, $value_number)
     {
         $part = $this->findPart($parent_id);
         if (is_null($part)) {
@@ -140,7 +148,7 @@ class PartService
             throw new Exception("The id:{$parent_id} was not an array.");
         }
 
-        $part = $this->addPart($type, $value);
+        $part = $this->addPart($type, $value_string, $value_number);
 
         return $this->addPartArray($parent_id, $part['id']);
     }

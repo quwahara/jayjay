@@ -753,6 +753,14 @@ class JJ
             }
             return $violations;
 
+        // } else if ($type === 'object') {
+        //     //
+        //     return $violations;
+
+        // } else if ($type === 'array') {
+        //     //
+        //     return $violations;
+
         } else {
             throw new \RuntimeException("Unsupported type: {$type} for validation");
         }

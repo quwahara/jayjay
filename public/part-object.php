@@ -141,7 +141,7 @@
                                 <td><a class="name"></a></td>
                                 <td><a class="id"></a></td>
                                 <td class="type"></td>
-                                <td class="value"></td>
+                                <td><span class="value_string"></span><span class="value_number"></span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -170,9 +170,8 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input class="add_value add_value_available none h5v" type="text">
                                     <input name="add_value_string" class="add_value_string_available none h5v" type="text">
-                                    <input name="add_value_number" class="add_value_number_available none h5v" type="text">
+                                    <input name="add_value_number" class="add_value_number_available none h5v" type="number">
                                 </td>
                             </tr>
                         </tbody>
@@ -232,7 +231,8 @@
             .name.toText()
             .id.toText()
             .type.toText()
-            .value.toText()
+            .value_string.toText()
+            .value_number.toText()
             ;
             Booq.q(element).q("button.delete").on("click", (function (self) {
                 return function (event) {
@@ -273,7 +273,7 @@
         })
         .add_value_string_available.antitogglesClass("none")
         .add_value_number_available.antitogglesClass("none")
-        .value.link("input.add_value").withValue()
+        // .value.link("input.add_value").withValue()
         .add_value_string.withValue()
         .add_value_number.withValue()
         .end
@@ -328,11 +328,14 @@
         $add_part = &$data['add_part'];
         //>> Under construction
         $type = $add_part['type'];
+        if ($type === 'string' || $type === 'number') {
+            $fieldName = "add_value_{$type}";
+            $propValue = $add_part[$fieldName];
+            $violations = $this->validate($fieldName, $type, $propValue, $attrs[$fieldName]);
+        } else {
+            $violations = [];
+        }
         $propName = $add_part['add_name'];
-        $fieldName = "add_value_{$type}";
-        $propValue = $add_part[$fieldName];
-        //TODO check $type is string or number
-        $violations = $this->validate($fieldName, $type, $propValue, $attrs[$fieldName]);
         if (0 === count($violations)) {
             if (!is_null($this->part()->findPropertyByName($propName))) {
                 $violations[] = [
@@ -344,7 +347,7 @@
             }
         }
         if (0 === count($violations)) {
-            $this->part()->addNewProperty($data['context']['id'], $propName, $type, $propValue);
+            $this->part()->addNewProperty($data['context']['id'], $propName, $type, $add_part['add_value_string'], $add_part['add_value_number']);
             $add_part['add_name'] = '';
             $add_part['type'] = '';
             $add_part['add_value_string'] = '';

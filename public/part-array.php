@@ -14,7 +14,8 @@
         'add_part' => [
             'part',
             'part_array',
-            'add_value_available' => false,
+            'add_value_string_available' => false,
+            'add_value_number_available' => false,
         ],
         'commands' => [
             'command' => '',
@@ -119,7 +120,7 @@
                                 <td><a class="i"></a></td>
                                 <td><a class="id"></a></td>
                                 <td class="type"></td>
-                                <td class="value"></td>
+                                <td><span class="value_string"></span><span class="value_number"></span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -142,7 +143,10 @@
                                         <option value="array">Array</option>
                                     </select>
                                 </td>
-                                <td><input class="add_value add_value_available none" type="text"></td>
+                                <td>
+                                    <input name="value_string" class="add_value_string_available none h5v" type="text">
+                                    <input name="value_number" class="add_value_number_available none h5v" type="number">
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -193,7 +197,8 @@
             .id.toText()
             // .id.toHref("part.php?id=:id")
             .type.toText()
-            .value.toText()
+            .value_string.toText()
+            .value_number.toText()
             ;
             Booq.q(element).q("button").on("click", (function (self) {
                 return function (event) {
@@ -228,10 +233,13 @@
         .type.link("select.add_type").withValue()
         .type.link("select.add_type").on("change", function() { booq.update(); })
         .setUpdate(function (data) {
-            data.add_value_available = data.type === "string" || data.type === "number";
+            data.add_value_string_available = data.type === "string";
+            data.add_value_number_available = data.type === "number";
         })
-        .add_value_available.antitogglesClass("none")
-        .value.link("input.add_value").withValue()
+        .add_value_string_available.antitogglesClass("none")
+        .add_value_number_available.antitogglesClass("none")
+        .value_string.withValue()
+        .value_number.withValue()
         .end
         .setData(<?= $this->dataAsJSON() ?>)
         .update()
@@ -276,9 +284,10 @@
         $this->part()->delete($delete_id);
     } else if ($command === 'add') {
         $add_part = &$data['add_part'];
-        $this->part()->addNewItem($data['context']['id'], $add_part['type'], $add_part['value']);
+        $this->part()->addNewItem($data['context']['id'], $add_part['type'], $add_part['value_string'], $add_part['value_number']);
         $add_part['type'] = '';
-        $add_part['value'] = '';
+        $add_part['value_string'] = '';
+        $add_part['value_number'] = '';
     }
     $this->refreshData($data['context']['id']);
 
