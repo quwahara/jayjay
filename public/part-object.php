@@ -93,6 +93,7 @@
         $this->refreshData($this->getRequest('id', 0));
         ?>
 <html>
+
 <head>
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
@@ -104,6 +105,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Part object</title>
 </head>
+
 <body>
     <div>
         <div class="belt">
@@ -185,134 +187,129 @@
         <div id="snackbar"></div>
     </div>
     <script>
-    window.onload = function() {
-        var attrs;
-        (attrs = new Booq(<?= $this->attrsAsJSON() ?>))
-        //>>
-        // .name.link(".add_name").toAttrs()
-        // .value.link(".add_value").toAttrs()
-        // .add_value_string.linkByName().toAttrs()
-        // .add_value_number.linkByName().toAttrs()
-        .setStructureAsData()
-        ;
+        window.onload = function() {
+            var attrs;
+            (attrs = new Booq(<?= $this->attrsAsJSON() ?>))
+            //>>
+            // .name.link(".add_name").toAttrs()
+            // .value.link(".add_value").toAttrs()
+            // .add_value_string.linkByName().toAttrs()
+            // .add_value_number.linkByName().toAttrs()
+            .setStructureAsData();
 
 
-        var booq;
-        (booq = new Booq(<?= $this->structsAsJSON() ?>))
-        
-        .context
-        .id.toText()
-        .parent_part_object.antitogglesClass("none")
-        .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
-        .parent_part_array.antitogglesClass("none")
-        .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
-        .link(".add_property").toHref("part.php?parent_type=object&parent_id=:id")
-        .end
+            var booq;
+            (booq = new Booq(<?= $this->structsAsJSON() ?>))
 
-        .partxs.each(function (element) {
-            this
-            .link(".id").toHref(function (value) {
-                if (value.type === "string" || value.type === "number") {
-                    return "part.php"
-                    + "?id=" + value.id
-                    ;
-                } else if (value.type === "array") {
-                    return "part-array.php"
-                    + "?id=" + value.id
-                    ;
-                } else if (value.type === "object") {
-                    return "part-object.php"
-                    + "?id=" + value.id
-                    ;
-                } else {
-                    //
-                }
-            })
-            .name.toText()
-            .id.toText()
-            .type.toText()
-            .value_string.toText()
-            .value_number.toText()
-            ;
-            Booq.q(element).q("button.delete").on("click", (function (self) {
-                return function (event) {
-                    Global.modal.create({
-                        body: "id:" + self.data.id + " を削除してもよろしいですか",
-                        ok: {
-                            onclick: function () {
-                                console.log(self.data);
-                                booq.data.status = "";
-                                booq.data.commands.command = "delete";
-                                booq.data.commands.delete_id = self.data.id;
-                                axios.post("part-object.php", booq.data)
-                                .then(function (response) {
-                                    console.log(response.data);
-                                    booq.data = response.data;
-                                    // booq.data.message = response.data.message;
-                                    // if ("" !== booq.data.message) {
-                                    //     Global.snackbar.messageDiv.classList.add("warning");
-                                    //     Global.snackbar.maximize();
-                                    // }
+            .context
+                .id.toText()
+                .parent_part_object.antitogglesClass("none")
+                .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
+                .parent_part_array.antitogglesClass("none")
+                .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
+                .link(".add_property").toHref("part.php?parent_type=object&parent_id=:id")
+                .end
+
+                .partxs.each(function(element) {
+                    this
+                        .link(".id").toHref(function(value) {
+                            if (value.type === "string" || value.type === "number") {
+                                return "part.php" +
+                                    "?id=" + value.id;
+                            } else if (value.type === "array") {
+                                return "part-array.php" +
+                                    "?id=" + value.id;
+                            } else if (value.type === "object") {
+                                return "part-object.php" +
+                                    "?id=" + value.id;
+                            } else {
+                                //
+                            }
+                        })
+                        .name.toText()
+                        .id.toText()
+                        .type.toText()
+                        .value_string.toText()
+                        .value_number.toText();
+                    Booq.q(element).q("button.delete").on("click", (function(self) {
+                        return function(event) {
+                            Global.modal.create({
+                                    body: "id:" + self.data.id + " を削除してもよろしいですか",
+                                    ok: {
+                                        onclick: function() {
+                                            console.log(self.data);
+                                            booq.data.status = "";
+                                            booq.data.commands.command = "delete";
+                                            booq.data.commands.delete_id = self.data.id;
+                                            axios.post("part-object.php", booq.data)
+                                                .then(function(response) {
+                                                    console.log(response.data);
+                                                    booq.data = response.data;
+                                                    // booq.data.message = response.data.message;
+                                                    // if ("" !== booq.data.message) {
+                                                    //     Global.snackbar.messageDiv.classList.add("warning");
+                                                    //     Global.snackbar.maximize();
+                                                    // }
+                                                })
+                                                .catch(Global.catcher(booq.data));
+                                        }
+                                    }
                                 })
-                                .catch(Global.catcher(booq.data));
+                                .open();
+
+                        };
+                    })(this));
+                })
+                .add_part
+                // .name.link("input.add_name").withValue()
+                .add_name.withValue()
+                .type.link("select.add_type").withValue()
+                .type.onReceive(function(value, data) {
+                    data.add_value_string_available = value === "string";
+                    data.add_value_number_available = value === "number";
+                })
+                .add_value_string_available.antitogglesClass("none")
+                .add_value_number_available.antitogglesClass("none")
+                // .value.link("input.add_value").withValue()
+                .add_value_string.withValue()
+                .add_value_number.withValue()
+                .end
+                .setData(<?= $this->dataAsJSON() ?>);
+
+            Booq.q("button.add").on("click", function(event) {
+
+                if (!Global.snackbarByVlidity("input.add_name")) return;
+
+                Global.modal.create({
+                        body: "追加してもよろしいですか",
+                        ok: {
+                            onclick: function() {
+                                Global.snackbar.close();
+                                booq.data.status = "";
+                                booq.data.commands.command = "add";
+                                axios.post("part-object.php", booq.data)
+                                    .then(function(response) {
+                                        console.log(response.data);
+                                        booq.data = response.data;
+
+                                        if (!Global.snackbarByViolations(booq.data.context.violations)) return;
+
+                                        // booq.data.message = response.data.message;
+                                        // if ("" !== booq.data.message) {
+                                        //     Global.snackbar.messageDiv.classList.add("warning");
+                                        //     Global.snackbar.maximize();
+                                        // }
+                                    })
+                                    .catch(Global.snackbarByCatchFunction());
                             }
                         }
                     })
                     .open();
-
-                };
-            })(this));
-        })
-        .add_part
-        // .name.link("input.add_name").withValue()
-        .add_name.withValue()
-        .type.link("select.add_type").withValue()
-        .type.onReceive(function (value, data) {
-            data.add_value_string_available = value === "string";
-            data.add_value_number_available = value === "number";
-        })
-        .add_value_string_available.antitogglesClass("none")
-        .add_value_number_available.antitogglesClass("none")
-        // .value.link("input.add_value").withValue()
-        .add_value_string.withValue()
-        .add_value_number.withValue()
-        .end
-        .setData(<?= $this->dataAsJSON() ?>)
-        ;
-
-        Booq.q("button.add").on("click", function (event) {
-            
-            if(!Global.snackbarByVlidity("input.add_name")) return;
-
-            Global.modal.create({
-                body: "追加してもよろしいですか",
-                ok: {
-                    onclick: function () {
-                        Global.snackbar.close();
-                        booq.data.status = "";
-                        booq.data.commands.command = "add";
-                        axios.post("part-object.php", booq.data)
-                        .then(function (response) {
-                            console.log(response.data);
-                            booq.data = response.data;
-                            
-                            if (!Global.snackbarByViolations(booq.data.context.violations)) return;
-
-                            // booq.data.message = response.data.message;
-                            // if ("" !== booq.data.message) {
-                            //     Global.snackbar.messageDiv.classList.add("warning");
-                            //     Global.snackbar.maximize();
-                            // }
-                        })
-                        .catch(Global.snackbarByCatchFunction());
-                    }
-                }
-            })
-            .open();
-        });
-    };
+            });
+        };
     </script>
 </body>
+
 </html>
 <?php
 
@@ -359,4 +356,4 @@
     $data['status'] = 'OK';
 }
 ]);
-?>
+?> 

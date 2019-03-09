@@ -58,7 +58,7 @@ class DAObject
         return $ar2;
     }
 
-    public function createStruct() : array
+    public function createStruct(): array
     {
         $struct = [];
         foreach ($this->table['columns'] as $column) {
@@ -67,9 +67,8 @@ class DAObject
         return $struct;
     }
 
-    public function getColumnByFieldName(string $fieldName, array $tables = []) : array
+    public function getColumnByFieldName(string $fieldName, array $tables = []): array
     {
-        $targetTables;
         if (!empty($table)) {
             $targetTables = $tables;
         } else {
@@ -312,7 +311,7 @@ class DAObject
         $st->execute();
     }
 
-    public function createTableDDL(bool $enableIfNotExists = false) : string
+    public function createTableDDL(bool $enableIfNotExists = false): string
     {
         $el = PHP_EOL;
         $s = '';
@@ -332,13 +331,13 @@ class DAObject
             }
         }
 
-        $s .= implode($defs, ',' . $el);
+        $s .= implode(',' . $el, $defs);
         $s .= $el . ');' . $el;
 
         return $s;
     }
 
-    public function dropTableDDL(bool $enableIfExists = false) : string
+    public function dropTableDDL(bool $enableIfExists = false): string
     {
         $el = PHP_EOL;
         $s = '';
@@ -354,5 +353,4 @@ class DAObject
     {
         $this->pdo->prepare($sql)->execute();
     }
-
 }

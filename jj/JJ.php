@@ -193,7 +193,7 @@ class JJ
         return $this;
     }
 
-    public function initMethods(array $methods) : JJ
+    public function initMethods(array $methods): JJ
     {
         $this->methods = array_merge($this->methods, $methods);
         foreach ($this->methods as $name => $closure) {
@@ -222,7 +222,7 @@ class JJ
      * @param array $structs definition of structs
      * @return JJ this instance
      */
-    public function initStructs(array $structs) : JJ
+    public function initStructs(array $structs): JJ
     {
         $theStructs = [];
         foreach ($structs as $key => $value) {
@@ -249,11 +249,10 @@ class JJ
      * @param [type] $value
      * @return array derived struct
      */
-    public function parseStruct($key, $value) : array
+    public function parseStruct($key, $value): array
     {
         if (is_int($key) && is_string($value)) {
             return $this->loadStructByTableName($value);
-
         } else if (is_string($key) && is_array($value)) {
 
             $isArray = $this->endsWith($key, '[]');
@@ -262,7 +261,7 @@ class JJ
             } else {
                 $key2 = $key;
             }
-            
+
             // merge everything
             $theStruct = [];
             foreach ($value as $key3 => $value3) {
@@ -283,7 +282,6 @@ class JJ
             } else {
                 return [$key2 => $theStruct];
             }
-
         } else if (is_string($key) && (is_string($value) || is_numeric($value) || is_bool($value))) {
             // create a key-value pair
             // This is going to be merged after this function returns.
@@ -293,7 +291,6 @@ class JJ
             } else {
                 return [$key => $value];
             }
-
         } else {
             throw new Exception('The form of structs argument was bad.');
         }
@@ -305,7 +302,7 @@ class JJ
      * @param [string] $name Table name to be loaded. This load struct as array if $name is ending with "[]".
      * @return array loaded struct
      */
-    public function loadStructByTableName($name) : array
+    public function loadStructByTableName($name): array
     {
         $theStruct = [];
         $isArray = $this->endsWith($name, '[]');
@@ -328,7 +325,7 @@ class JJ
      * @param array $attrs definition of attrs
      * @return JJ this instance
      */
-    public function initAttrs(array $attrs) : JJ
+    public function initAttrs(array $attrs): JJ
     {
         $theAttrs = [];
         foreach ($attrs as $key => $value) {
@@ -355,13 +352,12 @@ class JJ
      * @param [type] $value
      * @return array derived attr
      */
-    public function parseAttr($key, $value) : array
+    public function parseAttr($key, $value): array
     {
         if (is_int($key) && is_string($value)) {
-            return $this->dao($value)->getAttrsAll();
-
+            return $this->dao((string)$value)->getAttrsAll();
         } else if (is_string($key) && is_array($value)) {
-            
+
             // merge everything
             $theAttr = [];
             foreach ($value as $key3 => $value3) {
@@ -378,12 +374,10 @@ class JJ
                 }
             }
             return [$key => $theAttr];
-
         } else if (is_string($key) && (is_string($value) || is_numeric($value) || is_bool($value))) {
             // create a key-value pair
             // This is going to be merged after this function returns.
             return [$key => $value];
-
         } else {
             throw new Exception('The form of attrs argument was bad.');
         }
@@ -462,7 +456,7 @@ class JJ
         return false;
     }
 
-    function loggedInVarName() : string
+    function loggedInVarName(): string
     {
         return $this->config_['login']['loggedin_variable_name'];
     }
@@ -486,17 +480,21 @@ class JJ
         return $this->da_;
     }
 
-    function beginTransaction() : bool
+    function beginTransaction(): void
     {
-        return $this->db()->pdo()->beginTransaction();
+        if (!$this->db()->pdo()->beginTransaction()) {
+            throw new Exception('PDO::beginTransaction failed');
+        }
     }
 
-    function commit() : bool
+    function commit()
     {
-        return $this->db()->pdo()->commit();
+        if (!$this->db()->pdo()->commit()) {
+            throw new Exception('PDO::commit failed');
+        }
     }
 
-    function rollBack() : bool
+    function rollBack(): bool
     {
         return $this->db()->pdo()->rollBack();
     }
@@ -539,12 +537,12 @@ class JJ
         return $this->part_;
     }
 
-    public function isGet() : bool
+    public function isGet(): bool
     {
         return $_SERVER['REQUEST_METHOD'] == 'GET';
     }
 
-    public function isPost() : bool
+    public function isPost(): bool
     {
         return $_SERVER['REQUEST_METHOD'] == 'POST';
     }
@@ -639,10 +637,33 @@ class JJ
     {
         if (isset($this->args[$this->dispatchKey])) {
             try {
+                $this->beginTransaction();
                 ($this->args[$this->dispatchKey])->bindTo($this, $this)();
+                $this->commit();
             } catch (\Throwable $th) {
-                error_log(var_export($th, true));
-                $this->data = $th;
+                try {
+                    $rb = $this->rollBack();
+                    $rbth = null;
+                } catch (\Throwable $th2) {
+                    $rb = false;
+                    $rbth = $th2;
+                }
+                $lines = explode("\n", (string)$th);
+                foreach ($lines as $line) {
+                    error_log($line);
+                }
+                $rblines = [];
+                if (!$rb) {
+                    error_log('PDO::rollBack failed');
+                    if ($rbth) {
+                        $rblines = explode("\n", (string)$rbth);
+                        foreach ($rblines as $rbline) {
+                            error_log($rbline);
+                        }
+                    }
+                }
+
+                $this->data = ['debug' => ['lines' => $lines + $rblines]];
                 $this->responseInternalServerErrorThenExit();
             }
         }
@@ -667,7 +688,7 @@ class JJ
         exit();
     }
 
-    function validate($name, $type, $value, $conditions) : array
+    function validate($name, $type, $value, $conditions): array
     {
         $violations = [];
         if ($type === 'string') {
@@ -710,7 +731,6 @@ class JJ
                 }
             }
             return $violations;
-
         } else if ($type === 'number') {
             $isNull = is_null($value);
             if (array_key_exists('required', $conditions)) {
@@ -753,14 +773,13 @@ class JJ
             }
             return $violations;
 
-        // } else if ($type === 'object') {
-        //     //
-        //     return $violations;
+            // } else if ($type === 'object') {
+            //     //
+            //     return $violations;
 
-        // } else if ($type === 'array') {
-        //     //
-        //     return $violations;
-
+            // } else if ($type === 'array') {
+            //     //
+            //     return $violations;
         } else {
             throw new \RuntimeException("Unsupported type: {$type} for validation");
         }
@@ -780,7 +799,6 @@ class JJ
         }
         return (substr($haystack, -$length) === $needle);
     }
-
 }
 
 return (function (array $args) {
@@ -791,10 +809,13 @@ return (function (array $args) {
             $jj->init()->dispatch();
         }
     } catch (\Throwable $th) {
+        $lines = explode("\n", (string)$th);
+        foreach ($lines as $line) {
+            error_log($line);
+        }
         throw $th;
         // $jj->responseInternalServerErrorThenExit();
-        error_log(var_export($th, true));
+        // error_log(var_export($th, true));
     }
     return $jj;
 });
-?>
