@@ -49,9 +49,9 @@ class PartService
         return $this->po_->attFindOneBy(['child_id' => $child_id]);
     }
 
-    public function findPropertyByName($name)
+    public function findPropertyByParentIdAndName($parent_id, $name)
     {
-        return $this->po_->attFindOneBy(['name' => $name]);
+        return $this->po_->attFindOneBy(['parent_id' => $parent_id, 'name' => $name]);
     }
 
     public function findItem($child_id)
@@ -128,7 +128,7 @@ class PartService
             throw new Exception("The id:{$parent_id} was not an object.");
         }
 
-        if (!is_null($this->findPropertyByName($name))) {
+        if (!is_null($this->findPropertyByParentIdAndName($parent_id, $name))) {
             throw new Exception("The object has the name:{$name} of property.");
         }
 
@@ -304,5 +304,4 @@ class PartService
 
         return is_null($maxI) ? -1 : $maxI;
     }
-
 }

@@ -332,9 +332,10 @@
         } else {
             $violations = [];
         }
+        $parent_id = $data['context']['id'];
         $propName = $add_part['add_name'];
         if (0 === count($violations)) {
-            if (!is_null($this->part()->findPropertyByName($propName))) {
+            if (!is_null($this->part()->findPropertyByParentIdAndName($parent_id, $propName))) {
                 $violations[] = [
                     'name' => 'add_name',
                     'type' => '',
@@ -344,7 +345,7 @@
             }
         }
         if (0 === count($violations)) {
-            $this->part()->addNewProperty($data['context']['id'], $propName, $type, $add_part['add_value_string'], $add_part['add_value_number']);
+            $this->part()->addNewProperty($parent_id, $propName, $type, $add_part['add_value_string'], $add_part['add_value_number']);
             $add_part['add_name'] = '';
             $add_part['type'] = '';
             $add_part['add_value_string'] = '';
