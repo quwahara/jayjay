@@ -312,12 +312,13 @@ class PartService
         $points = [];
         while ($part) {
 
-            $set = ['part' => $part];
+            $set = array_merge($this->po_->createStruct(), $this->pa_->createStruct(), $part);
 
             $part_object = $this->findProperty($targetId);
             if ($part_object) {
+                $set = array_merge($set, $part_object);
+                $set['id'] = $targetId;
                 $set['sub_type'] = 'property';
-                $set['part_object'] = $part_object;
                 array_unshift($points, $set);
                 $targetId = $part_object['parent_id'];
                 $part = $this->findPart($targetId);
@@ -326,8 +327,9 @@ class PartService
 
             $part_array = $this->findItem($targetId);
             if ($part_array) {
+                $set = array_merge($set, $part_array);
+                $set['id'] = $targetId;
                 $set['sub_type'] = 'item';
-                $set['part_array'] = $part_array;
                 array_unshift($points, $set);
                 $targetId = $part_array['parent_id'];
                 $part = $this->findPart($targetId);
