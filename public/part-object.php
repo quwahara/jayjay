@@ -127,6 +127,16 @@
             <a class="parent_part_array none">Parent array</a>
         </div>
 
+        <div>
+            <span class="path">
+                <span>
+                    <span class="">/</span>
+                    <a class="id"></a>
+                    <a class="id name"></a>
+                </span>
+            </span>
+        </div>
+
         <div class="contents">
             <div class="row">
                 <label>Id</label>
@@ -216,6 +226,24 @@
                 .parent_part_array.antitogglesClass("none")
                 .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
                 .link(".add_property").toHref("part.php?parent_type=object&parent_id=:id")
+
+                .path.each(function(element) {
+                    this
+                        .link(".id").toHref(function(value) {
+                            if (value.sub_type === "global") {
+                                return "part-global.php";
+                            } else if (value.sub_type === "property") {
+                                return "part-object.php" + "?id=" + value.id;
+                            } else if (value.type === "array") {
+                                return "part-array.php" + "?id=" + value.id;
+                            } else {
+                                //
+                            }
+                        })
+                        .id.toText()
+                        .name.toText();
+                })
+
                 .end
 
                 .partxs.each(function(element) {
