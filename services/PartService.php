@@ -305,11 +305,11 @@ class PartService
         return is_null($maxI) ? -1 : $maxI;
     }
 
-    public function breadcrumbs($id)
+    public function path($id)
     {
         $targetId = $id;
         $part = $this->findPart($targetId);
-        $crumbs = [];
+        $points = [];
         while ($part) {
 
             $set = ['part' => $part];
@@ -318,7 +318,7 @@ class PartService
             if ($part_object) {
                 $set['sub_type'] = 'property';
                 $set['part_object'] = $part_object;
-                array_unshift($crumbs, $set);
+                array_unshift($points, $set);
                 $targetId = $part_object['parent_id'];
                 $part = $this->findPart($targetId);
                 continue;
@@ -328,16 +328,16 @@ class PartService
             if ($part_array) {
                 $set['sub_type'] = 'item';
                 $set['part_array'] = $part_array;
-                array_unshift($crumbs, $set);
+                array_unshift($points, $set);
                 $targetId = $part_array['parent_id'];
                 $part = $this->findPart($targetId);
                 continue;
             }
 
             $set['sub_type'] = 'global';
-            array_unshift($crumbs, $set);
+            array_unshift($points, $set);
             break;
         }
-        return $crumbs;
+        return $points;
     }
 }

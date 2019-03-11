@@ -6,7 +6,7 @@
             'parent_type' => '',
             'parent_part_object' => false,
             'parent_part_array' => false,
-            'breadcrumbs[]' => [
+            'path[]' => [
                 'part',
                 'sub_type' => '',
                 'part_object',
@@ -84,7 +84,7 @@
                 $ctx['parent_part_array'] = true;
             }
 
-            $ctx['breadcrumbs'] = $this->part()->breadcrumbs($ctx['id']);
+            $ctx['path'] = $this->part()->path($ctx['id']);
 
             $this->data['add_part']['type'] = 'string';
             $this->data['add_part']['add_value_string_available'] = 'string' === $this->data['add_part']['type'];
