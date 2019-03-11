@@ -304,4 +304,40 @@ class PartService
 
         return is_null($maxI) ? -1 : $maxI;
     }
+
+    public function breadcrumbs($id)
+    {
+        $targetId = $id;
+        $part = $this->findPart($targetId);
+        $crumbs = [];
+        while ($part) {
+
+            $set = ['part' => $part];
+
+            $part_object = $this->findProperty($targetId);
+            if ($part_object) {
+                $set['sub_type'] = 'property';
+                $set['part_object'] = $part_object;
+                array_unshift($crumbs, $set);
+                $targetId = $part_object['parent_id'];
+                $part = $this->findPart($targetId);
+                continue;
+            }
+
+            $part_array = $this->findItem($targetId);
+            if ($part_array) {
+                $set['sub_type'] = 'item';
+                $set['part_array'] = $part_array;
+                array_unshift($crumbs, $set);
+                $targetId = $part_array['parent_id'];
+                $part = $this->findPart($targetId);
+                continue;
+            }
+
+            $set['sub_type'] = 'global';
+            array_unshift($crumbs, $set);
+            break;
+        }
+        return $crumbs;
+    }
 }
