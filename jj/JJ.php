@@ -785,6 +785,13 @@ class JJ
         }
     }
 
+    function requireBy($name)
+    {
+        if (array_key_exists($name, $this->config_['requires'])) {
+            require __DIR__ . '/../' . $this->config_['requires'][$name];
+        }
+    }
+
     function startsWith($haystack, $needle)
     {
         $length = strlen($needle);

@@ -128,6 +128,7 @@
         </div>
 
         <div>
+            <?php $this->requireBy("path"); ?>
             <span class="path">
                 <span>
                     <span class="">/</span>

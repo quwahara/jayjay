@@ -17,8 +17,7 @@ return [
         'context' => [],
     ],
     // global attrs parameters
-    'attrs' => [
-    ],
+    'attrs' => [],
     // global data parameters
     'data' => [
         'status' => '',
@@ -47,6 +46,6 @@ return [
     'internal_server_error' => [
         'redirect_path' => 'errors/internal-server-error.php'
     ],
-
+    'requires' => [],
 ];
-?>
+ 
