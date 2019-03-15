@@ -1,8 +1,8 @@
 <span class="path-snippet">
     <span>
         <span class="">/</span>
-        <a class="id"></a>
-        <a class="id name"></a>
+        <a class="path-snippet-id"></a>
+        <a class="path-snippet-id path-snippet-name"></a>
     </span>
 </span>
 <script>
@@ -11,7 +11,7 @@
         brokerPath = function(path) {
             path.link(".path-snippet").each(function(element) {
                 this
-                    .link(".id").toHref(function(value) {
+                    .link("a.path-snippet-id").toHref(function(value) {
                         if (value.sub_type === "global") {
                             return "part-global.php";
                         } else if (value.sub_type === "property") {
@@ -22,8 +22,8 @@
                             //
                         }
                     })
-                    .id.toText()
-                    .name.toText();
+                    .id.link(".path-snippet-id").toText()
+                    .name.link(".path-snippet-name").toText();
             });
         }
     }
