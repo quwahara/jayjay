@@ -130,15 +130,6 @@
         <div>
             <?php $this->requireBy("path"); ?>
         </div>
-        <div>
-            <span class="path">
-                <span>
-                    <span class="">/</span>
-                    <a class="id2"></a>
-                    <a class="id2 name"></a>
-                </span>
-            </span>
-        </div>
 
         <div class="contents">
             <div class="row">
@@ -231,22 +222,6 @@
                 .link(".add_property").toHref("part.php?parent_type=object&parent_id=:id")
 
                 .path.callFunctionWithThis(brokerPath)
-                .path.link(".path").each(function(element) {
-                    this
-                        .link(".id2").toHref(function(value) {
-                            if (value.sub_type === "global") {
-                                return "part-global.php";
-                            } else if (value.sub_type === "property") {
-                                return "part-object.php" + "?id=" + value.id;
-                            } else if (value.type === "array") {
-                                return "part-array.php" + "?id=" + value.id;
-                            } else {
-                                //
-                            }
-                        })
-                        .id.link(".id2").toText()
-                        .name.toText();
-                })
 
                 .end
 
