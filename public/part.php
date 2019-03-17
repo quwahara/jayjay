@@ -7,6 +7,7 @@
         'part',
         'part_object',
         'part_array',
+        'id_copy_from' => 0,
         'commands' => [
             'register' => ''
         ],
@@ -22,6 +23,7 @@
             'is_update' => false,
             'value_string_available' => false,
             'value_number_available' => false,
+            'id_copy_from_available' => false,
             // 'array_operatable' => false,
             // 'object_operatable' => false,
             'register_available' => false,
@@ -95,8 +97,6 @@
                 $ctx['has_parent'] = true;
             }
         }
-
-        // $this->data['views'] = new stdClass();
         ?>
 <html>
 
@@ -157,6 +157,7 @@
                         <option value="number">Number</option>
                         <option value="object">Object</option>
                         <option value="array">Array</option>
+                        <option value="copy_from">Copy from</option>
                     </select>
                 </div>
                 <div class="row type-label none">
@@ -175,6 +176,10 @@
                 <div class="row value_number value_number_available none">
                     <label for="value_number">Number value</label>
                     <input type="text" name="value_number">
+                </div>
+                <div class="row id_copy_from id_copy_from_available none">
+                    <label for="id_copy_from">Copy from id</label>
+                    <input type="text" name="id_copy_from">
                 </div>
                 <div class="row array_operatable none">
                     <div><a class="array-new-item">New item</a></div>
@@ -250,11 +255,14 @@
                 .i.link(".array_index").toText()
                 .end
 
+                .id_copy_from.withValue()
+
                 .context.setUpdate(function(data) {
                     isPrimitiveType = booq.data.part.type === "string" || booq.data.part.type === "number";
                     // data.value_available = isPrimitiveType;
                     data.value_string_available = booq.data.part.type === "string";
                     data.value_number_available = booq.data.part.type === "number";
+                    data.id_copy_from_available = booq.data.part.type === "copy_from";
                     data.array_operatable = data.is_update && booq.data.part.type === "array";
                     data.object_operatable = data.is_update && booq.data.part.type === "object";
                     data.register_available = !data.is_update || (data.is_update && isPrimitiveType);
@@ -279,6 +287,7 @@
                 .parent_part_object.antitogglesClass("none")
                 .value_string_available.antitogglesClass("none")
                 .value_number_available.antitogglesClass("none")
+                .id_copy_from_available.antitogglesClass("none")
                 // .array_operatable.antitogglesClass("none")
                 // .object_operatable.antitogglesClass("none")
                 .register_available.antitogglesClass("none")
@@ -308,6 +317,7 @@
 },
 'post application/json' => function () {
 
+    $data = &$this->data;
     $part = $this->data['part'];
     $partDao = $this->dao('part');
     $doUpdatePart = false;
@@ -325,6 +335,11 @@
 
     if ($doUpdatePart) {
         $partDao->attUpdateById($part);
+    } else if ($part['type'] === 'copy_from') {
+        //
+        $x = $this->part()->findPartAndChildren($data['id_copy_from']);
+
+        //
     } else {
         unset($part['id']);
         $part = $partDao->attFindOneById($partDao->attInsert($part));

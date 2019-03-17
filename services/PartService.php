@@ -71,6 +71,36 @@ class PartService
         return $this->pa_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by i", ['parent_id' => $parent_id]);
     }
 
+    public function findPartAndChildren($id)
+    {
+        $part = $this->findPart($id);
+        if (is_null($part)) {
+            return null;
+        }
+        $results = [
+            'part' => $part,
+            'part_object' => null,
+            'part_array' => null
+        ];
+        if ($part['type'] === 'object') {
+            $part_objects = $this->findAllPropertiesOrderByName($part['id']);
+            $part_object_results = [];
+            foreach ($part_objects as $part_object) {
+                $part_object_results[$part_object['name']] = $this->findPartAndChildren($part_object['child_id']);
+            }
+            $results['part_object'] =  $part_object_results;
+        } else if ($part['type'] === 'array') {
+            $part_arrays = $this->findAllItemsOrderByI($part['id']);
+            $part_array_results = [];
+            foreach ($part_arrays as $part_array) {
+                $part_array_results[$part_array['i']] = $this->findPartAndChildren($part_array['child_id']);
+            }
+            $results['part_array'] = $part_array_results;
+        }
+
+        return $results;
+    }
+
     public function addPart($type, $value_string, $value_number)
     {
         $part = $this->p_->createStruct();
@@ -314,7 +344,7 @@ class PartService
 
             $set = array_merge($this->po_->createStruct(), $this->pa_->createStruct(), $part);
             $set['i'] = null;
-            
+
             $part_object = $this->findProperty($targetId);
             if ($part_object) {
                 $set = array_merge($set, $part_object);
