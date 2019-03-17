@@ -26,7 +26,7 @@
                             return "part.php" + "?id=" + value.id;
                         }
                     })
-                    .link(".path-snippet-given").to2(function(src, value) {
+                    .link(".path-snippet-given").to(function(src, value) {
                         var family = "";
                         if (value.sub_type === "global") {
                             family = "";
@@ -40,10 +40,10 @@
                         // "this" is issued element
                         this.textContent = family;
                     })
-                    .link(".path-snippet-type").to2(function(src, value) {
+                    .link(".path-snippet-type").to(function(src, value) {
                         this.textContent = value.type;
                     })
-                    .link(".path-snippet-value").to2(function(src, value) {
+                    .link(".path-snippet-value").to(function(src, value) {
                         var valueValue = "";
                         if (value.type === "object") {
                             valueValue = "";
