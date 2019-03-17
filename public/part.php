@@ -53,7 +53,13 @@
         // $ctx['object_operatable'] = false;
         $ctx['register_available'] = false;
 
-        $ctx['path'] = $this->part()->path($ctx['id']);
+        $pathId = -1;
+        if (intval($ctx['id']) > 0) {
+            $pathId = intval($ctx['id']);
+        } else if (intval($ctx['parent_id']) > 0) {
+            $pathId = intval($ctx['parent_id']);
+        }
+        $ctx['path'] = $this->part()->path($pathId);
 
         // $this->data['parent']['parent_type'] = $this->getRequest('parent_type', '');
         // $this->data['parent']['parent_id'] = $this->getRequest('parent_id', 0);
