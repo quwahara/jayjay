@@ -25,6 +25,12 @@
             // 'array_operatable' => false,
             // 'object_operatable' => false,
             'register_available' => false,
+            'path[]' => [
+                'part',
+                'sub_type' => '',
+                'part_object',
+                'part_array',
+            ],
         ],
         // 'views' => [
         //     'typeSelectable' => false,
@@ -47,6 +53,8 @@
         // $ctx['object_operatable'] = false;
         $ctx['register_available'] = false;
 
+        $ctx['path'] = $this->part()->path($ctx['id']);
+
         // $this->data['parent']['parent_type'] = $this->getRequest('parent_type', '');
         // $this->data['parent']['parent_id'] = $this->getRequest('parent_id', 0);
 
@@ -65,7 +73,6 @@
                     $ctx['parent_id'] = $part_object['parent_id'];
                     $ctx['parent_part_object'] = true;
                     $ctx['has_parent'] = true;
-
                 } else if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
                     $this->data['part_array'] = $part_array;
                     $ctx['parent_type'] = 'array';
@@ -74,7 +81,6 @@
                     $ctx['has_parent'] = true;
                 }
             }
-
         } else if ($ctx['parent_id'] > 0) {
             if ($parent_part = $this->dao('part')->attFindOneBy(['id' => $ctx['parent_id']])) {
                 $ctx['parent_type'] = $parent_part['type'];
@@ -87,6 +93,7 @@
         // $this->data['views'] = new stdClass();
         ?>
 <html>
+
 <head>
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
@@ -98,6 +105,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Part</title>
 </head>
+
 <body>
     <div>
         <div class="belt">
@@ -109,6 +117,10 @@
             <a href="part-global.php">Part global</a>
             <a class="parent_part_object none">Parent object</a>
             <a class="parent_part_array none">Parent array</a>
+        </div>
+
+        <div>
+            <?php $this->requireBy("path"); ?>
         </div>
 
         <div class="contents">
@@ -174,114 +186,116 @@
         </div>
     </div>
     <script>
-    window.onload = function() {
+        window.onload = function() {
 
-        var booq;
-        (booq = new Booq(<?= $this->structsAsJSON() ?>))
-        .commands
-        .register.on("click", function (event) {
+            var booq;
+            (booq = new Booq(<?= $this->structsAsJSON() ?>))
+            .commands
+                .register.on("click", function(event) {
 
-            Global.snackbar.close();
-                booq.data.status = "";
-                axios.post("part.php", booq.data)
-                .then(function (response) {
-                    console.log(response.data);
-                    // booq.data = response.data;
-                    booq
-                    .setData(response.data)
-                    .update()
-                    ;
-                    // booq.data.message = response.data.message;
-                    // if ("" !== booq.data.message) {
-                    //     Global.snackbar.messageDiv.classList.add("warning");
-                    //     Global.snackbar.maximize();
-                    // }
+                    Global.snackbar.close();
+                    booq.data.status = "";
+                    axios.post("part.php", booq.data)
+                        .then(function(response) {
+                            console.log(response.data);
+                            // booq.data = response.data;
+                            booq
+                                .setData(response.data)
+                                .update();
+                            // booq.data.message = response.data.message;
+                            // if ("" !== booq.data.message) {
+                            //     Global.snackbar.messageDiv.classList.add("warning");
+                            //     Global.snackbar.maximize();
+                            // }
+                        })
+                        .catch(Global.snackbarByCatchFunction());
                 })
-                .catch(Global.snackbarByCatchFunction());
-        })
-        .end
+                .end
 
-        // .parent
-        // .parent_type.withValue()
-        // .also.toText()
-        // .parent_id.withValue()
-        // .parent_id.toText()
-        // .end
+                // .parent
+                // .parent_type.withValue()
+                // .also.toText()
+                // .parent_id.withValue()
+                // .parent_id.toText()
+                // .end
 
-        .part
-        .id.withValue()
-        .id.toText()
-        .id.link(".array-new-item").toHref("part.php?parent_type=array&parent_id=:id")
-        .id.link(".array-items").toHref("part-list.php?parent_type=array&parent_id=:id")
-        .id.link(".object-new-prop").toHref("part.php?parent_type=object&parent_id=:id")
-        .id.link(".object-props").toHref("part-list.php?parent_type=object&parent_id=:id")
-        .type.withValue()
-        .type.toText()
-        .type.on("change", function() { booq.update(); })
-        .value_string.withValue()
-        .value_number.withValue()
-        .end
+                .part
+                .id.withValue()
+                .id.toText()
+                .id.link(".array-new-item").toHref("part.php?parent_type=array&parent_id=:id")
+                .id.link(".array-items").toHref("part-list.php?parent_type=array&parent_id=:id")
+                .id.link(".object-new-prop").toHref("part.php?parent_type=object&parent_id=:id")
+                .id.link(".object-props").toHref("part-list.php?parent_type=object&parent_id=:id")
+                .type.withValue()
+                .type.toText()
+                .type.on("change", function() {
+                    booq.update();
+                })
+                .value_string.withValue()
+                .value_number.withValue()
+                .end
 
-        .part_object
-        // .child_id.link("input[name='id']").withValue()
-        .name.withValue()
-        .end
-        
-        .part_array
-        .i.link(".array_index").toText()
-        .end
-        
-        .context.setUpdate(function (data) {
-            isPrimitiveType = booq.data.part.type === "string" || booq.data.part.type === "number";
-            // data.value_available = isPrimitiveType;
-            data.value_string_available = booq.data.part.type === "string";
-            data.value_number_available = booq.data.part.type === "number";
-            data.array_operatable = data.is_update && booq.data.part.type === "array";
-            data.object_operatable = data.is_update && booq.data.part.type === "object";
-            data.register_available = !data.is_update || (data.is_update && isPrimitiveType);
-        })
-        .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
-        .parent_type.withValue()
-        .parent_type.antitogglesClass("none")
-        .also.toText()
-        .parent_id.withValue()
-        .parent_id.toText()
-        .parent_part_object.antitogglesClass("none")
-        .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
-        .parent_part_array.antitogglesClass("none")
-        .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
-        // .also.toHref("part-array.php?id=:parent_id")
-        .has_parent.antitogglesClass("none")
-        // .is_parent_object.antitogglesClass("none")
-        .is_update.link(".type-select").togglesClass("none")
-        .also.link(".type-select select").togglesAttr("disabled", "")
-        .also.link(".type-label").antitogglesClass("none")
-        .also.link(".type-label input").antitogglesAttr("disabled", "")
-        .parent_part_object.antitogglesClass("none")
-        .value_string_available.antitogglesClass("none")
-        .value_number_available.antitogglesClass("none")
-        // .array_operatable.antitogglesClass("none")
-        // .object_operatable.antitogglesClass("none")
-        .register_available.antitogglesClass("none")
-        .end
+                .part_object
+                // .child_id.link("input[name='id']").withValue()
+                .name.withValue()
+                .end
 
-        // .views.setUpdate(function (data) {
-        //     data.typeSelectable = !booq.data.part.id;
-        //     data.arrayOperatable = booq.data.part.id && booq.data.part.type === "array";
-        // })
-        // .typeSelectable.link(".type-select").antitogglesClass("none")
-        // .typeSelectable.link(".type-select select").antitogglesAttr("disabled", "")
-        // .typeSelectable.link(".type-label").togglesClass("none")
-        // .typeSelectable.link(".type-label input").togglesAttr("disabled", "")
-        // .arrayOperatable.link(".array-operations").antitogglesClass("none")
-        // .end
-        .setData(<?= $this->dataAsJSON() ?>)
-        .update()
-        ;
+                .part_array
+                .i.link(".array_index").toText()
+                .end
 
-    };
+                .context.setUpdate(function(data) {
+                    isPrimitiveType = booq.data.part.type === "string" || booq.data.part.type === "number";
+                    // data.value_available = isPrimitiveType;
+                    data.value_string_available = booq.data.part.type === "string";
+                    data.value_number_available = booq.data.part.type === "number";
+                    data.array_operatable = data.is_update && booq.data.part.type === "array";
+                    data.object_operatable = data.is_update && booq.data.part.type === "object";
+                    data.register_available = !data.is_update || (data.is_update && isPrimitiveType);
+                })
+                .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
+                .parent_type.withValue()
+                .parent_type.antitogglesClass("none")
+                .also.toText()
+                .parent_id.withValue()
+                .parent_id.toText()
+                .parent_part_object.antitogglesClass("none")
+                .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
+                .parent_part_array.antitogglesClass("none")
+                .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
+                // .also.toHref("part-array.php?id=:parent_id")
+                .has_parent.antitogglesClass("none")
+                // .is_parent_object.antitogglesClass("none")
+                .is_update.link(".type-select").togglesClass("none")
+                .also.link(".type-select select").togglesAttr("disabled", "")
+                .also.link(".type-label").antitogglesClass("none")
+                .also.link(".type-label input").antitogglesAttr("disabled", "")
+                .parent_part_object.antitogglesClass("none")
+                .value_string_available.antitogglesClass("none")
+                .value_number_available.antitogglesClass("none")
+                // .array_operatable.antitogglesClass("none")
+                // .object_operatable.antitogglesClass("none")
+                .register_available.antitogglesClass("none")
+                .path.callFunctionWithThis(brokerPath)
+                .end
+
+                // .views.setUpdate(function (data) {
+                //     data.typeSelectable = !booq.data.part.id;
+                //     data.arrayOperatable = booq.data.part.id && booq.data.part.type === "array";
+                // })
+                // .typeSelectable.link(".type-select").antitogglesClass("none")
+                // .typeSelectable.link(".type-select select").antitogglesAttr("disabled", "")
+                // .typeSelectable.link(".type-label").togglesClass("none")
+                // .typeSelectable.link(".type-label input").togglesAttr("disabled", "")
+                // .arrayOperatable.link(".array-operations").antitogglesClass("none")
+                // .end
+                .setData(<?= $this->dataAsJSON() ?>)
+                .update();
+
+        };
     </script>
 </body>
+
 </html>
 <?php
 
@@ -353,4 +367,4 @@
     $this->data['status'] = 'OK';
 }
 ]);
-?>
+?> 

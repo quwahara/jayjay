@@ -6,6 +6,12 @@
             'parent_type' => '',
             'parent_part_object' => false,
             'parent_part_array' => false,
+            'path[]' => [
+                'part',
+                'sub_type' => '',
+                'part_object',
+                'part_array',
+            ],
         ],
         'partxs[]' => [
             'parts',
@@ -29,6 +35,8 @@
             $ctx['id'] = $id;
             // $ctx['parent_id'] = $this->getRequest('id', 0);
             // $ctx['parent_type'] = 'array';
+
+            $ctx['path'] = $this->part()->path($ctx['id']);
 
             $this->data['partxs'] = $this->dao('parts', ['part_arrays'])->attFetchAll(
                 'select p.*  '
@@ -72,6 +80,7 @@
         $this->refreshData($this->getRequest('id', 0));
         ?>
 <html>
+
 <head>
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
@@ -83,6 +92,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Part array</title>
 </head>
+
 <body>
     <div>
         <div class="belt">
@@ -94,6 +104,10 @@
             <a href="part-global.php">Part global</a>
             <a class="parent_part_object none">Parent object</a>
             <a class="parent_part_array none">Parent array</a>
+        </div>
+
+        <div>
+            <?php $this->requireBy("path"); ?>
         </div>
 
         <div class="contents">
@@ -137,7 +151,7 @@
                                 <td><button type="button" class="add">+</button></td>
                                 <td>
                                     <select class="add_type" name="type">
-                                    <option value="string">String</option>
+                                        <option value="string">String</option>
                                         <option value="number">Number</option>
                                         <option value="object">Object</option>
                                         <option value="array">Array</option>
@@ -160,118 +174,117 @@
         <div id="snackbar"></div>
     </div>
     <script>
-    window.onload = function() {
-        Global.snackbar("#snackbar");
+        window.onload = function() {
+            Global.snackbar("#snackbar");
 
-        var booq;
-        (booq = new Booq(<?= $this->structsAsJSON() ?>))
-        .context
-        .id.toText()
-        .parent_part_object.antitogglesClass("none")
-        .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
-        .parent_part_array.antitogglesClass("none")
-        .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
-        .link(".add_item").toHref("part.php?parent_type=array&parent_id=:id")
-        .end
+            var booq;
+            (booq = new Booq(<?= $this->structsAsJSON() ?>))
+            .context
+                .id.toText()
+                .parent_part_object.antitogglesClass("none")
+                .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
+                .parent_part_array.antitogglesClass("none")
+                .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
+                .link(".add_item").toHref("part.php?parent_type=array&parent_id=:id")
+                .path.callFunctionWithThis(brokerPath)
+                .end
 
-        .partxs.each(function (element) {
-            this
-            .link(".id").toHref(function (value) {
-                if (value.type === "string" || value.type === "number") {
-                    return "part.php"
-                    + "?id=" + value.id
-                    ;
-                } else if (value.type === "array") {
-                    return "part-array.php"
-                    + "?id=" + value.id
-                    ;
-                } else if (value.type === "object") {
-                    return "part-object.php"
-                    + "?id=" + value.id
-                    ;
-                } else {
-                    //
-                }
-            })
-            .i.toText()
-            .id.toText()
-            // .id.toHref("part.php?id=:id")
-            .type.toText()
-            .value_string.toText()
-            .value_number.toText()
-            ;
-            Booq.q(element).q("button").on("click", (function (self) {
-                return function (event) {
-                    Global.modal.create({
-                        body: "id:" + self.data.id + " を削除してもよろしいですか",
-                        ok: {
-                            onclick: function () {
-                                console.log(self.data);
-                                booq.data.status = "";
-                                booq.data.commands.command = "delete";
-                                booq.data.commands.delete_id = self.data.id;
-                                axios.post("part-array.php", booq.data)
-                                .then(function (response) {
-                                    console.log(response.data);
-                                    booq.data = response.data;
-                                    // booq.data.message = response.data.message;
-                                    // if ("" !== booq.data.message) {
-                                    //     Global.snackbar.messageDiv.classList.add("warning");
-                                    //     Global.snackbar.maximize();
-                                    // }
+                .partxs.each(function(element) {
+                    this
+                        .link(".id").toHref(function(value) {
+                            if (value.type === "string" || value.type === "number") {
+                                return "part.php" +
+                                    "?id=" + value.id;
+                            } else if (value.type === "array") {
+                                return "part-array.php" +
+                                    "?id=" + value.id;
+                            } else if (value.type === "object") {
+                                return "part-object.php" +
+                                    "?id=" + value.id;
+                            } else {
+                                //
+                            }
+                        })
+                        .i.toText()
+                        .id.toText()
+                        // .id.toHref("part.php?id=:id")
+                        .type.toText()
+                        .value_string.toText()
+                        .value_number.toText();
+                    Booq.q(element).q("button").on("click", (function(self) {
+                        return function(event) {
+                            Global.modal.create({
+                                    body: "id:" + self.data.id + " を削除してもよろしいですか",
+                                    ok: {
+                                        onclick: function() {
+                                            console.log(self.data);
+                                            booq.data.status = "";
+                                            booq.data.commands.command = "delete";
+                                            booq.data.commands.delete_id = self.data.id;
+                                            axios.post("part-array.php", booq.data)
+                                                .then(function(response) {
+                                                    console.log(response.data);
+                                                    booq.data = response.data;
+                                                    // booq.data.message = response.data.message;
+                                                    // if ("" !== booq.data.message) {
+                                                    //     Global.snackbar.messageDiv.classList.add("warning");
+                                                    //     Global.snackbar.maximize();
+                                                    // }
+                                                })
+                                                .catch(Global.catcher(booq.data));
+                                        }
+                                    }
                                 })
-                                .catch(Global.catcher(booq.data));
+                                .open();
+
+                        };
+                    })(this));
+                })
+                .add_part
+                .type.link("select.add_type").withValue()
+                .type.link("select.add_type").on("change", function() {
+                    booq.update();
+                })
+                .setUpdate(function(data) {
+                    data.add_value_string_available = data.type === "string";
+                    data.add_value_number_available = data.type === "number";
+                })
+                .add_value_string_available.antitogglesClass("none")
+                .add_value_number_available.antitogglesClass("none")
+                .value_string.withValue()
+                .value_number.withValue()
+                .end
+                .setData(<?= $this->dataAsJSON() ?>)
+                .update();
+
+            Booq.q("button.add").on("click", function(event) {
+                Global.modal.create({
+                        body: "追加してもよろしいですか",
+                        ok: {
+                            onclick: function() {
+                                booq.data.status = "";
+                                booq.data.commands.command = "add";
+                                axios.post("part-array.php", booq.data)
+                                    .then(function(response) {
+                                        console.log(response.data);
+                                        booq.data = response.data;
+                                        // booq.data.message = response.data.message;
+                                        // if ("" !== booq.data.message) {
+                                        //     Global.snackbar.messageDiv.classList.add("warning");
+                                        //     Global.snackbar.maximize();
+                                        // }
+                                    })
+                                    .catch(Global.catcher(booq.data));
                             }
                         }
                     })
                     .open();
+            });
 
-                    };
-            })(this));
-        })
-        .add_part
-        .type.link("select.add_type").withValue()
-        .type.link("select.add_type").on("change", function() { booq.update(); })
-        .setUpdate(function (data) {
-            data.add_value_string_available = data.type === "string";
-            data.add_value_number_available = data.type === "number";
-        })
-        .add_value_string_available.antitogglesClass("none")
-        .add_value_number_available.antitogglesClass("none")
-        .value_string.withValue()
-        .value_number.withValue()
-        .end
-        .setData(<?= $this->dataAsJSON() ?>)
-        .update()
-        ;
-
-        Booq.q("button.add").on("click", function (event) {
-            Global.modal.create({
-                body: "追加してもよろしいですか",
-                ok: {
-                    onclick: function () {
-                        booq.data.status = "";
-                        booq.data.commands.command = "add";
-                        axios.post("part-array.php", booq.data)
-                        .then(function (response) {
-                            console.log(response.data);
-                            booq.data = response.data;
-                            // booq.data.message = response.data.message;
-                            // if ("" !== booq.data.message) {
-                            //     Global.snackbar.messageDiv.classList.add("warning");
-                            //     Global.snackbar.maximize();
-                            // }
-                        })
-                        .catch(Global.catcher(booq.data));
-                    }
-                }
-            })
-            .open();
-        });
-
-    };
+        };
     </script>
 </body>
+
 </html>
 <?php
 
@@ -294,4 +307,4 @@
     $this->data['status'] = 'OK';
 }
 ]);
-?>
+?> 

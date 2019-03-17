@@ -313,7 +313,8 @@ class PartService
         while ($part) {
 
             $set = array_merge($this->po_->createStruct(), $this->pa_->createStruct(), $part);
-
+            $set['i'] = null;
+            
             $part_object = $this->findProperty($targetId);
             if ($part_object) {
                 $set = array_merge($set, $part_object);
