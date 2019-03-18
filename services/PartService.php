@@ -79,8 +79,8 @@ class PartService
         }
         $results = [
             'part' => $part,
-            'part_object' => null,
-            'part_array' => null
+            'part_objects' => null,
+            'part_arrays' => null
         ];
         if ($part['type'] === 'object') {
             $part_objects = $this->findAllPropertiesOrderByName($part['id']);
@@ -88,14 +88,14 @@ class PartService
             foreach ($part_objects as $part_object) {
                 $part_object_results[$part_object['name']] = $this->findPartAndChildren($part_object['child_id']);
             }
-            $results['part_object'] =  $part_object_results;
+            $results['part_objects'] =  $part_object_results;
         } else if ($part['type'] === 'array') {
             $part_arrays = $this->findAllItemsOrderByI($part['id']);
             $part_array_results = [];
             foreach ($part_arrays as $part_array) {
                 $part_array_results[$part_array['i']] = $this->findPartAndChildren($part_array['child_id']);
             }
-            $results['part_array'] = $part_array_results;
+            $results['part_arrays'] = $part_array_results;
         }
 
         return $results;
@@ -181,6 +181,69 @@ class PartService
         $part = $this->addPart($type, $value_string, $value_number);
 
         return $this->addPartArray($parent_id, $part['id']);
+    }
+
+    /**
+     * Clone a part from original
+     *
+     * @param [type] $parent_id parent_id that is of parent for cloned part. This value must be null if new part belongs to global.
+     * @param [string] $name Name for property if parent is part_object unless this value is null
+     * @param [array] $original_part_and_children Original for cloning. this value is assumed to be results of findPartAndChildren() method
+     * @return integer returns new part id
+     */
+    public function clone($parent_id, $name, $original_part_and_children): int
+    {
+        if (is_null($original_part_and_children)) {
+            throw new Exception("\$original_part_and_children was null.");
+        }
+
+        $part = &$original_part_and_children['part'];
+        $type = $part['type'];
+        $value_string = $part['value_string'];
+        $value_number = $part['value_number'];
+
+        if (is_null($parent_id)) {
+            $new_part = $this->addPart($type, $value_string, $value_number);
+            $new_part_id = $new_part['id'];
+        } else {
+            $parent_part = $this->findPart($parent_id);
+            if (is_null($parent_part)) {
+                throw new Exception("Parent part was not found for the id:{$parent_id}.");
+            }
+            if ($parent_part['type'] === 'object') {
+                $new_part_object = $this->addNewProperty($parent_id, $name, $type, $value_string, $value_number);
+                $new_part_id = $new_part_object['child_id'];
+            } else if ($parent_part['type'] === 'object') {
+                $new_part_array = $this->addNewItem($parent_id, $type, $value_string, $value_number);
+                $new_part_id = $new_part_array['child_id'];
+            }
+        }
+
+        if ($type === 'object') {
+            foreach ($original_part_and_children['part_objects'] as $name => $part_object) {
+                $this->clone($new_part_id, $name, $part_object);
+            }
+        } else if ($type === 'array') {
+            foreach ($original_part_and_children['part_array'] as $part_array) {
+                $this->clone($new_part_id, null, $part_array);
+            }
+        }
+
+        return $new_part_id;
+    }
+
+    /**
+     * Clone a part by part id
+     *
+     * @param mixed $parent_id parent_id that is of parent for cloned part. This value must be null if new part belongs to global.
+     * @param mixed $name Name for property if parent is part_object unless this value is null
+     * @param mixed $part_id id of original part
+     * @return integer returns new part id
+     */
+    public function cloneById($parent_id, $name, $part_id): int
+    {
+        $partAndChildren = $this->findPartAndChildren($part_id);
+        return $this->clone($parent_id, $name, $partAndChildren);
     }
 
     public function delete($id)

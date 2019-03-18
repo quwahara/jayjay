@@ -336,10 +336,8 @@
     if ($doUpdatePart) {
         $partDao->attUpdateById($part);
     } else if ($part['type'] === 'copy_from') {
-        //
-        $x = $this->part()->findPartAndChildren($data['id_copy_from']);
-
-        //
+        $newPartId = $this->part()->cloneById($this->data['context']['parent_id'], $this->data['part_object']['name'], $data['id_copy_from']);
+        $part = $partDao->attFindOneById($newPartId);
     } else {
         unset($part['id']);
         $part = $partDao->attFindOneById($partDao->attInsert($part));
