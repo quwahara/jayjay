@@ -340,43 +340,13 @@
         $part = $partDao->attFindOneById($newPartId);
     } else {
         unset($part['id']);
-        $part = $partDao->attFindOneById($partDao->attInsert($part));
-
         $ctx = &$this->data['context'];
         if ($ctx['parent_part_array']) {
-            $partArrayDao = $this->dao('part_array');
-            $partArray = $partArrayDao->attFindOneBy([
-                'parent_id' => $ctx['parent_id'],
-                'child_id' => $part['id']
-            ]);
-            if (is_null($partArray)) {
-                $maxI = $partArrayDao->attFetchOne(
-                    'select max(i) as i_max from part_arrays '
-                        . 'where parent_id = :parent_id ',
-                    ['parent_id' => $ctx['parent_id']]
-                )['i_max'];
-
-                $i = is_null($maxI) ? 0 : ($maxI + 1);
-
-                $partArrayDao->attInsert([
-                    'parent_id' => $ctx['parent_id'],
-                    'child_id' => $part['id'],
-                    'i' => $i,
-                ]);
-            }
+            $part_array = $this->part()->addNewItem($ctx['parent_id'], $part['type'], $part['value_string'], $part['value_number']);
+            $part = $partDao->attFindOneById($part_array['child_id']);
         } else if ($ctx['parent_part_object']) {
-            $partObjectDao = $this->dao('part_object');
-            $partObject = $partObjectDao->attFindOneBy([
-                'parent_id' => $ctx['parent_id'],
-                'child_id' => $part['id']
-            ]);
-            if (is_null($partObject)) {
-                $partObjectDao->attInsert([
-                    'parent_id' => $ctx['parent_id'],
-                    'child_id' => $part['id'],
-                    'name' => $this->data['part_object']['name'],
-                ]);
-            }
+            $part_object = $this->part()->addNewProperty($ctx['parent_id'], $this->data['part_object']['name'], $part['type'], $part['value_string'], $part['value_number']);
+            $part = $partDao->attFindOneById($part_object['child_id']);
         }
     }
 
