@@ -216,16 +216,18 @@ class DAObject
 
     public function attUpdateById($nameVsValues)
     {
-        $this->updateById($this->attachTypes($nameVsValues));
+        return $this->updateById($this->attachTypes($nameVsValues));
     }
 
     public function updateById($nameValueTypes)
     {
         $setNameValueTypes = [];
         $whereNameValueTypes = [];
+        $id = null;
         foreach ($nameValueTypes as $nvt) {
             if ($nvt['name'] === 'id') {
                 $whereNameValueTypes[] = $nvt;
+                $id = $nvt['value'];
             } else {
                 $setNameValueTypes[] = $nvt;
             }
@@ -236,6 +238,7 @@ class DAObject
         }
 
         $this->updateBy($setNameValueTypes, $whereNameValueTypes);
+        return $id;
     }
 
     public function updateBy($setNameValueTypes, $whereNameValueTypes = null)
