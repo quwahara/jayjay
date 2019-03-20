@@ -31,8 +31,8 @@
             <div><a href="part-global.php">Part global</a></div>
             <div><a href="lab.php">Lab</a></div>
             <div><a href="table-create-and-drop.php">Table create and drop</a></div>
-            <div><a href="forbidden.php">access_denied</a></div>
-            <div><a href="internal-server-error.php">internal_server_error</a></div>
+            <div><a href="-e-forbidden.php">access_denied</a></div>
+            <div><a href="-e-internal-server-error.php">internal_server_error</a></div>
             <div><a href="phpinfo.php">PHP Info</a></div>
         </div>
 
