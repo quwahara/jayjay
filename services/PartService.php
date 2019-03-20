@@ -224,7 +224,7 @@ class PartService
                 $this->clone($new_part_id, $name, $part_object);
             }
         } else if ($type === 'array') {
-            foreach ($original_part_and_children['part_array'] as $part_array) {
+            foreach ($original_part_and_children['part_arrays'] as $part_array) {
                 $this->clone($new_part_id, null, $part_array);
             }
         }
