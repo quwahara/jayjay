@@ -39,12 +39,12 @@
         //     'arrayOperatable' => false,
         // ],
     ],
-    'get' => function () {
-
+    'refreshData' => function ($id, $parent_type, $parent_id) {
+        //
         $ctx = &$this->data['context'];
-        $ctx['id'] = $this->getRequestAsInt('id', 0);
-        $ctx['parent_type'] = $this->getRequest('parent_type', '');
-        $ctx['parent_id'] = $this->getRequestAsInt('parent_id', 0);
+        $ctx['id'] = $id;
+        $ctx['parent_type'] = $parent_type;
+        $ctx['parent_id'] = $parent_id;
         $ctx['parent_part_object'] = false;
         $ctx['parent_part_array'] = false;
 
@@ -97,6 +97,12 @@
                 $ctx['has_parent'] = true;
             }
         }
+    },
+    'get' => function () {
+        $part_id = $this->getRequestAsInt('id', 0);
+        $parent_type = $this->getRequest('parent_type', '');
+        $parent_id = $this->getRequestAsInt('parent_id', 0);
+        $this->refreshData($part_id, $parent_type, $parent_id);
         ?>
 <html>
 
@@ -333,26 +339,24 @@
         $part['value_number'] = null;
     }
 
+    $ctx = &$this->data['context'];
+
     if ($doUpdatePart) {
-        $partDao->attUpdateById($part);
+        $part_id = $partDao->attUpdateById($part);
     } else if ($part['type'] === 'copy_from') {
-        $newPartId = $this->part()->cloneById($this->data['context']['parent_id'], $this->data['part_object']['name'], $data['id_copy_from']);
-        $part = $partDao->attFindOneById($newPartId);
+        $part_id = $this->part()->cloneById($this->data['context']['parent_id'], $this->data['part_object']['name'], $data['id_copy_from']);
     } else {
         unset($part['id']);
-        $ctx = &$this->data['context'];
         if ($ctx['parent_part_array']) {
             $part_array = $this->part()->addNewItem($ctx['parent_id'], $part['type'], $part['value_string'], $part['value_number']);
-            $part = $partDao->attFindOneById($part_array['child_id']);
+            $part_id = $part_array['child_id'];
         } else if ($ctx['parent_part_object']) {
             $part_object = $this->part()->addNewProperty($ctx['parent_id'], $this->data['part_object']['name'], $part['type'], $part['value_string'], $part['value_number']);
-            $part = $partDao->attFindOneById($part_object['child_id']);
+            $part_id = $part_object['child_id'];
         }
     }
 
-    $this->data['part'] = $part;
-    $ctx['is_update'] = true;
-
+    $this->refreshData($part_id, $ctx['parent_type'], $ctx['parent_id']);
     $this->data['status'] = 'OK';
 }
 ]);
