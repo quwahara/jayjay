@@ -26,6 +26,7 @@
         ];
         ?>
 <html>
+
 <head>
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
@@ -33,10 +34,10 @@
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/booq/booq.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Table create and drop</title>
 </head>
+
 <body>
     <div>
         <div class="belt">
@@ -50,22 +51,22 @@
         <div class="contents">
             <div class="models">
                 <div class="model">
-                        <h3 class="tableName"></h3>
-                        <div>
-                            <form>
-                                <input type="hidden" name="command" value="create">
-                                <input type="hidden" name="tableName">
-                                <button type="button">Create</button>
-                            </form>
-                            <form>
-                                <input type="hidden" name="command" value="drop">
-                                <input type="hidden" name="tableName">
-                                <button type="button">Drop</button>
-                            </form>
-                        </div>
-                        <pre class="createTableDDL">
+                    <h3 class="tableName"></h3>
+                    <div>
+                        <form>
+                            <input type="hidden" name="command" value="create">
+                            <input type="hidden" name="tableName">
+                            <button type="button">Create</button>
+                        </form>
+                        <form>
+                            <input type="hidden" name="command" value="drop">
+                            <input type="hidden" name="tableName">
+                            <button type="button">Drop</button>
+                        </form>
+                    </div>
+                    <pre class="createTableDDL">
                         </pre>
-                        <pre class="dropTableDDL">
+                    <pre class="dropTableDDL">
                         </pre>
                 </div>
             </div>
@@ -73,42 +74,41 @@
         <div id="snackbar"></div>
     </div>
     <script>
-    window.onload = function() {
-        Global.snackbar("#snackbar");
+        window.onload = function() {
+            Global.snackbar("#snackbar");
 
-        var booq = new Booq(<?= $this->structsAsJSON() ?>);
+            var booq = new Booq(<?= $this->structsAsJSON() ?>);
 
-        booq
-        .message.toText()
-        .models.each(function (elem) {
-            this
-            .tableName.toText()
-            .tableName.withValue()
-            .createTableDDL.toText()
-            .dropTableDDL.toText()
-            ;
+            booq
+                .message.toText()
+                .models.each(function(elem) {
+                    this
+                        .tableName.toText()
+                        .tableName.withValue()
+                        .createTableDDL.toText()
+                        .dropTableDDL.toText();
 
-            Booq.q(elem).q("button").on("click", function () {
-                Global.snackbar.close();
-                booq.data.status = "";
-                axios.post("table-create-and-drop.php", new FormData(Booq.goUpParentByTagName(event.target, "form")))
-                .then(function (response) {
-                    console.log(response.data);
-                    booq.data.message = response.data.message;
-                    if ("" !== booq.data.message) {
-                        Global.snackbar.messageDiv.classList.add("warning");
-                        Global.snackbar.maximize();
-                    }
-                })
-                .catch(Global.catcher(booq.data));
-            })
-            ;
-        });
+                    Booq.q(elem).q("button").on("click", function() {
+                        Global.snackbar.close();
+                        booq.data.status = "";
+                        axios.post("table-create-and-drop.php", new FormData(Booq.goUpParentByTagName(event.target, "form")))
+                            .then(function(response) {
+                                console.log(response.data);
+                                booq.data.message = response.data.message;
+                                if ("" !== booq.data.message) {
+                                    Global.snackbar.messageDiv.classList.add("warning");
+                                    Global.snackbar.maximize();
+                                }
+                            })
+                            .catch(Global.catcher(booq.data));
+                    });
+                });
 
-        booq.data = <?= $this->dataAsJSON() ?>;
-    };
+            booq.data = <?= $this->dataAsJSON() ?>;
+        };
     </script>
 </body>
+
 </html>
 <?php
 
@@ -151,4 +151,4 @@
     $this->responseJsonThenExit();
 },
 ]);
-?>
+?> 

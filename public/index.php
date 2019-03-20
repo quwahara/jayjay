@@ -5,6 +5,7 @@
     'get' => function () {
         ?>
 <html>
+
 <head>
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
@@ -12,10 +13,10 @@
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/booq/booq.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
 </head>
+
 <body>
     <div>
         <div class="belt">
@@ -45,40 +46,40 @@
 
     </div>
     <script>
-    window.onload = function() {
-        Global.snackbar("#snackbar");
-        var booq = new Booq(<?= $this->structsAsJSON() ?>);
+        window.onload = function() {
+            Global.snackbar("#snackbar");
+            var booq = new Booq(<?= $this->structsAsJSON() ?>);
 
-        booq
-        .message.toText()
-        .user
-        .name.withValue()
-        .password.withValue()
-        ;
+            booq
+                .message.toText()
+                .user
+                .name.withValue()
+                .password.withValue();
 
-        Booq.q("form").on("submit", function(event) {
-            event.preventDefault();
-            Global.snackbar.close();
-            booq.data.status = "";
-            axios.post("index.php", booq.data)
-            .then(function (response) {
-                console.log(response.data);
-                if (response.data.status === "#login-succeeded") {
-                    window.location.href = window.location.href.replace("/index.php", "/home.php");
-                }
-                booq.data = response.data;
-                booq.data.message = Global.getMsg(booq.data.status);
-                if ("" !== booq.data.message) {
-                    Global.snackbar.messageDiv.classList.add("warning");
-                    Global.snackbar.maximize();
-                }
-            })
-            .catch(Global.catcher(booq.data));
-        });
-    };
+            Booq.q("form").on("submit", function(event) {
+                event.preventDefault();
+                Global.snackbar.close();
+                booq.data.status = "";
+                axios.post("index.php", booq.data)
+                    .then(function(response) {
+                        console.log(response.data);
+                        if (response.data.status === "#login-succeeded") {
+                            window.location.href = window.location.href.replace("/index.php", "/home.php");
+                        }
+                        booq.data = response.data;
+                        booq.data.message = Global.getMsg(booq.data.status);
+                        if ("" !== booq.data.message) {
+                            Global.snackbar.messageDiv.classList.add("warning");
+                            Global.snackbar.maximize();
+                        }
+                    })
+                    .catch(Global.catcher(booq.data));
+            });
+        };
     </script>
     <div id="snackbar"></div>
 </body>
+
 </html>
 <?php
 
@@ -93,4 +94,4 @@
     }
 }
 ]);
-?>
+?> 

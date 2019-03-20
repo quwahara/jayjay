@@ -5,7 +5,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use \Exception;
 use \PDO;
-use Services\CSSService;
 use Services\DAObject;
 use Services\DAService;
 use Services\DBService;
@@ -22,7 +21,6 @@ function bool_in_ini($var)
 class JJ
 {
     public $config_;
-    public $css_;
     public $dbdec_;
     public $da_;
     public $db_;
@@ -364,15 +362,6 @@ class JJ
         } else {
             throw new Exception('The form of attrs argument was bad.');
         }
-    }
-
-    function css()
-    {
-        if (!$this->css_) {
-            $cssc = $this->config_['css'];
-            $this->css_ = (new CSSService())->init($cssc['baseFontSize']);
-        }
-        return $this->css_;
     }
 
     function xsrfHidden()
@@ -799,7 +788,7 @@ return (function (array $args) {
             if (0 === error_reporting()) {
                 return false;
             }
-            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
         });
 
         $jj->verifyAccess();

@@ -5,22 +5,23 @@
             'register' => ''
         ]
     ],
-    'get' => function (\JJ\JJ $jj) {
-        $jj->data['object']['type'] = 'variable';
-        $jj->data['object']['name'] = 'apple';
+    'get' => function () {
+        $this->data['object']['type'] = 'variable';
+        $this->data['object']['name'] = 'apple';
         ?>
 <html>
+
 <head>
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
     <link rel="stylesheet" type="text/css" href="css/global.css">
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-    <script src="js/brx/booq.js"></script>
+    <script src="js/booq/booq.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $jj->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lab</title>
 </head>
+
 <body>
     <div>
         <div class="belt">
@@ -57,59 +58,59 @@
         <div id="snackbar"></div>
     </div>
     <script>
-    window.onload = function() {
-        Global.snackbar("#snackbar");
+        window.onload = function() {
+            Global.snackbar("#snackbar");
 
-        var booq = new Booq(<?= $jj->structsAsJSON() ?>)
-        .commands
-        .register.on("click", function (event) {
+            var booq = new Booq(<?= $this->structsAsJSON() ?>)
+                .commands
+                .register.on("click", function(event) {
 
-            Global.snackbar.close();
-                booq.status = "";
-                axios.post("lab.php", booq.data)
-                .then(function (response) {
-                    console.log(response.data);
-                    // booq.data.message = response.data.message;
-                    // if ("" !== booq.data.message) {
-                    //     Global.snackbar.messageDiv.classList.add("warning");
-                    //     Global.snackbar.maximize();
-                    // }
+                    Global.snackbar.close();
+                    booq.status = "";
+                    axios.post("lab.php", booq.data)
+                        .then(function(response) {
+                            console.log(response.data);
+                            // booq.data.message = response.data.message;
+                            // if ("" !== booq.data.message) {
+                            //     Global.snackbar.messageDiv.classList.add("warning");
+                            //     Global.snackbar.maximize();
+                            // }
+                        })
+                        .catch(Global.catcher(booq));
                 })
-                .catch(Global.catcher(booq));
-        })
-        .end
+                .end
 
-        .object
-        .type.withValue()
-        .type.on("change", function (event) {
-            // if(event.target.value === "variable") {
-            //     Booq.q("[name='value']").addClass("hidden");
-            // }
-            this.update();
-        })
-        .name.withValue()
-        .setUpdate(function () {
-            var x = this;
-            Booq.q(".value").toggleClassByFlag("hidden", this.data.type !== "variable");
-            // this.type.toggleClassByFlag("hidden", true);
-        })
-        .update()
-        .end
-        ;
+                .object
+                .type.withValue()
+                .type.on("change", function(event) {
+                    // if(event.target.value === "variable") {
+                    //     Booq.q("[name='value']").addClass("hidden");
+                    // }
+                    this.update();
+                })
+                .name.withValue()
+                .setUpdate(function() {
+                    var x = this;
+                    Booq.q(".value").toggleClassByFlag("hidden", this.data.type !== "variable");
+                    // this.type.toggleClassByFlag("hidden", true);
+                })
+                .update()
+                .end;
 
 
-        booq.data = <?= $jj->dataAsJSON() ?>;
-    };
+            booq.data = <?= $this->dataAsJSON() ?>;
+        };
     </script>
 </body>
+
 </html>
 <?php
 
 },
-'post application/json' => function (\JJ\JJ $jj) {
+'post application/json' => function () {
 
-    $object = $jj->data['object'];
-    $objectDao = $jj->dao('object');
+    $object = $this->data['object'];
+    $objectDao = $this->dao('object');
     $doUpdate = false;
 
     if (array_key_exists('id', $object) && intval($object['id']) > 0) {
@@ -120,9 +121,9 @@
         $objectDao->attUpdateById($object);
     } else {
         unset($object['id']);
-        $jj->data['object'] = $objectDao->attFindOneById($objectDao->attInsert($object));
+        $this->data['object'] = $objectDao->attFindOneById($objectDao->attInsert($object));
     }
-    $jj->data['status'] = 'OK';
+    $this->data['status'] = 'OK';
 }
 ]);
-?>
+?> 

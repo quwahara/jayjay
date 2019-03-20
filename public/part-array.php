@@ -86,7 +86,6 @@
     <script src="js/lib/node_modules/axios/dist/axios.js"></script>
     <script src="js/booq/booq.js"></script>
     <script src="js/lib/global.js"></script>
-    <?= '<style>' . $this->css()->style . '</style>' ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Part array</title>
 </head>

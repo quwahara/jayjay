@@ -35,10 +35,10 @@ return [
         'redirect_server_vars_name' => 'redirect_server_vars',
     ],
     'access_denied' => [
-        'redirect_path' => 'errors/forbidden.php'
+        'redirect_path' => 'forbidden.php'
     ],
     'internal_server_error' => [
-        'redirect_path' => 'errors/internal-server-error.php'
+        'redirect_path' => 'internal-server-error.php'
     ],
     'requires' => [],
 ];
