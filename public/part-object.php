@@ -49,54 +49,52 @@
         ],
 
     ],
-    'methods' => [
-        'refreshData' => function ($id) {
+    'refreshData' => function ($id) {
 
-            $ctx = &$this->data['context'];
-            $ctx['id'] = $id;
+        $ctx = &$this->data['context'];
+        $ctx['id'] = $id;
 
-            $this->data['partxs'] = $this->dao('parts', ['part_objects'])->attFetchAll(
-                'select p.* '
-                    . ', o.parent_id '
-                    . ', o.child_id '
-                    . ', o.name '
-                    . 'from parts p '
-                    . ' inner join part_objects o '
-                    . '     on p.id = o.child_id '
-                    . 'where o.parent_id = :id '
-                    . 'order by '
-                    . ' o.name '
-                    . ' ',
-                ['id' => $ctx['id']]
-            );
+        $this->data['partxs'] = $this->dao('parts', ['part_objects'])->attFetchAll(
+            'select p.* '
+                . ', o.parent_id '
+                . ', o.child_id '
+                . ', o.name '
+                . 'from parts p '
+                . ' inner join part_objects o '
+                . '     on p.id = o.child_id '
+                . 'where o.parent_id = :id '
+                . 'order by '
+                . ' o.name '
+                . ' ',
+            ['id' => $ctx['id']]
+        );
 
-            $ctx['parent_part_object'] = false;
-            if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
-                $ctx['parent_type'] = 'object';
-                $ctx['parent_id'] = $part_object['parent_id'];
-                $ctx['parent_part_object'] = true;
-            }
+        $ctx['parent_part_object'] = false;
+        if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
+            $ctx['parent_type'] = 'object';
+            $ctx['parent_id'] = $part_object['parent_id'];
+            $ctx['parent_part_object'] = true;
+        }
 
-            $ctx['parent_part_array'] = false;
-            if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
-                $ctx['parent_type'] = 'array';
-                $ctx['parent_id'] = $part_array['parent_id'];
-                $ctx['parent_part_array'] = true;
-            }
+        $ctx['parent_part_array'] = false;
+        if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
+            $ctx['parent_type'] = 'array';
+            $ctx['parent_id'] = $part_array['parent_id'];
+            $ctx['parent_part_array'] = true;
+        }
 
-            $ctx['path'] = $this->part()->path($ctx['id']);
+        $ctx['path'] = $this->part()->path($ctx['id']);
 
-            $this->data['add_part']['type'] = 'string';
-            $this->data['add_part']['add_value_string_available'] = 'string' === $this->data['add_part']['type'];
-            $this->data['add_part']['add_value_number_available'] = 'number' === $this->data['add_part']['type'];
+        $this->data['add_part']['type'] = 'string';
+        $this->data['add_part']['add_value_string_available'] = 'string' === $this->data['add_part']['type'];
+        $this->data['add_part']['add_value_number_available'] = 'number' === $this->data['add_part']['type'];
 
-            $this->data['commands'] = [
-                'command' => '',
-                'delete_id' => 0,
-            ];
-            return $this;
-        },
-    ],
+        $this->data['commands'] = [
+            'command' => '',
+            'delete_id' => 0,
+        ];
+        return $this;
+    },
     'get' => function () {
         $this->refreshData($this->getRequest('id', 0));
         ?>

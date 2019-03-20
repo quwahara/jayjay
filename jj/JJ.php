@@ -162,17 +162,11 @@ class JJ
 
         $this->dispatchKey = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
 
-        $this->methods = $this->config_['methods'];
-
         $this->structs = $this->config_['structs'];
 
         $this->attrs = $this->config_['attrs'];
 
         $this->data = $this->config_['data'];
-
-        if (array_key_exists('methods', $this->args)) {
-            $this->initMethods($this->args['methods']);
-        }
 
         if (array_key_exists('structs', $this->args)) {
             $this->initStructs($this->args['structs']);
@@ -193,35 +187,16 @@ class JJ
         return $this;
     }
 
-    public function initMethods(array $methods): JJ
-    {
-        $this->methods = array_merge($this->methods, $methods);
-        foreach ($this->methods as $name => $closure) {
-            if (!is_callable($closure)) {
-                throw new \RuntimeException("Method {$name} was not callable");
-            }
-            $this->$name = $closure->bindTo($this, $this);
-        }
-        return $this;
-    }
-
     public function __call($name, $args)
     {
-        if (array_key_exists($name, $this->args)) {
-            $arg = $this->args[$name];
-            if (!is_callable($arg)) {
-                throw new \RuntimeException("Method {$name} was not callable");
-            }
-            return call_user_func_array($arg->bindTo($this), $args);
-        }
-
-        if (is_null($this->$name)) {
+        if (!array_key_exists($name, $this->args)) {
             throw new \RuntimeException("Method {$name} does not exist");
         }
-        if (!is_callable($this->$name)) {
+        $callable = $this->args[$name];
+        if (!is_callable($callable)) {
             throw new \RuntimeException("Method {$name} was not callable");
         }
-        return call_user_func_array($this->$name, $args);
+        return call_user_func_array($callable->bindTo($this), $args);
     }
 
     /**

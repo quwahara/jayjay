@@ -28,54 +28,52 @@
             'delete_id' => 0,
         ]
     ],
-    'methods' => [
-        'refreshData' => function ($id) {
+    'refreshData' => function ($id) {
 
-            $ctx = &$this->data['context'];
-            $ctx['id'] = $id;
-            // $ctx['parent_id'] = $this->getRequest('id', 0);
-            // $ctx['parent_type'] = 'array';
+        $ctx = &$this->data['context'];
+        $ctx['id'] = $id;
+        // $ctx['parent_id'] = $this->getRequest('id', 0);
+        // $ctx['parent_type'] = 'array';
 
-            $ctx['path'] = $this->part()->path($ctx['id']);
+        $ctx['path'] = $this->part()->path($ctx['id']);
 
-            $this->data['partxs'] = $this->dao('parts', ['part_arrays'])->attFetchAll(
-                'select p.*  '
-                    . ', a.parent_id '
-                    . ', a.child_id '
-                    . ', a.i '
-                    . 'from parts p '
-                    . ' inner join part_arrays a '
-                    . '     on p.id = a.child_id '
-                    . 'where a.parent_id = :id '
-                    . 'order by '
-                    . ' a.i '
-                    . ' ',
-                ['id' => $ctx['id']]
-            );
+        $this->data['partxs'] = $this->dao('parts', ['part_arrays'])->attFetchAll(
+            'select p.*  '
+                . ', a.parent_id '
+                . ', a.child_id '
+                . ', a.i '
+                . 'from parts p '
+                . ' inner join part_arrays a '
+                . '     on p.id = a.child_id '
+                . 'where a.parent_id = :id '
+                . 'order by '
+                . ' a.i '
+                . ' ',
+            ['id' => $ctx['id']]
+        );
 
-            $ctx['parent_part_object'] = false;
-            if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
-                $ctx['parent_type'] = 'object';
-                $ctx['parent_id'] = $part_object['parent_id'];
-                $ctx['parent_part_object'] = true;
-            }
+        $ctx['parent_part_object'] = false;
+        if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
+            $ctx['parent_type'] = 'object';
+            $ctx['parent_id'] = $part_object['parent_id'];
+            $ctx['parent_part_object'] = true;
+        }
 
-            $ctx['parent_part_array'] = false;
-            if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
-                $ctx['parent_type'] = 'array';
-                $ctx['parent_id'] = $part_array['parent_id'];
-                $ctx['parent_part_array'] = true;
-            }
+        $ctx['parent_part_array'] = false;
+        if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
+            $ctx['parent_type'] = 'array';
+            $ctx['parent_id'] = $part_array['parent_id'];
+            $ctx['parent_part_array'] = true;
+        }
 
-            $this->data['add_part']['type'] = 'string';
+        $this->data['add_part']['type'] = 'string';
 
-            $this->data['commands'] = [
-                'command' => '',
-                'delete_id' => 0,
-            ];
-            return $this;
-        },
-    ],
+        $this->data['commands'] = [
+            'command' => '',
+            'delete_id' => 0,
+        ];
+        return $this;
+    },
     'get' => function () {
         $this->refreshData($this->getRequest('id', 0));
         ?>
