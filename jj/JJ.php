@@ -207,6 +207,14 @@ class JJ
 
     public function __call($name, $args)
     {
+        if (array_key_exists($name, $this->args)) {
+            $arg = $this->args[$name];
+            if (!is_callable($arg)) {
+                throw new \RuntimeException("Method {$name} was not callable");
+            }
+            return call_user_func_array($arg->bindTo($this), $args);
+        }
+
         if (is_null($this->$name)) {
             throw new \RuntimeException("Method {$name} does not exist");
         }
@@ -811,6 +819,14 @@ class JJ
 return (function (array $args) {
     $jj = (new JJ())->initConfig($args);
     try {
+        set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
+            // error was suppressed with the @-operator
+            if (0 === error_reporting()) {
+                return false;
+            }
+            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+        });
+
         $jj->verifyAccess();
         if ($jj->accessAllowed) {
             $jj->init()->dispatch();
