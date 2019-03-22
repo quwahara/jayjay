@@ -101,6 +101,7 @@
 <html>
 
 <head>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
     <link rel="stylesheet" type="text/css" href="css/global.css">
