@@ -24,8 +24,9 @@ class JJ
     public $dbdec_;
     public $da_;
     public $db_;
-    public $tables_;
     public $part_;
+    public $required_;
+    public $tables_;
 
     public $accessAllowed;
 
@@ -48,6 +49,7 @@ class JJ
 
     public function initConfig(array $args)
     {
+        $this->required_ = [];
         $this->config_ = array_merge_recursive(
             require __DIR__ . '/../config/global-default.php',
             require __DIR__ . '/../config/global.php'
@@ -166,12 +168,18 @@ class JJ
 
         $this->data = $this->config_['data'];
 
-        if (array_key_exists('structs', $this->args)) {
-            $this->initStructs($this->args['structs']);
+        $args = &$this->args;
+
+        if (array_key_exists('init', $args)) {
+            call_user_func($args['init']->bindTo($this));
         }
 
-        if (array_key_exists('attrs', $this->args)) {
-            $this->initAttrs($this->args['attrs']);
+        if (array_key_exists('structs', $args)) {
+            $this->initStructs($args['structs']);
+        }
+
+        if (array_key_exists('attrs', $args)) {
+            $this->initAttrs($args['attrs']);
         }
 
         if ($this->isGet()) {
@@ -754,6 +762,37 @@ class JJ
             //     return $violations;
         } else {
             throw new \RuntimeException("Unsupported type: {$type} for validation");
+        }
+    }
+
+
+    function requireBy2($name)
+    {
+        if (array_key_exists($name, $this->required_)) {
+            return $this->required_[$name];
+        }
+        if (array_key_exists($name, $this->config_['requires'])) {
+            $required = require __DIR__ . '/../' . $this->config_['requires'][$name];
+            $this->required_[$name] = $required;
+            return $required;
+        }
+        return null;
+    }
+
+    function initStructsBy($name)
+    {
+        $required = $this->requireBy2($name);
+        if (!is_null($required)) {
+            $this->initStructs($required['structs']);
+        }
+        return $this;
+    }
+
+    function echoBy($name)
+    {
+        $required = $this->requireBy2($name, $args = []);
+        if (!is_null($required)) {
+            return call_user_func_array($required['echo']->bindTo($this), $args);
         }
     }
 

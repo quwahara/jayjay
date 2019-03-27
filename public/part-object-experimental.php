@@ -1,4 +1,7 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
+    'init' => function () {
+        $this->initStructsBy('path2');
+    },
     'structs' => [
         'context' => [
             'id' => 0,
@@ -96,6 +99,7 @@
         }
 
         $ctx['path'] = $this->part()->path($ctx['id']);
+        $this->data['path_snippet'] = ['paths' => $this->part()->path($ctx['id'])];
 
         $this->data['add_part']['type'] = 'string';
         $this->data['add_part']['add_value_string_available'] = 'string' === $this->data['add_part']['type'];
@@ -130,13 +134,6 @@
             <h1>Part object (Experimental)</h1>
         </div>
 
-        <div class="belt bg-mono-09">
-            <a href="home.php">Home</a>
-            <a href="part-global.php">Part global</a>
-            <a class="parent_part_object none">Parent object</a>
-            <a class="parent_part_array none">Parent array</a>
-        </div>
-
         <div class="belt bg-mono-09 context">
             <a href="home.php">Home</a>
             <a href="part-global.php">Part global</a>
@@ -147,7 +144,8 @@
         </div>
 
         <div>
-            <?php $this->requireBy("path"); ?>
+            <?php  ?>
+            <?php $this->echoBy("path2"); ?>
         </div>
 
         <div class="contents">
@@ -241,7 +239,10 @@
                 .end // of context
                 //
                 //
-                .context
+                .path_snippet.callFunctionWithThis(pathSnippetBroker)
+                .end // of path_snippet
+                
+                //.context
                 // .id.toText()
                 // .parent_part_object.antitogglesClass("none")
                 // .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
@@ -251,7 +252,7 @@
 
                 // .path.callFunctionWithThis(brokerPath)
 
-                .end
+                // .end
 
                 .partxs.each(function(element) {
                     this

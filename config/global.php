@@ -17,5 +17,6 @@ return [
     ],
     'requires' => [
         'path' => '/snippets/path.php',
+        'path2' => '/snippets/path2.php',
     ],
 ];
