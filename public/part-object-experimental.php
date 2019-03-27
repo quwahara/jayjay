@@ -9,16 +9,6 @@
                 'id' => 0,
                 'type' => '',
             ],
-            'parent_id' => 0,
-            'parent_type' => '',
-            'parent_part_object' => false,
-            'parent_part_array' => false,
-            'path[]' => [
-                'part',
-                'sub_type' => '',
-                'part_object',
-                'part_array',
-            ],
             'violations[]' => '',
         ],
         'partxs[]' => [
@@ -76,24 +66,16 @@
             ['id' => $ctx['id']]
         );
 
-        $ctx['parent_part_object'] = false;
         if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
-            $ctx['parent_type'] = 'object';
-            $ctx['parent_id'] = $part_object['parent_id'];
-            $ctx['parent_part_object'] = true;
             $ctx['parent'] = [
                 'id' => $part_object['parent_id'],
                 'type' => 'object',
             ];
         }
 
-        $ctx['parent_part_array'] = false;
         if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
-            $ctx['parent_type'] = 'array';
-            $ctx['parent_id'] = $part_array['parent_id'];
-            $ctx['parent_part_array'] = true;
             $ctx['parent'] = [
-                'id' => $part_object['parent_id'],
+                'id' => $part_array['parent_id'],
                 'type' => 'array',
             ];
         }
@@ -149,7 +131,7 @@
         </div>
 
         <div class="contents">
-            <div class="row">
+            <div class="row context">
                 <label>Id</label>
                 <span class="id"></span>
             </div>
@@ -230,6 +212,7 @@
             var booq;
             (booq = new Booq(<?= $this->structsAsJSON() ?>))
             .context
+                .id.toText()
                 .parent
                 .id.linkExtra(".object").toHref("part-object.php?id=:parent_id")
                 .id.linkExtra(".array").toHref("part-array.php?id=:parent_id")
@@ -238,21 +221,11 @@
                 .end // of parent
                 .end // of context
                 //
-                //
                 .path_snippet.callFunctionWithThis(pathSnippetBroker)
                 .end // of path_snippet
-                
+
                 //.context
-                // .id.toText()
-                // .parent_part_object.antitogglesClass("none")
-                // .link(".parent_part_object").toHref("part-object.php?id=:parent_id")
-                // .parent_part_array.antitogglesClass("none")
-                // .link(".parent_part_array").toHref("part-array.php?id=:parent_id")
                 // .link(".add_property").toHref("part.php?parent_type=object&parent_id=:id")
-
-                // .path.callFunctionWithThis(brokerPath)
-
-                // .end
 
                 .partxs.each(function(element) {
                     this
