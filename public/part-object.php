@@ -74,7 +74,6 @@
             ];
         }
 
-        $ctx['path'] = $this->part()->path($ctx['id']);
         $this->data['path_snippet'] = ['paths' => $this->part()->path($ctx['id'])];
 
         $this->data['add']['type'] = 'string';
