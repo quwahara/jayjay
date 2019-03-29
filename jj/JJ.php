@@ -319,7 +319,8 @@ class JJ
         $theAttrs = [];
         foreach ($attrs as $key => $value) {
             $subattr = $this->parseAttr($key, $value);
-            $theAttrs = $theAttrs + $subattr;
+            // $theAttrs = $theAttrs + $subattr;
+            $theAttrs = $subattr + $theAttrs;
         }
         $this->attrs = array_merge($this->attrs, $theAttrs);
         return $this;
@@ -354,12 +355,14 @@ class JJ
                 if (is_int($key3) && is_string($value3)) {
                     // Using only structure of model. Rips $key4 that has model name.
                     $subattr = $this->dao($value3)->getAttrsAll();
-                    foreach ($subattr as $key4 => $value4) {
-                        $theAttr = $theAttr + $value4;
+                    if (is_array($subattr)) {
+                        foreach ($subattr as $key4 => $value4) {
+                            $theAttr[$key4] =  $value4;
+                        }
                     }
                 } else {
                     $subattr = $this->parseAttr($key3, $value3);
-                    $theAttr = $theAttr + $subattr;
+                    $theAttr = $subattr + $theAttr;
                 }
             }
             return [$key => $theAttr];
@@ -752,14 +755,6 @@ class JJ
                 }
             }
             return $violations;
-
-            // } else if ($type === 'object') {
-            //     //
-            //     return $violations;
-
-            // } else if ($type === 'array') {
-            //     //
-            //     return $violations;
         } else {
             throw new \RuntimeException("Unsupported type: {$type} for validation");
         }
