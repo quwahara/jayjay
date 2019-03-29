@@ -82,8 +82,8 @@
                         </thead>
                         <tbody class="partxs">
                             <tr>
-                                <td><button type="button" class="delete">&times;</button></td>
-                                <td><a class="id"></a></td>
+                                <td><button type="button" class="id command">&times;</button></td>
+                                <td><a class="id caption"></a></td>
                                 <td class="type"></td>
                                 <td class="value_string"></td>
                                 <td class="value_number"></td>
@@ -101,37 +101,16 @@
 
             .partxs.each(function(element) {
                     this
-                        .link(".id").toHref(function(value) {
-                            if (value.type === "string" || value.type === "number") {
-                                return "part.php" +
-                                    "?id=" + value.id;
-                            } else if (value.type === "array") {
-                                return "part-array.php" +
-                                    "?id=" + value.id;
-                            } else if (value.type === "object") {
-                                return "part-object.php" +
-                                    "?id=" + value.id;
-                            } else {
-                                //
-                            }
-                        })
-                        .name.toText()
-                        .i.toText()
-                        .id.toText()
-                        // .id.toHref("part.php?id=:id")
-                        .type.toText()
-                        .value_string.toText()
-                        .value_number.toText();
-                    Booq.q(element).q("button").on("click", (function(self) {
-                        return function(event) {
+                        .id.linkExtra(".command").toAttr("data-id")
+                        .id.linkExtra(".command").on("click", function(event) {
                             Global.modal.create({
-                                    body: "id:" + self.data.id + " を削除してもよろしいですか",
+                                    body: "id:" + event.target.dataset.id + " を削除してもよろしいですか",
                                     ok: {
                                         onclick: function() {
-                                            console.log(self.data);
+                                            console.log(booq.data);
                                             booq.data.status = "";
                                             booq.data.commands.command = "delete";
-                                            booq.data.commands.delete_id = self.data.id;
+                                            booq.data.commands.delete_id = event.target.dataset.id;
                                             axios.post("part-global.php", booq.data)
                                                 .then(function(response) {
                                                     console.log(response.data);
@@ -147,9 +126,27 @@
                                     }
                                 })
                                 .open();
-
-                        };
-                    })(this));
+                        })
+                        .linkExtra(" a.id").toHref(function(value) {
+                            if (value.type === "string" || value.type === "number") {
+                                return "part.php" +
+                                    "?id=" + value.id;
+                            } else if (value.type === "array") {
+                                return "part-array.php" +
+                                    "?id=" + value.id;
+                            } else if (value.type === "object") {
+                                return "part-object.php" +
+                                    "?id=" + value.id;
+                            } else {
+                                //
+                            }
+                        })
+                        .name.toText()
+                        .i.toText()
+                        .id.linkExtra(".caption").toText()
+                        .type.toText()
+                        .value_string.toText()
+                        .value_number.toText();
                 })
                 .setData(<?= $this->dataAsJSON() ?>);
         };
