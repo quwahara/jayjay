@@ -29,21 +29,15 @@
         $ctx = &$this->data['context'];
         $ctx['id'] = $id;
 
-        if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
+        if ($parent_part = $this->part()->findPart($ctx['id'])) {
             $ctx['parent'] = [
-                'id' => $part_object['parent_id'],
-                'type' => 'object',
-            ];
-        }
-
-        if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
-            $ctx['parent'] = [
-                'id' => $part_array['parent_id'],
-                'type' => 'array',
+                'id' => $parent_part['id'],
+                'type' => $parent_part['type'],
             ];
         }
 
         $this->data['path_snippet'] = ['paths' => $this->part()->path($ctx['id'])];
+
         $this->data['partxs'] = $this->dao('parts', ['part_arrays'])->attFetchAll(
             'select p.*  '
                 . ', a.parent_id '
@@ -73,6 +67,7 @@
 <html>
 
 <head>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
     <link rel="stylesheet" type="text/css" href="css/global.css">
@@ -89,10 +84,10 @@
             <h1>Part array</h1>
         </div>
 
-        <div class="belt bg-mono-09 context">
+        <div class="belt bg-mono-09">
             <a href="home.php">Home</a>
             <a href="part-global.php">Part global</a>
-            <span class="parent">
+            <span class="context parent">
                 <a class="type object id none">Parent object</a>
                 <a class="type array id none">Parent array</a>
             </span>
@@ -103,9 +98,9 @@
         </div>
 
         <div class="contents">
-            <div class="row">
+            <div class="row context parent">
                 <label>Id</label>
-                <span class="id"></span>
+                <span class="id caption"></span>
             </div>
 
             <form method="post">
@@ -158,8 +153,8 @@
                     </table>
                 </div>
             </form>
-            <div class="row">
-                <a class="add_item">Add an item</a>
+            <div class="row context parent">
+                <a class="id add_item">Add an item</a>
             </div>
 
         </div>
@@ -173,10 +168,10 @@
             (booq = new Booq(<?= $this->structsAsJSON() ?>))
             .context
                 .id.linkExtra(".caption").toText()
-                .id.linkExtra(".add_property").toHref("part.php?parent_type=object&parent_id=:id")
                 .parent
                 .id.linkExtra(".object").toHref("part-object.php?id=:parent_id")
                 .id.linkExtra(".array").toHref("part-array.php?id=:parent_id")
+                .id.linkExtra(".add_item").toHref("part.php?parent_id=:id")
                 .type.linkExtra(".object").eq("object").thenUntitoggle("none")
                 .type.linkExtra(".array").eq("array").thenUntitoggle("none")
                 .end // of parent

@@ -12,9 +12,9 @@ return [
     ],
     'echo' => function () {
         ?>
-<span class="path_snippet">
+<span class="">
     <a href="part-global.php">(global)</a>
-    <span class="paths">
+    <span class="path_snippet paths">
         <span>
             <span class="">/</span>
             <span class="given"></span>

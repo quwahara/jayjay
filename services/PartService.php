@@ -59,6 +59,15 @@ class PartService
         return $this->pa_->attFindOneBy(['child_id' => $child_id]);
     }
 
+    public function findPartSet($id)
+    {
+        return [
+            'part' => $this->findPart($id),
+            'property' => $this->findProperty($id),
+            'item' => $this->findItem($id),
+        ];
+    }
+
     public function findAllPropertiesOrderByName($parent_id)
     {
         $tableName = $this->po_->table['tableName'];
@@ -121,6 +130,13 @@ class PartService
         return $part;
     }
 
+    public function setPart($part)
+    {
+        $id = $this->p_->attUpdateById($part);
+        $part = $this->p_->attFindOneById($id);
+        return $part;
+    }
+
     public function addPartObject($parent_id, $child_id, $name)
     {
         $part_object = $this->po_->createStruct();
@@ -134,6 +150,14 @@ class PartService
         return $part_object;
     }
 
+    public function setPartObject($part_object)
+    {
+        $id = $this->po_->attUpdateById($part_object);
+        $part_object = $this->po_->attFindOneById($id);
+
+        return $part_object;
+    }
+
     public function addPartArray($parent_id, $child_id)
     {
         $part_array = $this->pa_->createStruct();
@@ -142,6 +166,14 @@ class PartService
         $part_array['i'] = $this->maxI($parent_id) + 1;
 
         $id = $this->pa_->attInsert($part_array);
+        $part_array = $this->pa_->attFindOneById($id);
+
+        return $part_array;
+    }
+
+    public function setPartArray($part_array)
+    {
+        $id = $this->pa_->attUpdateById($part_array);
         $part_array = $this->pa_->attFindOneById($id);
 
         return $part_array;
@@ -167,6 +199,25 @@ class PartService
         return $this->addPartObject($parent_id, $part['id'], $name);
     }
 
+    public function setProperty($property, $part)
+    {
+        $parent_part = $this->findPart($property['parent_id']);
+        if (is_null($parent_part)) {
+            return false;
+        }
+
+        if ($parent_part['type'] !== 'object') {
+            throw new Exception("The id:{$property['parent_id']} was not an object.");
+        }
+        $property_for_validation = $this->findPropertyByParentIdAndName($property['parent_id'], $property['name']);
+        if (!is_null($property_for_validation) && $property_for_validation['child_id'] !== $property['child_id']) {
+            throw new Exception("The object has the name:{$property['name']} of property.");
+        }
+
+        $this->setPart($part);
+        return $this->setPartObject($property);
+    }
+
     public function addNewItem($parent_id, $type, $value_string, $value_number)
     {
         $part = $this->findPart($parent_id);
@@ -181,6 +232,22 @@ class PartService
         $part = $this->addPart($type, $value_string, $value_number);
 
         return $this->addPartArray($parent_id, $part['id']);
+    }
+
+    public function setItem($item, $part)
+    {
+        $parent_part = $this->findPart($item['parent_id']);
+        if (is_null($parent_part)) {
+            return false;
+        }
+
+        if ($parent_part['type'] !== 'array') {
+            throw new Exception("The id:{$item['parent_id']} was not an array.");
+        }
+
+        $this->setPart($part);
+
+        return $this->setPartArray($item);
     }
 
     /**

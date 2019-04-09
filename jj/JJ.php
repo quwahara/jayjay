@@ -183,7 +183,7 @@ class JJ
         }
 
         if ($this->isGet()) {
-            $this->data = array_merge($this->structs, $this->data);
+            $this->data = array_merge($this->data, $this->structs);
         }
 
         if ($this->isJsonPost()) {
