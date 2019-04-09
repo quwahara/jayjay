@@ -221,7 +221,7 @@ parent exists, parent is array, target exists
 
                     <div>
                         <div class="row context parent">
-                            <div class="id none part_set property">
+                            <div class="type none part_set property">
                                 <label for="name">Name</label>
                                 <input type="text" name="name">
                             </div>
@@ -276,17 +276,7 @@ parent exists, parent is array, target exists
                     .context
                     .title.toText()
                     .parent
-                    .id.isTruthy().thenUntitoggle("none")
-                    // .id.linkExtra(".object").toHref("part-object.php?id=:parent_id")
-                    // .id.linkExtra(".array").toHref("part-array.php?id=:parent_id")
-                    // .type.linkExtra(".object").eq("object").thenUntitoggle("none")
-                    // .type.linkExtra(".array").eq("array").thenUntitoggle("none")
-                    // .type.linkExtra(".object").eq("object").thenUntitoggle("none")
-                    // .id.linkExtra(".rows").isTruthy().thenUntitoggle("none")
-                    // .id.linkExtra(".caption").toText()
-                    // .type.linkExtra(".caption").toText()
-                    // .type.linkExtra(".row.object").eq("object").thenUntitoggle("none")
-                    // .type.linkExtra(".row.array").eq("array").thenUntitoggle("none")
+                    .type.eq("object").thenUntitoggle("none")
 
                     .end // of parent
                     .end // of context
