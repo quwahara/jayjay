@@ -272,73 +272,73 @@ parent exists, parent is array, target exists
                 (booq = new Booq(<?= $this->structsAsJSON() ?>))
 
                 .path_snippet.callFunctionWithThis(pathSnippetBroker)
-                    .end // of path_snippet
+                    .endPath_snippet
 
                     .context
-                    .title.toText()
+                    .___.title.toText()
 
-                    .parent.extent(".object")
-                    .type.eq("object").thenUntitoggle("none")
-                    .id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                    .id.linkExtra(".object").toHref("part-object.php?id=:id")
-                    .end // of parent
+                    .___.parent.extent(".object")
+                    .___.___.type.eq("object").thenUntitoggle("none")
+                    .___.___.id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                    .___.___.id.linkExtra(".object").toHref("part-object.php?id=:id")
+                    .___.___.endParent
 
-                    .parent.extent(".array")
-                    .type.eq("array").thenUntitoggle("none")
-                    .id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                    .id.linkExtra(".array").toHref("part-array.php?id=:id")
-                    .end // of parent
+                    .___.parent.extent(".array")
+                    .___.___.type.eq("array").thenUntitoggle("none")
+                    .___.___.id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                    .___.___.id.linkExtra(".array").toHref("part-array.php?id=:id")
+                    .___.___.endParent
 
-                    .end // of context
+                    .___.endContext
 
                     .part_set
 
-                    .property
-                    .id.isTruthy().thenUntitoggle("none")
-                    .id.toHref("part-object.php?id=:parent_id")
-                    .parent_id.toText()
-                    .name.toText()
-                    .end // of property
+                    .___.property
+                    .___.___.id.isTruthy().thenUntitoggle("none")
+                    .___.___.id.toHref("part-object.php?id=:parent_id")
+                    .___.___.parent_id.toText()
+                    .___.___.name.toText()
+                    .___.___.endProperty
 
-                    .item
-                    .id.isTruthy().thenUntitoggle("none")
-                    .id.toHref("part-array.php?id=:parent_id")
-                    .parent_id.toText()
-                    .i.toText()
-                    .end // of item
+                    .___.item
+                    .___.___.id.isTruthy().thenUntitoggle("none")
+                    .___.___.id.toHref("part-array.php?id=:parent_id")
+                    .___.___.parent_id.toText()
+                    .___.___.i.toText()
+                    .___.___.endItem
 
-                    .part.extent(".modify")
-                    .id.isTruthy().thenUntitoggle("none")
-                    .id.linkExtra(".caption").toText()
-                    .type.toText()
-                    .end // of part
+                    .___.part.extent(".modify")
+                    .___.___.id.isTruthy().thenUntitoggle("none")
+                    .___.___.id.linkExtra(".caption").toText()
+                    .___.___.type.toText()
+                    .___.___.endPart
 
-                    .part.extent(".new")
-                    .id.isFalsy().thenUntitoggle("none")
-                    .type.withValue()
-                    .end // of part
+                    .___.part.extent(".new")
+                    .___.___.id.isFalsy().thenUntitoggle("none")
+                    .___.___.type.withValue()
+                    .___.___.endPart
 
-                    .part
-                    .type.linkExtra(".is_string").eq("string").thenUntitoggle("none")
-                    .type.linkExtra(".is_number").eq("number").thenUntitoggle("none")
-                    .type.linkExtra(".is_copy_from").eq("copy_from").thenUntitoggle("none")
-                    .value_string.withValue()
-                    .value_number.withValue()
-                    .end // of part
+                    .___.part
+                    .___.___.type.linkExtra(".is_string").eq("string").thenUntitoggle("none")
+                    .___.___.type.linkExtra(".is_number").eq("number").thenUntitoggle("none")
+                    .___.___.type.linkExtra(".is_copy_from").eq("copy_from").thenUntitoggle("none")
+                    .___.___.value_string.withValue()
+                    .___.___.value_number.withValue()
+                    .___.___.endPart
 
-                    .property
-                    .name.withValue()
-                    .end // of property
+                    .___.property
+                    .___.___.name.withValue()
+                    .___.___.endProperty
 
-                    .property.extent(".new")
-                    .id.isTruthy().thenUntitoggle("none")
-                    .end // of property
+                    .___.property.extent(".new")
+                    .___.___.id.isTruthy().thenUntitoggle("none")
+                    .___.___.endProperty
 
-                    .item.extent(".new")
-                    .id.isTruthy().thenUntitoggle("none")
-                    .end // of item
+                    .___.item.extent(".new")
+                    .___.___.id.isTruthy().thenUntitoggle("none")
+                    .___.___.endItem
 
-                    .end // of part_set
+                    .___.endPart_set
                     //
                     .id_copy_from.withValue()
                     //
