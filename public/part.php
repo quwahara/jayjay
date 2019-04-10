@@ -37,6 +37,7 @@ parent exists, parent is array, target exists
                 'part_array'
             ],
         ],
+        'id_copy_from' => 0,
         'register' => ''
     ],
     'refreshData' => function ($id, $parent_id) {
@@ -138,11 +139,11 @@ parent exists, parent is array, target exists
             <div class="belt bg-mono-09">
                 <a href="home.php">Home</a>
                 <a href="part-global.php">Part global</a>
-                <span class="part_set property">
-                    <a class="id none">Parent object</a>
+                <span class="context parent object">
+                    <a class="type none id object">Parent object</a>
                 </span>
-                <span class="part_set item">
-                    <a class="id none">Parent array</a>
+                <span class="context parent array">
+                    <a class="type none id array">Parent array</a>
                 </span>
             </div>
 
@@ -220,7 +221,7 @@ parent exists, parent is array, target exists
                     </div>
 
                     <div>
-                        <div class="row context parent">
+                        <div class="row context parent object">
                             <div class="type none part_set property">
                                 <label for="name">Name</label>
                                 <input type="text" name="name">
@@ -238,22 +239,22 @@ parent exists, parent is array, target exists
                                 <input type="text" name="value_number">
                             </div>
                         </div>
-                        <div class="row id_copy_from id_copy_from_available">
+                        <div class="row part_set part">
                             <div class="type is_copy_from none">
                                 <label for="id_copy_from">Copy from id</label>
                                 <input type="text" name="id_copy_from">
                             </div>
                         </div>
-                        <div class="row part_set property new">
-                            <div class="id none">
-                                <div><a class="object-new-prop">New property</a></div>
-                                <div><a class="object-props">Properties</a></div>
+                        <div class="row context parent object">
+                            <div class="type none">
+                                <div><a class="id part">New property</a></div>
+                                <div><a class="id object">Properties</a></div>
                             </div>
                         </div>
-                        <div class="row part_set item new">
-                            <div class="id none">
-                                <div><a class="array-new-item">New item</a></div>
-                                <div><a class="array-items">Items</a></div>
+                        <div class="row context parent array">
+                            <div class="type none">
+                                <div><a class="id part">New item</a></div>
+                                <div><a class="id array">Items</a></div>
                             </div>
                         </div>
                         <div class="row">
@@ -275,10 +276,19 @@ parent exists, parent is array, target exists
 
                     .context
                     .title.toText()
-                    .parent
-                    .type.eq("object").thenUntitoggle("none")
 
+                    .parent.extent(".object")
+                    .type.eq("object").thenUntitoggle("none")
+                    .id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                    .id.linkExtra(".object").toHref("part-object.php?id=:id")
                     .end // of parent
+
+                    .parent.extent(".array")
+                    .type.eq("array").thenUntitoggle("none")
+                    .id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                    .id.linkExtra(".array").toHref("part-array.php?id=:id")
+                    .end // of parent
+
                     .end // of context
 
                     .part_set
@@ -311,7 +321,7 @@ parent exists, parent is array, target exists
                     .part
                     .type.linkExtra(".is_string").eq("string").thenUntitoggle("none")
                     .type.linkExtra(".is_number").eq("number").thenUntitoggle("none")
-                    .type.linkExtra(".is_copy_from").eq("number").thenUntitoggle("none")
+                    .type.linkExtra(".is_copy_from").eq("copy_from").thenUntitoggle("none")
                     .value_string.withValue()
                     .value_number.withValue()
                     .end // of part
@@ -329,6 +339,8 @@ parent exists, parent is array, target exists
                     .end // of item
 
                     .end // of part_set
+                    //
+                    .id_copy_from.withValue()
                     //
                     .register.on("click", function() {
                         Global.snackbar.close();
@@ -390,7 +402,10 @@ parent exists, parent is array, target exists
         //
         // New
         //
-        if ($parent['id'] > 0) {
+        if ($part_set['part']['type'] === 'copy_from') {
+            // copy_from
+            $part_set['part']['id'] = $this->part()->cloneById($parent['id'], $part_set['property']['name'], $data['id_copy_from']);
+        } else if ($parent['id'] > 0) {
             // property
             if ($parent['type'] === 'object') {
                 $new_part_object = $this->part()->addNewProperty($parent['id'], $part_set['property']['name'], $part_set['part']['type'], $part_set['part']['value_string'], $part_set['part']['value_number']);
@@ -410,7 +425,7 @@ parent exists, parent is array, target exists
         }
     }
 
-    $this->refreshData($part_set['part']['id'], $part_set['property']['id'] > 0 ? $part_set['property']['parent_id'] : $part_set['item']['parent_id']);
+    $this->refreshData($part_set['part']['id'], $parent['id']);
     $this->data['status'] = 'OK';
 }
 ]);

@@ -253,7 +253,7 @@ class PartService
     /**
      * Clone a part from original
      *
-     * @param [type] $parent_id parent_id that is of parent for cloned part. This value must be null if new part belongs to global.
+     * @param mixed $parent_id parent_id that is of parent for cloned part. This value must be false that was called by boolvalu() if new part belongs to global.
      * @param [string] $name Name for property if parent is part_object unless this value is null
      * @param [array] $original_part_and_children Original for cloning. this value is assumed to be results of findPartAndChildren() method
      * @return integer returns new part id
@@ -269,7 +269,7 @@ class PartService
         $value_string = $part['value_string'];
         $value_number = $part['value_number'];
 
-        if (is_null($parent_id)) {
+        if (!boolval($parent_id)) {
             $new_part = $this->addPart($type, $value_string, $value_number);
             $new_part_id = $new_part['id'];
         } else {
@@ -302,7 +302,7 @@ class PartService
     /**
      * Clone a part by part id
      *
-     * @param mixed $parent_id parent_id that is of parent for cloned part. This value must be null if new part belongs to global.
+     * @param mixed $parent_id parent_id that is of parent for cloned part. This value must be false that was called by boolvalu() if new part belongs to global.
      * @param mixed $name Name for property if parent is part_object unless this value is null
      * @param mixed $part_id id of original part
      * @return integer returns new part id
