@@ -18,6 +18,13 @@ function bool_in_ini($var)
     return boolval($var);
 }
 
+/**
+ * The structs and attrs are separated.
+ * The reason for separation is that property of same name is used in different aspect.
+ * In case of structs binding, property is used as primitive, then bind to one elment or one attribute.
+ * In case of attrs binding, property is used as object, then bind to many attibutes at once.
+ * The structs and attrs are separated to saticfy both cases.
+ */
 class JJ
 {
     public $config_;
@@ -162,14 +169,23 @@ class JJ
 
         $this->dispatchKey = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
 
-        $this->structs = $this->config_['structs'];
 
-        $this->attrs = $this->config_['attrs'];
+        $this->structs = [];
+        if (array_key_exists('structs', $this->config_)) {
+            $this->initStructs($this->config_['structs']);
+        }
 
-        $this->data = $this->config_['data'];
+        $this->attrs = [];
+        if (array_key_exists('attrs', $this->config_)) {
+            $this->initAttrs($this->config_['attrs']);
+        }
+
+        $this->data = [];
+        if (array_key_exists('data', $this->config_)) {
+            $this->data = $this->config_['data'];
+        }
 
         $args = &$this->args;
-
         if (array_key_exists('init', $args)) {
             call_user_func($args['init']->bindTo($this));
         }
@@ -178,8 +194,18 @@ class JJ
             $this->initStructs($args['structs']);
         }
 
+        if (empty($this->structs)) {
+            // prevent to be array for json_encode
+            $this->structs['___'] = '';
+        }
+
         if (array_key_exists('attrs', $args)) {
             $this->initAttrs($args['attrs']);
+        }
+
+        if (empty($this->attrs)) {
+            // prevent to be array for json_encode
+            $this->attrs['___'] = '';
         }
 
         if ($this->isGet()) {
@@ -218,7 +244,7 @@ class JJ
             $substruct = $this->parseStruct($key, $value);
             $theStructs = $theStructs + $substruct;
         }
-        $this->structs = array_merge($this->structs, $theStructs);
+        $this->structs = array_merge_recursive($this->structs, $theStructs);
         return $this;
     }
 

@@ -24,7 +24,6 @@ parent exists, parent is array, target exists
                 'type' => '',
             ],
             'message' => '',
-            'violations[]' => '',
         ],
         'part_set' => [
             'part' => [
@@ -384,14 +383,8 @@ parent exists, parent is array, target exists
                                         axios.post("part.php", booq.data)
                                             .then(function(response) {
                                                 console.log(response.data);
-                                                booq
-                                                    .setData(response.data);
-                                                // .update();
-                                                // booq.data.message = response.data.message;
-                                                // if ("" !== booq.data.message) {
-                                                //     Global.snackbar.messageDiv.classList.add("warning");
-                                                //     Global.snackbar.maximize();
-                                                // }
+                                                booq.setData(response.data);
+                                                if (!Global.snackbarByViolations(booq.data.context.violations)) return;
                                             })
                                             .catch(Global.snackbarByCatchFunction());
                                     }
@@ -414,56 +407,72 @@ parent exists, parent is array, target exists
     $ctx = &$this->data['context'];
     $parent = &$ctx['parent'];
     $part_set = &$data['part_set'];
+    $part = &$part_set['part'];
+    $type = $part['type'];
 
-    if ($part_set['part']['id'] > 0) {
+    $attrs = &$this->attrs;
+
+    if ($type === 'string' || $type === 'number') {
+        $fieldName = "value_{$type}";
+        $propValue = $part[$fieldName];
+        $violations = $this->validate($fieldName, $type, $propValue, $attrs['part_set']['part'][$fieldName]);
+    } else {
+        $violations = [];
+    }
+
+    if (0 < count($violations)) {
+        $ctx['violations'] = $violations;
+        return;
+    }
+
+    if ($part['id'] > 0) {
         //
         // Modify
         //
         if ($parent['id'] > 0) {
             // property
             if ($parent['type'] === 'object') {
-                $new_part_object = $this->part()->setProperty($part_set['property'], $part_set['part']);
-                $part_set['part']['id'] = $new_part_object['child_id'];
+                $new_part_object = $this->part()->setProperty($part_set['property'], $part);
+                $part['id'] = $new_part_object['child_id'];
             } else if ($parent['type'] === 'array') {
                 // item
-                $new_part_array = $this->part()->setItem($part_set['item'], $part_set['part']);
-                $part_set['part']['id'] = $new_part_array['child_id'];
+                $new_part_array = $this->part()->setItem($part_set['item'], $part);
+                $part['id'] = $new_part_array['child_id'];
             } else {
                 $ctx['message'] = 'Illegal type for parent.';
             }
         } else {
             // global
-            $new_part = $this->part()->setPart($part_set['part']);
-            $part_set['part']['id'] = $new_part['id'];
+            $new_part = $this->part()->setPart($part);
+            $part['id'] = $new_part['id'];
         }
     } else {
         //
         // New
         //
-        if ($part_set['part']['type'] === 'copy_from') {
+        if ($type === 'copy_from') {
             // copy_from
-            $part_set['part']['id'] = $this->part()->cloneById($parent['id'], $part_set['property']['name'], $data['id_copy_from']);
+            $part['id'] = $this->part()->cloneById($parent['id'], $part_set['property']['name'], $data['id_copy_from']);
         } else if ($parent['id'] > 0) {
             // property
             if ($parent['type'] === 'object') {
-                $new_part_object = $this->part()->addNewProperty($parent['id'], $part_set['property']['name'], $part_set['part']['type'], $part_set['part']['value_string'], $part_set['part']['value_number']);
-                $part_set['part']['id'] = $new_part_object['child_id'];
+                $new_part_object = $this->part()->addNewProperty($parent['id'], $part_set['property']['name'], $type, $part['value_string'], $part['value_number']);
+                $part['id'] = $new_part_object['child_id'];
             } else if ($parent['type'] === 'array') {
                 // item
-                $new_part_array = $this->part()->addNewItem($parent['id'],  $part_set['part']['type'], $part_set['part']['value_string'], $part_set['part']['value_number']);
-                $part_set['part']['id'] = $new_part_array['child_id'];
+                $new_part_array = $this->part()->addNewItem($parent['id'],  $type, $part['value_string'], $part['value_number']);
+                $part['id'] = $new_part_array['child_id'];
             } else {
                 $ctx['message'] = 'Illegal type for parent.';
             }
         } else {
             // global
-            $part = $part_set['part'];
-            $new_part = $this->part()->addPart($part['type'], $part['value_string'], $part['value_number']);
-            $part_set['part']['id'] = $new_part['id'];
+            $new_part = $this->part()->addPart($type, $part['value_string'], $part['value_number']);
+            $part['id'] = $new_part['id'];
         }
     }
 
-    $this->refreshData($part_set['part']['id'], $parent['id']);
+    $this->refreshData($part['id'], $parent['id']);
     $this->data['status'] = 'OK';
 }
 ]);

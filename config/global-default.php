@@ -8,16 +8,19 @@ return [
     'structs' => [
         'status' => '',
         'message' => '',
-        'context' => [],
+        'context' => [
+            'violations[]' => [
+                'name' => '',
+                'type' => '',
+                'value' => '',
+                'violation' => ''
+            ],
+        ],
     ],
     // global attrs parameters
     'attrs' => [],
     // global data parameters
-    'data' => [
-        'status' => '',
-        'message' => '',
-        'context' => [],
-    ],
+    'data' => [],
     'db' => [
         'attributes' => [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
@@ -42,4 +45,3 @@ return [
     ],
     'requires' => [],
 ];
- 
