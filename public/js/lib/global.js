@@ -157,6 +157,10 @@
       en[key] = "Updated";
       ja[key] = "更新しました";
 
+      key = "#too-short";
+      en[key] = "Requires {minlength} characters minimum";
+      ja[key] = "{minlength}文字以上必要です";
+
       key = "#value-missing";
       en[key] = "Requires";
       ja[key] = "必須です";
@@ -211,7 +215,7 @@
       if (inlineParamsString) {
         try {
           inlineParams = JSON.parse(inlineParamsString);
-        } catch (e) {}
+        } catch (e) { }
       }
       if (!inlineParams || typeof inlineParams !== "object") {
         inlineParams = {};
@@ -483,6 +487,7 @@
         elm = null;
       // src was an element
       if (src.validity) {
+        src.checkValidity();
         v = src.validity;
         elm = src;
       } else if (typeof src.valid === "boolean") {
@@ -494,10 +499,10 @@
         throw Error("It couldn't detect ValidityState Object by src.");
       }
 
-      var props = ["valueMissing"];
+      var props = ["tooShort", "valueMissing"];
       for (var k = 0; k < props.length; ++k) {
         if (v[props[k]]) {
-          Global.snackbar.messageDiv.innerText = Global.getMsg("#" + Global.camelToKebab(props[k]));
+          Global.snackbar.messageDiv.innerText = Global.getMsg("#" + Global.camelToKebab(props[k]), elm);
           Global.snackbar.maximize();
           if (elm) {
             elm.focus();

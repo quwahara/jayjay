@@ -38,7 +38,23 @@ parent exists, parent is array, target exists
             ],
         ],
         'id_copy_from' => 0,
-        'register' => ''
+    ],
+    'attrs' => [
+        'part_set' => [
+            'part' => [
+                'part',
+                'value_string' => [
+                    'required' => '',   // Turns required attribute on
+                    'minlength' => 3,
+                    'maxlength' => 5,
+                    // 'minlength' => 0,
+                    // 'maxlength' => 1000,
+                ],
+            ],
+            'property' => [
+                'part_object'
+            ],
+        ],
     ],
     'refreshData' => function ($id, $parent_id) {
 
@@ -268,6 +284,15 @@ parent exists, parent is array, target exists
         <script>
             window.onload = function() {
 
+                var attrs;
+                (attrs = new Booq(<?= $this->attrsAsJSON() ?>))
+                .part_set
+                    .part
+                    .___.value_string.linkPreferred("lower_name").toAttrs()
+                    .___.endPart
+                    .endPart_set
+                    .setStructureAsData();
+
                 var booq;
                 (booq = new Booq(<?= $this->structsAsJSON() ?>))
 
@@ -342,9 +367,14 @@ parent exists, parent is array, target exists
                     //
                     .id_copy_from.withValue()
                     //
-                    .register.on("click", function() {
+                    .linkExtra("button[name='register']").on("click", function() {
                         Global.snackbar.close();
+                        var booq = this;
                         booq.data.status = "";
+
+                        if (!Global.snackbarByVlidity(
+                                booq.part_set.part.value_string.selector("name")
+                            )) return;
 
                         Global.modal.create({
                                 body: "追加してもよろしいですか",
