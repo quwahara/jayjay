@@ -345,22 +345,30 @@ parent exists, parent is array, target exists
                     .register.on("click", function() {
                         Global.snackbar.close();
                         booq.data.status = "";
-                        axios.post("part.php", booq.data)
-                            .then(function(response) {
-                                console.log(response.data);
-                                // booq.data = response.data;
-                                booq
-                                    .setData(response.data)
-                                    .update();
-                                // booq.data.message = response.data.message;
-                                // if ("" !== booq.data.message) {
-                                //     Global.snackbar.messageDiv.classList.add("warning");
-                                //     Global.snackbar.maximize();
-                                // }
-                            })
-                            .catch(Global.snackbarByCatchFunction());
-                    })
 
+                        Global.modal.create({
+                                body: "追加してもよろしいですか",
+                                ok: {
+                                    onclick: function() {
+                                        Global.snackbar.close();
+                                        axios.post("part.php", booq.data)
+                                            .then(function(response) {
+                                                console.log(response.data);
+                                                booq
+                                                    .setData(response.data);
+                                                // .update();
+                                                // booq.data.message = response.data.message;
+                                                // if ("" !== booq.data.message) {
+                                                //     Global.snackbar.messageDiv.classList.add("warning");
+                                                //     Global.snackbar.maximize();
+                                                // }
+                                            })
+                                            .catch(Global.snackbarByCatchFunction());
+                                    }
+                                }
+                            })
+                            .open();
+                    })
                     .setData(<?= $this->dataAsJSON() ?>);
             };
         </script>
