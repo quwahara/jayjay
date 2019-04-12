@@ -140,8 +140,8 @@ parent exists, parent is array, target exists
 
     <body>
         <script>
-            var attrs2 = new Booq(<?= $this->attrsAsJSON() ?>);
-            var structs2 = new Booq(<?= $this->structsAsJSON() ?>);
+            var attrs = new Booq(<?= $this->attrsAsJSON() ?>);
+            var structs = new Booq(<?= $this->structsAsJSON() ?>);
         </script>
 
         <div>
@@ -149,7 +149,7 @@ parent exists, parent is array, target exists
                 <h1 class="title">Part</h1>
             </div>
             <script>
-                structs2.context.title.toText();
+                structs.context.title.toText();
             </script>
 
             <div class="belt bg-mono-09 context parent">
@@ -160,7 +160,7 @@ parent exists, parent is array, target exists
                     <a class="type none id object">Parent object</a>
                 </span>
                 <script>
-                    structs2.context.parent.extent(".belt .object")
+                    structs.context.parent.extent(".belt .object")
                         .type.eq("object").thenUntitoggle("none")
                         .id.linkExtra(".part").toHref("part.php?parent_id=:id")
                         .id.linkExtra(".object").toHref("part-object.php?id=:id");
@@ -170,7 +170,7 @@ parent exists, parent is array, target exists
                     <a class="type none id array">Parent array</a>
                 </span>
                 <script>
-                    structs2.context.parent.extent(".belt .array")
+                    structs.context.parent.extent(".belt .array")
                         .type.eq("array").thenUntitoggle("none")
                         .id.linkExtra(".part").toHref("part.php?parent_id=:id")
                         .id.linkExtra(".array").toHref("part-array.php?id=:id");
@@ -181,7 +181,7 @@ parent exists, parent is array, target exists
                 <?php $this->echoBy("path2"); ?>
             </div>
             <script>
-                structs2.path_snippet.callFunctionWithThis(pathSnippetBroker);
+                structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
             </script>
 
             <div class="contents">
@@ -204,7 +204,7 @@ parent exists, parent is array, target exists
                         </div>
                     </div>
                     <script>
-                        structs2.part_set.property
+                        structs.part_set.property
                             .id.isTruthy().thenUntitoggle("none")
                             .id.toHref("part-object.php?id=:parent_id")
                             .parent_id.toText()
@@ -230,7 +230,7 @@ parent exists, parent is array, target exists
                         </div>
                     </div>
                     <script>
-                        structs2.part_set.item
+                        structs.part_set.item
                             .id.isTruthy().thenUntitoggle("none")
                             .id.toHref("part-array.php?id=:parent_id")
                             .parent_id.toText()
@@ -252,7 +252,7 @@ parent exists, parent is array, target exists
                         </div>
                     </div>
                     <script>
-                        structs2.part_set.part.extent(".modify")
+                        structs.part_set.part.extent(".modify")
                             .id.isTruthy().thenUntitoggle("none")
                             .id.linkExtra(".caption").toText()
                             .type.toText()
@@ -279,7 +279,7 @@ parent exists, parent is array, target exists
                         </div>
                     </div>
                     <script>
-                        structs2.part_set.part.extent(".new")
+                        structs.part_set.part.extent(".new")
                             .id.isFalsy().thenUntitoggle("none")
                             .type.withValue()
                             .endPart;
@@ -293,7 +293,7 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                         <script>
-                            structs2
+                            structs
                                 .context
                                 .___.parent.extent(".object")
                                 .___.___.type.eq("object").thenUntitoggle("none")
@@ -312,10 +312,10 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                         <script>
-                            attrs2.part_set.part
+                            attrs.part_set.part
                                 .value_string.linkPreferred("lower_name").toAttrs();
 
-                            structs2.part_set.part
+                            structs.part_set.part
                                 .type.linkExtra(".is_string").eq("string").thenUntitoggle("none")
                                 .value_string.withValue();
                         </script>
@@ -327,7 +327,7 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                         <script>
-                            structs2.part_set.part
+                            structs.part_set.part
                                 .type.linkExtra(".is_number").eq("number").thenUntitoggle("none")
                                 .value_number.withValue();
                         </script>
@@ -339,7 +339,7 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                         <script>
-                            structs2
+                            structs
                                 .id_copy_from.withValue()
                                 .part_set
                                 .___.part
@@ -353,7 +353,7 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                         <script>
-                            structs2.extent(".child").part_set.part
+                            structs.extent(".child").part_set.part
                                 .id.linkExtra(".none").isTruthy().thenUntitoggle("none")
                                 .id.linkExtra(".part").toHref("part.php?id=:id")
                                 .id.linkExtra(".object").toHref("part-object.php?id=:id");
@@ -371,14 +371,14 @@ parent exists, parent is array, target exists
                             <button type="button" name="register">Register</button>
                         </div>
                         <script>
-                            structs2
+                            structs
                                 .linkExtra("button[name='register']").on("click", function() {
                                     Global.snackbar.close();
-                                    var structs2 = this;
-                                    structs2.data.status = "";
+                                    var structs = this;
+                                    structs.data.status = "";
 
                                     if (!Global.snackbarByVlidity(
-                                            structs2.part_set.part.value_string.selector("name")
+                                            structs.part_set.part.value_string.selector("name")
                                         )) return;
 
                                     Global.modal.create({
@@ -386,11 +386,11 @@ parent exists, parent is array, target exists
                                             ok: {
                                                 onclick: function() {
                                                     Global.snackbar.close();
-                                                    axios.post("part.php", structs2.data)
+                                                    axios.post("part.php", structs.data)
                                                         .then(function(response) {
                                                             console.log(response.data);
-                                                            structs2.setData(response.data);
-                                                            if (!Global.snackbarByViolations(structs2.data.context.violations)) return;
+                                                            structs.setData(response.data);
+                                                            if (!Global.snackbarByViolations(structs.data.context.violations)) return;
                                                         })
                                                         .catch(Global.snackbarByCatchFunction());
                                                 }
@@ -402,8 +402,8 @@ parent exists, parent is array, target exists
 
                         <script>
                             window.onload = function() {
-                                attrs2.setStructureAsData();
-                                structs2.setData(<?= $this->dataAsJSON() ?>);
+                                attrs.setStructureAsData();
+                                structs.setData(<?= $this->dataAsJSON() ?>);
                             };
                         </script>
 
