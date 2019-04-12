@@ -42,13 +42,6 @@ parent exists, parent is array, target exists
         'part_set' => [
             'part' => [
                 'part',
-                'value_string' => [
-                    'required' => '',   // Turns required attribute on
-                    'minlength' => 3,
-                    'maxlength' => 5,
-                    // 'minlength' => 0,
-                    // 'maxlength' => 1000,
-                ],
             ],
             'property' => [
                 'part_object'
@@ -146,25 +139,50 @@ parent exists, parent is array, target exists
     </head>
 
     <body>
+        <script>
+            var attrs2 = new Booq(<?= $this->attrsAsJSON() ?>);
+            var structs2 = new Booq(<?= $this->structsAsJSON() ?>);
+        </script>
+
         <div>
             <div class="belt context">
                 <h1 class="title">Part</h1>
             </div>
+            <script>
+                structs2.context.title.toText();
+            </script>
 
-            <div class="belt bg-mono-09">
+            <div class="belt bg-mono-09 context parent">
                 <a href="home.php">Home</a>
                 <a href="part-global.php">Part global</a>
-                <span class="context parent object">
+
+                <span class="object">
                     <a class="type none id object">Parent object</a>
                 </span>
-                <span class="context parent array">
+                <script>
+                    structs2.context.parent.extent(".belt .object")
+                        .type.eq("object").thenUntitoggle("none")
+                        .id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                        .id.linkExtra(".object").toHref("part-object.php?id=:id");
+                </script>
+
+                <span class="array">
                     <a class="type none id array">Parent array</a>
                 </span>
+                <script>
+                    structs2.context.parent.extent(".belt .array")
+                        .type.eq("array").thenUntitoggle("none")
+                        .id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                        .id.linkExtra(".array").toHref("part-array.php?id=:id");
+                </script>
             </div>
 
             <div>
                 <?php $this->echoBy("path2"); ?>
             </div>
+            <script>
+                structs2.path_snippet.callFunctionWithThis(pathSnippetBroker);
+            </script>
 
             <div class="contents">
                 <form method="post">
@@ -185,6 +203,15 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                     </div>
+                    <script>
+                        structs2.part_set.property
+                            .id.isTruthy().thenUntitoggle("none")
+                            .id.toHref("part-object.php?id=:parent_id")
+                            .parent_id.toText()
+                            .name.toText()
+                            .endProperty;
+                    </script>
+
                     <div class="part_set item">
                         <!-- when exists item -->
                         <div class="id none">
@@ -202,6 +229,15 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                     </div>
+                    <script>
+                        structs2.part_set.item
+                            .id.isTruthy().thenUntitoggle("none")
+                            .id.toHref("part-array.php?id=:parent_id")
+                            .parent_id.toText()
+                            .i.toText()
+                            .endItem;
+                    </script>
+
                     <div class="part_set part modify">
                         <!-- when exists part -->
                         <div class="id none">
@@ -215,6 +251,14 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                     </div>
+                    <script>
+                        structs2.part_set.part.extent(".modify")
+                            .id.isTruthy().thenUntitoggle("none")
+                            .id.linkExtra(".caption").toText()
+                            .type.toText()
+                            .endPart;
+                    </script>
+
                     <div class="part_set part new">
                         <!-- when not exists part -->
                         <div class="id none">
@@ -234,6 +278,12 @@ parent exists, parent is array, target exists
                             </div>
                         </div>
                     </div>
+                    <script>
+                        structs2.part_set.part.extent(".new")
+                            .id.isFalsy().thenUntitoggle("none")
+                            .type.withValue()
+                            .endPart;
+                    </script>
 
                     <div>
                         <div class="row context parent object">
@@ -242,159 +292,125 @@ parent exists, parent is array, target exists
                                 <input type="text" name="name">
                             </div>
                         </div>
+                        <script>
+                            structs2
+                                .context
+                                .___.parent.extent(".object")
+                                .___.___.type.eq("object").thenUntitoggle("none")
+                                .___.___.endParent
+                                .___.endContext
+                                .part_set
+                                .___.property
+                                .___.___.name.withValue()
+                                .___.___.endProperty;
+                        </script>
+
                         <div class="row part_set part">
                             <div class="type is_string none">
                                 <label for="value_string">String value</label>
                                 <input type="text" name="value_string">
                             </div>
                         </div>
+                        <script>
+                            attrs2.part_set.part
+                                .value_string.linkPreferred("lower_name").toAttrs();
+
+                            structs2.part_set.part
+                                .type.linkExtra(".is_string").eq("string").thenUntitoggle("none")
+                                .value_string.withValue();
+                        </script>
+
                         <div class="row part_set part">
                             <div class="type is_number none">
                                 <label for="value_number">Number value</label>
                                 <input type="text" name="value_number">
                             </div>
                         </div>
+                        <script>
+                            structs2.part_set.part
+                                .type.linkExtra(".is_number").eq("number").thenUntitoggle("none")
+                                .value_number.withValue();
+                        </script>
+
                         <div class="row part_set part">
                             <div class="type is_copy_from none">
                                 <label for="id_copy_from">Copy from id</label>
                                 <input type="text" name="id_copy_from">
                             </div>
                         </div>
-                        <div class="row context parent object">
-                            <div class="type none">
+                        <script>
+                            structs2
+                                .id_copy_from.withValue()
+                                .part_set
+                                .___.part
+                                .___.___.type.linkExtra(".is_copy_from").eq("copy_from").thenUntitoggle("none");
+                        </script>
+
+                        <div class="row child part_set part">
+                            <div class="id none">
                                 <div><a class="id part">New property</a></div>
                                 <div><a class="id object">Properties</a></div>
                             </div>
                         </div>
+                        <script>
+                            structs2.extent(".child").part_set.part
+                                .id.linkExtra(".none").isTruthy().thenUntitoggle("none")
+                                .id.linkExtra(".part").toHref("part.php?id=:id")
+                                .id.linkExtra(".object").toHref("part-object.php?id=:id");
+                        </script>
+
                         <div class="row context parent array">
                             <div class="type none">
                                 <div><a class="id part">New item</a></div>
                                 <div><a class="id array">Items</a></div>
                             </div>
                         </div>
+
                         <div class="row">
                             <div class="label"></div>
                             <button type="button" name="register">Register</button>
                         </div>
+                        <script>
+                            structs2
+                                .linkExtra("button[name='register']").on("click", function() {
+                                    Global.snackbar.close();
+                                    var structs2 = this;
+                                    structs2.data.status = "";
+
+                                    if (!Global.snackbarByVlidity(
+                                            structs2.part_set.part.value_string.selector("name")
+                                        )) return;
+
+                                    Global.modal.create({
+                                            body: "追加してもよろしいですか",
+                                            ok: {
+                                                onclick: function() {
+                                                    Global.snackbar.close();
+                                                    axios.post("part.php", structs2.data)
+                                                        .then(function(response) {
+                                                            console.log(response.data);
+                                                            structs2.setData(response.data);
+                                                            if (!Global.snackbarByViolations(structs2.data.context.violations)) return;
+                                                        })
+                                                        .catch(Global.snackbarByCatchFunction());
+                                                }
+                                            }
+                                        })
+                                        .open();
+                                });
+                        </script>
+
+                        <script>
+                            window.onload = function() {
+                                attrs2.setStructureAsData();
+                                structs2.setData(<?= $this->dataAsJSON() ?>);
+                            };
+                        </script>
+
                     </div>
                 </form>
             </div>
         </div>
-        <script>
-            window.onload = function() {
-
-                var attrs;
-                (attrs = new Booq(<?= $this->attrsAsJSON() ?>))
-                .part_set
-                    .part
-                    .___.value_string.linkPreferred("lower_name").toAttrs()
-                    .___.endPart
-                    .endPart_set
-                    .setStructureAsData();
-
-                var booq;
-                (booq = new Booq(<?= $this->structsAsJSON() ?>))
-
-                .path_snippet.callFunctionWithThis(pathSnippetBroker)
-                    .endPath_snippet
-
-                    .context
-                    .___.title.toText()
-
-                    .___.parent.extent(".object")
-                    .___.___.type.eq("object").thenUntitoggle("none")
-                    .___.___.id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                    .___.___.id.linkExtra(".object").toHref("part-object.php?id=:id")
-                    .___.___.endParent
-
-                    .___.parent.extent(".array")
-                    .___.___.type.eq("array").thenUntitoggle("none")
-                    .___.___.id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                    .___.___.id.linkExtra(".array").toHref("part-array.php?id=:id")
-                    .___.___.endParent
-
-                    .___.endContext
-
-                    .part_set
-
-                    .___.property
-                    .___.___.id.isTruthy().thenUntitoggle("none")
-                    .___.___.id.toHref("part-object.php?id=:parent_id")
-                    .___.___.parent_id.toText()
-                    .___.___.name.toText()
-                    .___.___.endProperty
-
-                    .___.item
-                    .___.___.id.isTruthy().thenUntitoggle("none")
-                    .___.___.id.toHref("part-array.php?id=:parent_id")
-                    .___.___.parent_id.toText()
-                    .___.___.i.toText()
-                    .___.___.endItem
-
-                    .___.part.extent(".modify")
-                    .___.___.id.isTruthy().thenUntitoggle("none")
-                    .___.___.id.linkExtra(".caption").toText()
-                    .___.___.type.toText()
-                    .___.___.endPart
-
-                    .___.part.extent(".new")
-                    .___.___.id.isFalsy().thenUntitoggle("none")
-                    .___.___.type.withValue()
-                    .___.___.endPart
-
-                    .___.part
-                    .___.___.type.linkExtra(".is_string").eq("string").thenUntitoggle("none")
-                    .___.___.type.linkExtra(".is_number").eq("number").thenUntitoggle("none")
-                    .___.___.type.linkExtra(".is_copy_from").eq("copy_from").thenUntitoggle("none")
-                    .___.___.value_string.withValue()
-                    .___.___.value_number.withValue()
-                    .___.___.endPart
-
-                    .___.property
-                    .___.___.name.withValue()
-                    .___.___.endProperty
-
-                    .___.property.extent(".new")
-                    .___.___.id.isTruthy().thenUntitoggle("none")
-                    .___.___.endProperty
-
-                    .___.item.extent(".new")
-                    .___.___.id.isTruthy().thenUntitoggle("none")
-                    .___.___.endItem
-
-                    .___.endPart_set
-                    //
-                    .id_copy_from.withValue()
-                    //
-                    .linkExtra("button[name='register']").on("click", function() {
-                        Global.snackbar.close();
-                        var booq = this;
-                        booq.data.status = "";
-
-                        if (!Global.snackbarByVlidity(
-                                booq.part_set.part.value_string.selector("name")
-                            )) return;
-
-                        Global.modal.create({
-                                body: "追加してもよろしいですか",
-                                ok: {
-                                    onclick: function() {
-                                        Global.snackbar.close();
-                                        axios.post("part.php", booq.data)
-                                            .then(function(response) {
-                                                console.log(response.data);
-                                                booq.setData(response.data);
-                                                if (!Global.snackbarByViolations(booq.data.context.violations)) return;
-                                            })
-                                            .catch(Global.snackbarByCatchFunction());
-                                    }
-                                }
-                            })
-                            .open();
-                    })
-                    .setData(<?= $this->dataAsJSON() ?>);
-            };
-        </script>
     </body>
 
     </html>
@@ -415,13 +431,12 @@ parent exists, parent is array, target exists
     if ($type === 'string' || $type === 'number') {
         $fieldName = "value_{$type}";
         $propValue = $part[$fieldName];
-        $violations = $this->validate($fieldName, $type, $propValue, $attrs['part_set']['part'][$fieldName]);
+        $ctx['violations'] = $this->validate($fieldName, $type, $propValue, $attrs['part_set']['part'][$fieldName]);
     } else {
-        $violations = [];
+        $ctx['violations'] = [];
     }
 
-    if (0 < count($violations)) {
-        $ctx['violations'] = $violations;
+    if (0 < count($ctx['violations'])) {
         return;
     }
 
