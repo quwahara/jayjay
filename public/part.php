@@ -355,8 +355,9 @@ parent exists, parent is array, target exists
                         <script>
                             structs.extent(".child").part_set.part
                                 .id.linkExtra(".none").isTruthy().thenUntitoggle("none")
-                                .id.linkExtra(".part").toHref("part.php?id=:id")
+                                .id.linkExtra(".part").toHref("part.php?parent_id=:id")
                                 .id.linkExtra(".object").toHref("part-object.php?id=:id");
+                            structs.extent("");
                         </script>
 
                         <div class="row context parent array">
