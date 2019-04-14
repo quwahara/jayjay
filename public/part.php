@@ -346,26 +346,33 @@ parent exists, parent is array, target exists
                                 .___.___.type.linkExtra(".is_copy_from").eq("copy_from").thenUntitoggle("none");
                         </script>
 
-                        <div class="row child part_set part">
-                            <div class="id none">
+                        <div class="row object-child part_set part">
+                            <div class="type none">
                                 <div><a class="id part">New property</a></div>
                                 <div><a class="id object">Properties</a></div>
                             </div>
                         </div>
                         <script>
-                            structs.extent(".child").part_set.part
-                                .id.linkExtra(".none").isTruthy().thenUntitoggle("none")
+                            structs.extent(".object-child").part_set.part
+                                .type.eq("object").thenUntitoggle("none")
                                 .id.linkExtra(".part").toHref("part.php?parent_id=:id")
                                 .id.linkExtra(".object").toHref("part-object.php?id=:id");
                             structs.extent("");
                         </script>
 
-                        <div class="row context parent array">
+                        <div class="row array-child part_set part">
                             <div class="type none">
                                 <div><a class="id part">New item</a></div>
                                 <div><a class="id array">Items</a></div>
                             </div>
                         </div>
+                        <script>
+                            structs.extent(".array-child").part_set.part
+                                .type.eq("array").thenUntitoggle("none")
+                                .id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                                .id.linkExtra(".object").toHref("part-array.php?id=:id");
+                            structs.extent("");
+                        </script>
 
                         <div class="row">
                             <div class="label"></div>
