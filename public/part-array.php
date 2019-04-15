@@ -9,7 +9,6 @@
                 'id' => 0,
                 'type' => '',
             ],
-            'violations[]' => '',
         ],
         'partxs[]' => [
             'parts',
@@ -53,7 +52,6 @@
             ['id' => $ctx['id']]
         );
 
-
         $this->data['add']['type'] = 'string';
         $this->data['commands'] = [
             'command' => '',
@@ -64,222 +62,251 @@
     'get' => function () {
         $this->refreshData($this->getRequest('id', 0));
         ?>
-<html>
+    <html>
 
-<head>
-    <link rel="icon" href="data:,">
-    <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
-    <link rel="stylesheet" type="text/css" href="css/global.css">
-    <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-    <script src="js/booq/booq.js"></script>
-    <script src="js/lib/global.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Part array</title>
-</head>
+    <head>
+        <link rel="icon" href="data:,">
+        <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
+        <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
+        <link rel="stylesheet" type="text/css" href="css/global.css">
+        <script src="js/lib/node_modules/axios/dist/axios.js"></script>
+        <script src="js/booq/booq.js"></script>
+        <script src="js/lib/global.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Part array</title>
+    </head>
 
-<body>
-    <div>
-        <div class="belt">
-            <h1>Part array</h1>
-        </div>
-
-        <div class="belt bg-mono-09">
-            <a href="home.php">Home</a>
-            <a href="part-global.php">Part global</a>
-            <span class="context parent">
-                <a class="type object id none">Parent object</a>
-                <a class="type array id none">Parent array</a>
-            </span>
-        </div>
+    <body>
+        <script>
+            var attrs = new Booq(<?= $this->attrsAsJSON() ?>);
+            var structs = new Booq(<?= $this->structsAsJSON() ?>);
+        </script>
 
         <div>
-            <?php $this->echoBy("path2"); ?>
-        </div>
-
-        <div class="contents">
-            <div class="row context parent">
-                <label>Id</label>
-                <span class="id caption"></span>
+            <div class="belt">
+                <h1>Part array</h1>
             </div>
 
-            <form method="post">
-                <div class="row">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="">&times;</th>
-                                <th class="">i</th>
-                                <th class="">id</th>
-                                <th class="">type</th>
-                                <th class="">value</th>
-                            </tr>
-                        </thead>
-                        <tbody class="partxs">
-                            <tr>
-                                <td><button type="button" class="id command">&times;</button></td>
-                                <td><a class="i"></a></td>
-                                <td><a class="id caption"></a></td>
-                                <td class="type"></td>
-                                <td><span class="value_string"></span><span class="value_number"></span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="">+</th>
-                                <th class="">type</th>
-                                <th class="add_value_available none">value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="add">
-                                <td><button type="button" name="add">+</button></td>
-                                <td>
-                                    <select class="type" name="type">
-                                        <option value="string">String</option>
-                                        <option value="number">Number</option>
-                                        <option value="object">Object</option>
-                                        <option value="array">Array</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input name="value_string" class="type none h5v" type="text">
-                                    <input name="value_number" class="type none h5v" type="number">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="belt bg-mono-09">
+                <a href="home.php">Home</a>
+                <a href="part-global.php">Part global</a>
+
+                <span class="object">
+                    <a class="type none id object">Parent object</a>
+                </span>
+                <script>
+                    structs.context.parent.extent(".belt .object")
+                        .type.eq("object").thenUntitoggle("none")
+                        .id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                        .id.linkExtra(".object").toHref("part-object.php?id=:id")
+                        .endParent;
+                </script>
+
+                <span class="array">
+                    <a class="type none id array">Parent array</a>
+                </span>
+                <script>
+                    structs.context.parent.extent(".belt .array")
+                        .type.eq("array").thenUntitoggle("none")
+                        .id.linkExtra(".part").toHref("part.php?parent_id=:id")
+                        .id.linkExtra(".array").toHref("part-array.php?id=:id")
+                        .endParent;
+                </script>
+            </div>
+
+            <div>
+                <?php $this->echoBy("path2"); ?>
+            </div>
+            <script>
+                structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
+            </script>
+
+            <div class="contents">
+                <div class="row context parent">
+                    <label>Id</label>
+                    <span class="id caption"></span>
                 </div>
-            </form>
-            <div class="row context parent">
-                <a class="id add_item">Add an item</a>
-            </div>
+                <script>
+                    structs.context.extent(".caption").id.toText().endContext;
+                </script>
 
-        </div>
-        <div id="snackbar"></div>
-    </div>
-    <script>
-        window.onload = function() {
-            Global.snackbar("#snackbar");
+                <form method="post">
+                    <div class="row">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="">&times;</th>
+                                    <th class="">i</th>
+                                    <th class="">id</th>
+                                    <th class="">type</th>
+                                    <th class="">value</th>
+                                </tr>
+                            </thead>
+                            <tbody class="partxs">
+                                <tr>
+                                    <td><button type="button" class="id command">&times;</button></td>
+                                    <td><a class="i"></a></td>
+                                    <td><a class="id caption"></a></td>
+                                    <td class="type"></td>
+                                    <td><span class="value_string"></span><span class="value_number"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <script>
+                            structs.partxs.each(function(element) {
 
-            var booq;
-            (booq = new Booq(<?= $this->structsAsJSON() ?>))
-            .context
-                .id.linkExtra(".caption").toText()
-                .parent
-                .id.linkExtra(".object").toHref("part-object.php?id=:parent_id")
-                .id.linkExtra(".array").toHref("part-array.php?id=:parent_id")
-                .id.linkExtra(".add_item").toHref("part.php?parent_id=:id")
-                .type.linkExtra(".object").eq("object").thenUntitoggle("none")
-                .type.linkExtra(".array").eq("array").thenUntitoggle("none")
-                .end // of parent
-                .end // of context
-                //
-                .path_snippet.callFunctionWithThis(pathSnippetBroker)
-                .end // of path_snippet
-
-                .partxs.each(function(element) {
-                    this
-                        .id.linkExtra(".command").toAttr("data-id")
-                        .id.linkExtra(".command").on("click", function(event) {
-                            Global.modal.create({
-                                    body: "id:" + event.target.dataset.id + " を削除してもよろしいですか",
-                                    ok: {
-                                        onclick: function() {
-                                            console.log(booq.data);
-                                            booq.data.status = "";
-                                            booq.data.commands.command = "delete";
-                                            booq.data.commands.delete_id = event.target.dataset.id;
-                                            axios.post("part-array.php", booq.data)
-                                                .then(function(response) {
-                                                    console.log(response.data);
-                                                    booq.data = response.data;
-                                                    // booq.data.message = response.data.message;
-                                                    // if ("" !== booq.data.message) {
-                                                    //     Global.snackbar.messageDiv.classList.add("warning");
-                                                    //     Global.snackbar.maximize();
-                                                    // }
-                                                })
-                                                .catch(Global.catcher(booq.data));
+                                this
+                                    .id.linkExtra(".command").toAttr("data-id")
+                                    .id.linkExtra(".command").on("click", function(event) {
+                                        Global.modal.create({
+                                                body: "id:" + event.target.dataset.id + " を削除してもよろしいですか",
+                                                ok: {
+                                                    onclick: function() {
+                                                        console.log(structs.data);
+                                                        structs.data.status = "";
+                                                        structs.data.commands.command = "delete";
+                                                        structs.data.commands.delete_id = event.target.dataset.id;
+                                                        axios.post("part-array.php", structs.data)
+                                                            .then(function(response) {
+                                                                console.log(response.data);
+                                                                structs.data = response.data;
+                                                                // structs.data.message = response.data.message;
+                                                                // if ("" !== structs.data.message) {
+                                                                //     Global.snackbar.messageDiv.classList.add("warning");
+                                                                //     Global.snackbar.maximize();
+                                                                // }
+                                                            })
+                                                            .catch(Global.catcher(structs.data));
+                                                    }
+                                                }
+                                            })
+                                            .open();
+                                    })
+                                    .linkExtra(" a.id").toHref(function(value) {
+                                        if (value.type === "string" || value.type === "number") {
+                                            return "part.php" +
+                                                "?id=" + value.id;
+                                        } else if (value.type === "array") {
+                                            return "part-array.php" +
+                                                "?id=" + value.id;
+                                        } else if (value.type === "object") {
+                                            return "part-object.php" +
+                                                "?id=" + value.id;
+                                        } else {
+                                            //
                                         }
-                                    }
-                                })
-                                .open();
-                        })
-                        .linkExtra(" a.id").toHref(function(value) {
-                            if (value.type === "string" || value.type === "number") {
-                                return "part.php" +
-                                    "?id=" + value.id;
-                            } else if (value.type === "array") {
-                                return "part-array.php" +
-                                    "?id=" + value.id;
-                            } else if (value.type === "object") {
-                                return "part-object.php" +
-                                    "?id=" + value.id;
-                            } else {
-                                //
-                            }
-                        })
-                        .i.toText()
-                        .id.linkExtra(".caption").toText()
-                        .type.toText()
-                        .value_string.toText()
-                        .value_number.toText();
-                })
-                .add
-                .type.withValue()
-                .type.linkExtra("[name='value_string']").eq("string").thenUntitoggle("none")
-                .type.linkExtra("[name='value_number']").eq("number").thenUntitoggle("none")
-                .value_string.withValue()
-                .value_number.withValue()
-                .on("click", function(event) {
+                                    })
+                                    .i.toText()
+                                    .id.linkExtra(".caption").toText()
+                                    .type.toText()
+                                    .value_string.toText()
+                                    .value_number.toText();
+                            });
+                        </script>
 
-                    if (!Global.snackbarByVlidity(
-                            this.value_string.selector("name") + ", " +
-                            this.value_number.selector("name")
-                        )) return;
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="">+</th>
+                                    <th class="">type</th>
+                                    <th class="add_value_available none">value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="add">
+                                    <td><button type="button" name="add">+</button></td>
+                                    <td>
+                                        <select class="type" name="type">
+                                            <option value="string">String</option>
+                                            <option value="number">Number</option>
+                                            <option value="object">Object</option>
+                                            <option value="array">Array</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input name="value_string" class="type none h5v" type="text">
+                                        <input name="value_number" class="type none h5v" type="number">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <script>
+                            // attrs.add
+                            //     .name.linkPreferred("lower_name").toAttrs()
+                            //     .value_string.linkPreferred("lower_name").toAttrs()
+                            //     .value_number.linkPreferred("lower_name").toAttrs()
+                            //     .setStructureAsData();
 
-                    Global.modal.create({
-                            body: "追加してもよろしいですか",
-                            ok: {
-                                onclick: function() {
-                                    Global.snackbar.close();
-                                    booq.data.status = "";
-                                    booq.data.commands.command = "add";
-                                    axios.post("part-array.php", booq.data)
-                                        .then(function(response) {
-                                            console.log(response.data);
-                                            booq.data = response.data;
+                            structs.add
+                                .type.withValue()
+                                .type.linkExtra("[name='value_string']").eq("string").thenUntitoggle("none")
+                                .type.linkExtra("[name='value_number']").eq("number").thenUntitoggle("none")
+                                .value_string.withValue()
+                                .value_number.withValue()
+                                .on("click", function(event) {
 
-                                            if (!Global.snackbarByViolations(booq.data.context.violations)) return;
+                                    if (!Global.snackbarByVlidity(
+                                            this.value_string.selector("name") + ", " +
+                                            this.value_number.selector("name")
+                                        )) return;
 
-                                            // booq.data.message = response.data.message;
-                                            // if ("" !== booq.data.message) {
-                                            //     Global.snackbar.messageDiv.classList.add("warning");
-                                            //     Global.snackbar.maximize();
-                                            // }
+                                    Global.modal.create({
+                                            body: "追加してもよろしいですか",
+                                            ok: {
+                                                onclick: function() {
+                                                    Global.snackbar.close();
+                                                    structs.data.status = "";
+                                                    structs.data.commands.command = "add";
+                                                    axios.post("part-array.php", structs.data)
+                                                        .then(function(response) {
+                                                            console.log(response.data);
+                                                            structs.data = response.data;
+
+                                                            if (!Global.snackbarByViolations(structs.data.context.violations)) return;
+
+                                                            // structs.data.message = response.data.message;
+                                                            // if ("" !== structs.data.message) {
+                                                            //     Global.snackbar.messageDiv.classList.add("warning");
+                                                            //     Global.snackbar.maximize();
+                                                            // }
+                                                        })
+                                                        .catch(Global.snackbarByCatchFunction());
+                                                }
+                                            }
                                         })
-                                        .catch(Global.snackbarByCatchFunction());
-                                }
-                            }
-                        })
-                        .open();
-                })
-                .end
-                .setData(<?= $this->dataAsJSON() ?>);
+                                        .open();
+                                })
+                                .endAdd;
+                        </script>
+                    </div>
+                </form>
+                <div class="row array-child context parent">
+                    <a class="id">Add an item</a>
+                </div>
+                <script>
+                    structs.extent(".array-child").context.parent
+                        .id.toHref("part.php?parent_id=:id");
+                    structs.extent("");
+                </script>
 
-        };
-    </script>
-</body>
+            </div>
+            <div id="snackbar"></div>
+        </div>
+        <script>
+            window.onload = function() {
+                structs.setData(<?= $this->dataAsJSON() ?>);
+            };
+        </script>
+    </body>
 
-</html>
+    </html>
 <?php
 
 },
 'post application/json' => function () {
     $data = &$this->data;
+    $ctx = &$data['context'];
+    $ctx['violations'] = [];
     $command = $this->data['commands']['command'];
     if ($command === 'delete') {
         $delete_id = $this->data['commands']['delete_id'];
@@ -296,4 +323,4 @@
     $this->data['status'] = 'OK';
 }
 ]);
-?> 
+?>
