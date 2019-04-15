@@ -534,6 +534,10 @@
 
         // Find label for the name
         var name = violation.name;
+        if (!name) {
+          messages.push("violation.name was empty");
+          continue;
+        }
         var labelElm = document.querySelector("label[for='" + name + "'], th." + name + ", th ." + name);
         if (labelElm) {
           message = Global.getMsg("#a-for-b", {
