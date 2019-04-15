@@ -9,7 +9,6 @@
                 'id' => 0,
                 'type' => '',
             ],
-            'violations[]' => '',
         ],
         'partxs[]' => [
             'parts',
@@ -258,64 +257,63 @@
                                     </td>
                                 </tr>
                             </tbody>
-                            <script>
-                                attrs.add
-                                    .name.linkPreferred("lower_name").toAttrs()
-                                    .value_string.linkPreferred("lower_name").toAttrs()
-                                    .value_number.linkPreferred("lower_name").toAttrs()
-                                    .setStructureAsData();
-
-                                structs.add
-                                    .name.withValue()
-                                    .type.withValue()
-                                    .type.linkExtra("[name='value_string']").eq("string").thenUntitoggle("none")
-                                    .type.linkExtra("[name='value_number']").eq("number").thenUntitoggle("none")
-                                    .value_string.withValue()
-                                    .value_number.withValue()
-                                    .on("click", function(event) {
-
-                                        if (!Global.snackbarByVlidity(
-                                                this.name.selector("name") + ", " +
-                                                this.value_string.selector("name") + ", " +
-                                                this.value_number.selector("name")
-                                            )) return;
-
-                                        Global.modal.create({
-                                                body: "追加してもよろしいですか",
-                                                ok: {
-                                                    onclick: function() {
-                                                        Global.snackbar.close();
-                                                        structs.data.status = "";
-                                                        structs.data.commands.command = "add";
-                                                        axios.post("part-object.php", structs.data)
-                                                            .then(function(response) {
-                                                                console.log(response.data);
-                                                                structs.data = response.data;
-
-                                                                if (!Global.snackbarByViolations(structs.data.context.violations)) return;
-
-                                                                // structs.data.message = response.data.message;
-                                                                // if ("" !== structs.data.message) {
-                                                                //     Global.snackbar.messageDiv.classList.add("warning");
-                                                                //     Global.snackbar.maximize();
-                                                                // }
-                                                            })
-                                                            .catch(Global.snackbarByCatchFunction());
-                                                    }
-                                                }
-                                            })
-                                            .open();
-                                    })
-                            </script>
-
                         </table>
+                        <script>
+                            attrs.add
+                                .name.linkPreferred("lower_name").toAttrs()
+                                .value_string.linkPreferred("lower_name").toAttrs()
+                                .value_number.linkPreferred("lower_name").toAttrs()
+                                .setStructureAsData();
+
+                            structs.add
+                                .name.withValue()
+                                .type.withValue()
+                                .type.linkExtra("[name='value_string']").eq("string").thenUntitoggle("none")
+                                .type.linkExtra("[name='value_number']").eq("number").thenUntitoggle("none")
+                                .value_string.withValue()
+                                .value_number.withValue()
+                                .on("click", function(event) {
+
+                                    if (!Global.snackbarByVlidity(
+                                            this.name.selector("name") + ", " +
+                                            this.value_string.selector("name") + ", " +
+                                            this.value_number.selector("name")
+                                        )) return;
+
+                                    Global.modal.create({
+                                            body: "追加してもよろしいですか",
+                                            ok: {
+                                                onclick: function() {
+                                                    Global.snackbar.close();
+                                                    structs.data.status = "";
+                                                    structs.data.commands.command = "add";
+                                                    axios.post("part-object.php", structs.data)
+                                                        .then(function(response) {
+                                                            console.log(response.data);
+                                                            structs.data = response.data;
+
+                                                            if (!Global.snackbarByViolations(structs.data.context.violations)) return;
+
+                                                            // structs.data.message = response.data.message;
+                                                            // if ("" !== structs.data.message) {
+                                                            //     Global.snackbar.messageDiv.classList.add("warning");
+                                                            //     Global.snackbar.maximize();
+                                                            // }
+                                                        })
+                                                        .catch(Global.snackbarByCatchFunction());
+                                                }
+                                            }
+                                        })
+                                        .open();
+                                })
+                        </script>
                     </div>
                 </form>
-                <div class="row object-child context parent">
+                <div class="row context object-child">
                     <a class="id">Add a property</a>
                 </div>
                 <script>
-                    structs.extent(".object-child").context.parent
+                    structs.context.extent(".object-child")
                         .id.toHref("part.php?parent_id=:id");
                     structs.extent("");
                 </script>
