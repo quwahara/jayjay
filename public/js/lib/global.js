@@ -145,6 +145,10 @@
       en[key] = "The login attempt succeeded.";
       ja[key] = "ログインに成功しました";
 
+      key = "#ng";
+      en[key] = "NG";
+      ja[key] = "NG";
+
       key = "#ok";
       en[key] = "OK";
       ja[key] = "OK";
@@ -455,6 +459,11 @@
         }
       }
     });
+
+    Global.snackbarByKey = function (key) {
+      Global.snackbar.messageDiv.textContent = Global.getMsg(key);
+      Global.snackbar.maximize();
+    };
 
     Global.snackbarByVlidity = function (src) {
 
