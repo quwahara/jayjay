@@ -30,10 +30,10 @@ parent exists, parent is array, target exists
                 'part'
             ],
             'property' => [
-                'part_object'
+                'part_property'
             ],
             'item' => [
-                'part_array'
+                'part_item'
             ],
         ],
         'id_copy_from' => 0,
@@ -44,7 +44,7 @@ parent exists, parent is array, target exists
                 'part',
             ],
             'property' => [
-                'part_object'
+                'part_property'
             ],
         ],
     ],
@@ -455,12 +455,12 @@ parent exists, parent is array, target exists
         if ($parent['id'] > 0) {
             // property
             if ($parent['type'] === 'object') {
-                $new_part_object = $this->part()->setProperty($part_set['property'], $part);
-                $part['id'] = $new_part_object['child_id'];
+                $new_part_property = $this->part()->setProperty($part_set['property'], $part);
+                $part['id'] = $new_part_property['child_id'];
             } else if ($parent['type'] === 'array') {
                 // item
-                $new_part_array = $this->part()->setItem($part_set['item'], $part);
-                $part['id'] = $new_part_array['child_id'];
+                $new_part_item = $this->part()->setItem($part_set['item'], $part);
+                $part['id'] = $new_part_item['child_id'];
             } else {
                 $ctx['message'] = 'Illegal type for parent.';
             }
@@ -479,12 +479,12 @@ parent exists, parent is array, target exists
         } else if ($parent['id'] > 0) {
             // property
             if ($parent['type'] === 'object') {
-                $new_part_object = $this->part()->addNewProperty($parent['id'], $part_set['property']['name'], $type, $part['value_string'], $part['value_number']);
-                $part['id'] = $new_part_object['child_id'];
+                $new_part_property = $this->part()->addNewProperty($parent['id'], $part_set['property']['name'], $type, $part['value_string'], $part['value_number']);
+                $part['id'] = $new_part_property['child_id'];
             } else if ($parent['type'] === 'array') {
                 // item
-                $new_part_array = $this->part()->addNewItem($parent['id'],  $type, $part['value_string'], $part['value_number']);
-                $part['id'] = $new_part_array['child_id'];
+                $new_part_item = $this->part()->addNewItem($parent['id'],  $type, $part['value_string'], $part['value_number']);
+                $part['id'] = $new_part_item['child_id'];
             } else {
                 $ctx['message'] = 'Illegal type for parent.';
             }

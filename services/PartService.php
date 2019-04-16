@@ -11,11 +11,11 @@ class PartService
     public $po_;
     public $pa_;
 
-    public function init($part, $part_object, $part_array)
+    public function init($part, $part_properties, $part_item)
     {
         $this->p_ = $part;
-        $this->po_ = $part_object;
-        $this->pa_ = $part_array;
+        $this->po_ = $part_properties;
+        $this->pa_ = $part_item;
         return $this;
     }
 
@@ -88,23 +88,23 @@ class PartService
         }
         $results = [
             'part' => $part,
-            'part_objects' => null,
-            'part_arrays' => null
+            'part_properties' => null,
+            'part_items' => null
         ];
         if ($part['type'] === 'object') {
-            $part_objects = $this->findAllPropertiesOrderByName($part['id']);
-            $part_object_results = [];
-            foreach ($part_objects as $part_object) {
-                $part_object_results[$part_object['name']] = $this->findPartAndChildren($part_object['child_id']);
+            $part_propertys = $this->findAllPropertiesOrderByName($part['id']);
+            $part_property_results = [];
+            foreach ($part_propertys as $part_property) {
+                $part_property_results[$part_property['name']] = $this->findPartAndChildren($part_property['child_id']);
             }
-            $results['part_objects'] =  $part_object_results;
+            $results['part_propertys'] =  $part_property_results;
         } else if ($part['type'] === 'array') {
-            $part_arrays = $this->findAllItemsOrderByI($part['id']);
-            $part_array_results = [];
-            foreach ($part_arrays as $part_array) {
-                $part_array_results[$part_array['i']] = $this->findPartAndChildren($part_array['child_id']);
+            $part_items = $this->findAllItemsOrderByI($part['id']);
+            $part_item_results = [];
+            foreach ($part_items as $part_item) {
+                $part_item_results[$part_item['i']] = $this->findPartAndChildren($part_item['child_id']);
             }
-            $results['part_arrays'] = $part_array_results;
+            $results['part_items'] = $part_item_results;
         }
 
         return $results;
@@ -139,44 +139,44 @@ class PartService
 
     public function addPartObject($parent_id, $child_id, $name)
     {
-        $part_object = $this->po_->createStruct();
-        $part_object['parent_id'] = $parent_id;
-        $part_object['child_id'] = $child_id;
-        $part_object['name'] = $name;
+        $part_property = $this->po_->createStruct();
+        $part_property['parent_id'] = $parent_id;
+        $part_property['child_id'] = $child_id;
+        $part_property['name'] = $name;
 
-        $id = $this->po_->attInsert($part_object);
-        $part_object = $this->po_->attFindOneById($id);
+        $id = $this->po_->attInsert($part_property);
+        $part_property = $this->po_->attFindOneById($id);
 
-        return $part_object;
+        return $part_property;
     }
 
-    public function setPartObject($part_object)
+    public function setPartObject($part_property)
     {
-        $id = $this->po_->attUpdateById($part_object);
-        $part_object = $this->po_->attFindOneById($id);
+        $id = $this->po_->attUpdateById($part_property);
+        $part_property = $this->po_->attFindOneById($id);
 
-        return $part_object;
+        return $part_property;
     }
 
     public function addPartArray($parent_id, $child_id)
     {
-        $part_array = $this->pa_->createStruct();
-        $part_array['parent_id'] = $parent_id;
-        $part_array['child_id'] = $child_id;
-        $part_array['i'] = $this->maxI($parent_id) + 1;
+        $part_item = $this->pa_->createStruct();
+        $part_item['parent_id'] = $parent_id;
+        $part_item['child_id'] = $child_id;
+        $part_item['i'] = $this->maxI($parent_id) + 1;
 
-        $id = $this->pa_->attInsert($part_array);
-        $part_array = $this->pa_->attFindOneById($id);
+        $id = $this->pa_->attInsert($part_item);
+        $part_item = $this->pa_->attFindOneById($id);
 
-        return $part_array;
+        return $part_item;
     }
 
-    public function setPartArray($part_array)
+    public function setPartArray($part_item)
     {
-        $id = $this->pa_->attUpdateById($part_array);
-        $part_array = $this->pa_->attFindOneById($id);
+        $id = $this->pa_->attUpdateById($part_item);
+        $part_item = $this->pa_->attFindOneById($id);
 
-        return $part_array;
+        return $part_item;
     }
 
     public function addNewProperty($parent_id, $name, $type, $value_string, $value_number)
@@ -254,7 +254,7 @@ class PartService
      * Clone a part from original
      *
      * @param mixed $parent_id parent_id that is of parent for cloned part. This value must be false that was called by boolvalu() if new part belongs to global.
-     * @param [string] $name Name for property if parent is part_object unless this value is null
+     * @param [string] $name Name for property if parent is part_property unless this value is null
      * @param [array] $original_part_and_children Original for cloning. this value is assumed to be results of findPartAndChildren() method
      * @return integer returns new part id
      */
@@ -278,21 +278,21 @@ class PartService
                 throw new Exception("Parent part was not found for the id:{$parent_id}.");
             }
             if ($parent_part['type'] === 'object') {
-                $new_part_object = $this->addNewProperty($parent_id, $name, $type, $value_string, $value_number);
-                $new_part_id = $new_part_object['child_id'];
+                $new_part_property = $this->addNewProperty($parent_id, $name, $type, $value_string, $value_number);
+                $new_part_id = $new_part_property['child_id'];
             } else if ($parent_part['type'] === 'object') {
-                $new_part_array = $this->addNewItem($parent_id, $type, $value_string, $value_number);
-                $new_part_id = $new_part_array['child_id'];
+                $new_part_item = $this->addNewItem($parent_id, $type, $value_string, $value_number);
+                $new_part_id = $new_part_item['child_id'];
             }
         }
 
         if ($type === 'object') {
-            foreach ($original_part_and_children['part_objects'] as $name => $part_object) {
-                $this->clone($new_part_id, $name, $part_object);
+            foreach ($original_part_and_children['part_propertys'] as $name => $part_property) {
+                $this->clone($new_part_id, $name, $part_property);
             }
         } else if ($type === 'array') {
-            foreach ($original_part_and_children['part_arrays'] as $part_array) {
-                $this->clone($new_part_id, null, $part_array);
+            foreach ($original_part_and_children['part_items'] as $part_item) {
+                $this->clone($new_part_id, null, $part_item);
             }
         }
 
@@ -303,7 +303,7 @@ class PartService
      * Clone a part by part id
      *
      * @param mixed $parent_id parent_id that is of parent for cloned part. This value must be false that was called by boolvalu() if new part belongs to global.
-     * @param mixed $name Name for property if parent is part_object unless this value is null
+     * @param mixed $name Name for property if parent is part_property unless this value is null
      * @param mixed $part_id id of original part
      * @return integer returns new part id
      */
@@ -370,10 +370,10 @@ class PartService
     }
 
     /**
-     * Delete part_array.
+     * Delete part_item.
      * This process goes like:
      * - Delete all array items;
-     * - Delete part_array itself.
+     * - Delete part_item itself.
      * - Delete part itself.
      *
      * @param [type] $parent_id
@@ -457,7 +457,7 @@ class PartService
     public function maxI($parent_id)
     {
         $maxI = $this->pa_->attFetchOne(
-            'select max(i) as i_max from part_arrays '
+            'select max(i) as i_max from part_items '
                 . 'where parent_id = :parent_id ',
             ['parent_id' => $parent_id]
         )['i_max'];
@@ -475,24 +475,24 @@ class PartService
             $set = array_merge($this->po_->createStruct(), $this->pa_->createStruct(), $part);
             $set['i'] = null;
 
-            $part_object = $this->findProperty($targetId);
-            if ($part_object) {
-                $set = array_merge($set, $part_object);
+            $part_property = $this->findProperty($targetId);
+            if ($part_property) {
+                $set = array_merge($set, $part_property);
                 $set['id'] = $targetId;
                 $set['sub_type'] = 'property';
                 array_unshift($points, $set);
-                $targetId = $part_object['parent_id'];
+                $targetId = $part_property['parent_id'];
                 $part = $this->findPart($targetId);
                 continue;
             }
 
-            $part_array = $this->findItem($targetId);
-            if ($part_array) {
-                $set = array_merge($set, $part_array);
+            $part_item = $this->findItem($targetId);
+            if ($part_item) {
+                $set = array_merge($set, $part_item);
                 $set['id'] = $targetId;
                 $set['sub_type'] = 'item';
                 array_unshift($points, $set);
-                $targetId = $part_array['parent_id'];
+                $targetId = $part_item['parent_id'];
                 $part = $this->findPart($targetId);
                 continue;
             }

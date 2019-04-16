@@ -12,11 +12,11 @@
         ],
         'partxs[]' => [
             'parts',
-            'part_arrays',
+            'part_items',
         ],
         'add' => [
             'part',
-            'part_array',
+            'part_item',
         ],
         'commands' => [
             'command' => '',
@@ -37,17 +37,17 @@
 
         $this->data['path_snippet'] = ['paths' => $this->part()->path($ctx['id'])];
 
-        $this->data['partxs'] = $this->dao('parts', ['part_arrays'])->attFetchAll(
+        $this->data['partxs'] = $this->dao('parts', ['part_items'])->attFetchAll(
             'select p.*  '
-                . ', a.parent_id '
-                . ', a.child_id '
-                . ', a.i '
+                . ', i.parent_id '
+                . ', i.child_id '
+                . ', i.i '
                 . 'from parts p '
-                . ' inner join part_arrays a '
-                . '     on p.id = a.child_id '
-                . 'where a.parent_id = :id '
+                . ' inner join part_items i '
+                . '     on p.id = i.child_id '
+                . 'where i.parent_id = :id '
                 . 'order by '
-                . ' a.i '
+                . ' i.i '
                 . ' ',
             ['id' => $ctx['id']]
         );

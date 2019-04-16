@@ -12,11 +12,11 @@
         ],
         'partxs[]' => [
             'parts',
-            'part_objects',
+            'part_properties',
         ],
         'add' => [
             'part',
-            'part_object',
+            'part_property',
         ],
         'commands' => [
             'command' => '',
@@ -26,7 +26,7 @@
     'attrs' => [
         'add' => [
             'part',
-            'part_object',
+            'part_property',
             // 'value_string' => [
             //     'minlength' => 3,
             //     'maxlength' => 5,
@@ -44,31 +44,31 @@
         $ctx = &$this->data['context'];
         $ctx['id'] = $id;
 
-        $this->data['partxs'] = $this->dao('parts', ['part_objects'])->attFetchAll(
+        $this->data['partxs'] = $this->dao('parts', ['part_properties'])->attFetchAll(
             'select p.* '
-                . ', o.parent_id '
-                . ', o.child_id '
-                . ', o.name '
+                . ', r.parent_id '
+                . ', r.child_id '
+                . ', r.name '
                 . 'from parts p '
-                . ' inner join part_objects o '
-                . '     on p.id = o.child_id '
-                . 'where o.parent_id = :id '
+                . ' inner join part_properties r '
+                . '     on p.id = r.child_id '
+                . 'where r.parent_id = :id '
                 . 'order by '
-                . ' o.name '
+                . ' r.name '
                 . ' ',
             ['id' => $ctx['id']]
         );
 
-        if ($part_object = $this->dao('part_object')->attFindOneBy(['child_id' => $ctx['id']])) {
+        if ($part_property = $this->dao('part_property')->attFindOneBy(['child_id' => $ctx['id']])) {
             $ctx['parent'] = [
-                'id' => $part_object['parent_id'],
+                'id' => $part_property['parent_id'],
                 'type' => 'object',
             ];
         }
 
-        if ($part_array = $this->dao('part_array')->attFindOneBy(['child_id' => $ctx['id']])) {
+        if ($part_item = $this->dao('part_item')->attFindOneBy(['child_id' => $ctx['id']])) {
             $ctx['parent'] = [
-                'id' => $part_array['parent_id'],
+                'id' => $part_item['parent_id'],
                 'type' => 'array',
             ];
         }

@@ -541,7 +541,7 @@ class JJ
     {
         if (!$this->part_) {
             $this->part_ = (new PartService())
-                ->init($this->dao('part'), $this->dao('part_object'), $this->dao('part_array'));
+                ->init($this->dao('part'), $this->dao('part_properties'), $this->dao('part_items'));
         }
         return $this->part_;
     }
