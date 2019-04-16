@@ -132,6 +132,66 @@ return [
             ],
         ],
         [
+            'tableName' => 'part_properties',
+            'tableName.singular' => 'part_property',
+            'options' => [],
+            'columns' => [
+                [
+                    'fieldName' => 'id',
+                    'definition' => 'BIGINT NOT NULL AUTO_INCREMENT UNIQUE'
+                ],
+                [
+                    'fieldName' => 'parent_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'child_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'name',
+                    'definition' => 'VARCHAR(50) CHARACTER SET utf8mb4 NOT NULL',
+                    'attr' => [
+                        'required' => '',   // Turns required attribute on
+                        'pattern' => '[A-Za-z_$][A-Za-z_$0-9]*',
+                        'minlength' => 1,
+                        'maxlength' => 60,
+                    ]
+                ],
+            ],
+            'index_definitions' => [
+                'UNIQUE(parent_id, child_id)',
+                'UNIQUE(parent_id, name)',
+            ],
+        ],
+        [
+            'tableName' => 'part_items',
+            'tableName.singular' => 'part_item',
+            'options' => [],
+            'columns' => [
+                [
+                    'fieldName' => 'id',
+                    'definition' => 'BIGINT NOT NULL AUTO_INCREMENT UNIQUE'
+                ],
+                [
+                    'fieldName' => 'parent_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'child_id',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+                [
+                    'fieldName' => 'i',
+                    'definition' => 'BIGINT NOT NULL'
+                ],
+            ],
+            'index_definitions' => [
+                'UNIQUE(parent_id, child_id)',
+                'UNIQUE(parent_id, i)',
+            ],
+        ],
+        [
             'tableName' => 'part_arrays',
             'tableName.singular' => 'part_array',
             'options' => [],
@@ -255,4 +315,3 @@ return [
     //
     ],
 ];
-?>
