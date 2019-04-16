@@ -1,6 +1,6 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'init' => function () {
-        $this->initStructsBy('path2');
+        $this->initStructsBy('path');
     },
     'structs' => [
         'context' => [
@@ -139,7 +139,7 @@
 
 
             <div>
-                <?php $this->echoBy("path2"); ?>
+                <?php $this->echoBy("path"); ?>
             </div>
             <script>
                 structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
@@ -314,8 +314,8 @@
                 </div>
                 <script>
                     structs.context.extent(".object-child")
-                        .id.toHref("part.php?parent_id=:id");
-                    structs.extent("");
+                        .id.toHref("part.php?parent_id=:id")
+                        .endContext;
                 </script>
 
             </div>

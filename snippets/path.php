@@ -1,23 +1,37 @@
-<span class="path-snippet">
+<?php 
+return [
+    'structs' => [
+        'path_snippet' => [
+            'paths[]' => [
+                'part',
+                'sub_type' => '',
+                'part_object',
+                'part_array',
+            ]
+        ],
+    ],
+    'echo' => function () {
+        ?>
+<span class="">
     <a href="part-global.php">(global)</a>
-    <span class="path-snippet-iterator">
+    <span class="path_snippet paths">
         <span>
             <span class="">/</span>
-            <span class="path-snippet-given"></span>
-            <a class="path-snippet-id"></a>
-            <span class="path-snippet-type"></span>
-            <span class="path-snippet-value"></span>
+            <span class="given"></span>
+            <a class="id"></a>
+            <span class="type"></span>
+            <span class="value"></span>
         </span>
     </span>
 </span>
 <script>
-    var brokerPath;
-    if (typeof brokerPath === "undefined") {
-        brokerPath = function(path) {
-            path.link(".path-snippet-iterator").each(function(element) {
+    var pathSnippetBroker;
+    if (typeof pathSnippetBroker === "undefined") {
+        pathSnippetBroker = function(path_snippet) {
+            path_snippet.paths.each(function(element, index) {
                 this
-                    .id.link("a.path-snippet-id").toText()
-                    .link("a.path-snippet-id, a.path-snippet-label").toHref(function(value) {
+                    .id.toText()
+                    .linkExtra(" .id").toHref(function(value) {
                         if (value.type === "object") {
                             return "part-object.php" + "?id=" + value.id;
                         } else if (value.type === "array") {
@@ -26,24 +40,24 @@
                             return "part.php" + "?id=" + value.id;
                         }
                     })
-                    .link(".path-snippet-given").to(function(src, value) {
-                        var family = "";
+                    .linkExtra(" .given").to(function(src, value) {
+                        var given = "";
                         if (value.sub_type === "global") {
-                            family = "";
+                            given = "";
                         } else if (value.sub_type === "property") {
-                            family = "[" + value.name + "]";
+                            given = "[" + value.name + "]";
                         } else if (value.sub_type === "item") {
-                            family = "[" + value.i + "]";
+                            given = "[" + value.i + "]";
                         } else {
                             // unexpected
                         }
                         // "this" is issued element
-                        this.textContent = family;
+                        this.textContent = given;
                     })
-                    .link(".path-snippet-type").to(function(src, value) {
+                    .linkExtra(" .type").to(function(src, value) {
                         this.textContent = value.type;
                     })
-                    .link(".path-snippet-value").to(function(src, value) {
+                    .linkExtra(" .value").to(function(src, value) {
                         var valueValue = "";
                         if (value.type === "object") {
                             valueValue = "";
@@ -62,4 +76,9 @@
             });
         }
     }
-</script> 
+</script>
+<?php
+
+}
+];
+?> 

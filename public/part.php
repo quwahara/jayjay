@@ -13,7 +13,7 @@ parent exists, parent is array, target exists
     */
 
     'init' => function () {
-        $this->initStructsBy('path2');
+        $this->initStructsBy('path');
     },
     'structs' => [
         'context' => [
@@ -178,7 +178,7 @@ parent exists, parent is array, target exists
             </div>
 
             <div>
-                <?php $this->echoBy("path2"); ?>
+                <?php $this->echoBy("path"); ?>
             </div>
             <script>
                 structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
