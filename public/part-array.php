@@ -232,9 +232,9 @@
                         </table>
                         <script>
                             // attrs.add
-                            //     .name.linkPreferred("lower_name").toAttrs()
-                            //     .value_string.linkPreferred("lower_name").toAttrs()
-                            //     .value_number.linkPreferred("lower_name").toAttrs()
+                            //     .name.linkPreferred("down_and_name").toAttrs()
+                            //     .value_string.linkPreferred("down_and_name").toAttrs()
+                            //     .value_number.linkPreferred("down_and_name").toAttrs()
                             //     .setStructureAsData();
 
                             structs.add
