@@ -272,13 +272,11 @@ button.link {
 
 .belt.head {
     padding-top: 1.0rem;
-    padding-left: 1.0rem;
     padding-bottom: 1.0rem;
     margin-bottom: 1.2rem;
 }
 
 .belt.neck {
-    padding-left: 1.0rem;
     padding-bottom: 1.0rem;
 }
 
@@ -395,16 +393,16 @@ body {
 
 .modal-content {
     position: relative;
-    background-color: #fefefe;
+    background-color: hsl(0, 0%, 100%, 1);
     margin: auto;
     padding: 0;
     border: 1px solid #888;
     width: 80%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     -webkit-animation-name: animatetop;
-    -webkit-animation-duration: 0.4s;
+    -webkit-animation-duration: 0.6s;
     animation-name: animatetop;
-    animation-duration: 0.4s
+    animation-duration: 0.6s
 }
 
 /* Add Animation */
@@ -436,33 +434,41 @@ body {
 /* The Close Button */
 
 .modal-close {
-    color: white;
     float: right;
-    font-size: 28px;
+    font-size: 2.0rem;
     font-weight: bold;
+    color: hsl(0, 0%, 40%, 1);
 }
 
 .modal-close:hover,
 .modal-close:focus {
-    color: #000;
+    color: hsl(0, 0%, 10%, 1);
     text-decoration: none;
     cursor: pointer;
 }
 
 .modal-header {
-    padding: 2px 16px;
-    background-color: #5cb85c;
-    color: white;
+    padding-left: 1.0rem;
+    padding-right: 1.0rem;
+    padding-top: 1.0rem;
+    padding-bottom: 1.0rem;
+    margin-bottom: 1.0rem;
+    border-bottom: 1px solid hsl(210, 60%, 60%, 1);
+    box-shadow: 0px 1px 3px hsla(0, 0%, 60%, 1);
 }
 
 .modal-body {
-    padding: 2px 16px;
+    padding-left: 1.0rem;
+    padding-right: 1.0rem;
+    padding-top: 1.0rem;
+    padding-bottom: 1.0rem;
 }
 
 .modal-footer {
-    padding: 2px 16px;
-    background-color: #5cb85c;
-    color: white;
+    padding-left: 1.0rem;
+    padding-right: 1.0rem;
+    padding-top: 1.0rem;
+    padding-bottom: 1.0rem;
 }
 
 /********************************************************************************

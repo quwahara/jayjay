@@ -317,7 +317,7 @@
         m.modal = ph.querySelector("#" + m.opts.id);
 
         m.header = ph.querySelector(".modal-header-content");
-        m.header.innerHTML = m.opts.header || "<h2>" + G.getMsg(m.header.innerHTML) + "</h2>";
+        m.header.innerHTML = m.opts.header || "<h3>" + G.getMsg(m.header.innerHTML) + "</h3>";
 
         m.body = ph.querySelector(".modal-body");
         m.body.innerHTML = m.opts.body || G.getMsg(m.body.innerHTML);
