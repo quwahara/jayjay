@@ -42,6 +42,8 @@
     <html>
 
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" href="data:,">
         <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
@@ -55,11 +57,11 @@
 
     <body>
         <div>
-            <div class="belt">
+            <div class="belt head">
                 <h1>Part global</h1>
             </div>
 
-            <div class="belt bg-mono-09">
+            <div class="belt neck">
                 <a href="home.php">Home</a>
                 <a href="part-global.php">Part global</a>
             </div>

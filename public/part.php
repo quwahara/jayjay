@@ -127,6 +127,8 @@ parent exists, parent is array, target exists
     <html>
 
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" href="data:,">
         <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
@@ -134,7 +136,6 @@ parent exists, parent is array, target exists
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
         <script src="js/booq/booq.js"></script>
         <script src="js/lib/global.js"></script>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title><?= $this->data['context']['title'] ?></title>
     </head>
 
@@ -145,14 +146,14 @@ parent exists, parent is array, target exists
         </script>
 
         <div>
-            <div class="belt context">
+            <div class="belt head">
                 <h1 class="title">Part</h1>
             </div>
             <script>
                 structs.context.title.toText();
             </script>
 
-            <div class="belt bg-mono-09 context parent">
+            <div class="belt neck context parent">
                 <a href="home.php">Home</a>
                 <a href="part-global.php">Part global</a>
 
@@ -177,14 +178,14 @@ parent exists, parent is array, target exists
                 </script>
             </div>
 
-            <div>
-                <?php $this->echoBy("path"); ?>
-            </div>
-            <script>
-                structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
-            </script>
-
             <div class="contents">
+                <div>
+                    <?php $this->echoBy("path"); ?>
+                </div>
+                <script>
+                    structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
+                </script>
+
                 <form method="post">
                     <div class="part_set property">
                         <!-- when exists property -->

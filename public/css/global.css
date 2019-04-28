@@ -1,3 +1,127 @@
+/*
+宣言の順序
+関連するプロパティは下記の順序でグルーピングすること。
+
+1. Positioning（位置関係）
+2. Box model（ボックスモデル）
+3. Typographic（フォント関係）
+4. Visual（見た目）
+
+refs http://kia-king.com/code-guide/#css-syntax
+*/
+
+/* Font origin */
+
+html {
+    font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Meiryo, メイリオ, Osaka, 'MS PGothic', arial, helvetica, sans-serif;
+    /* 10px */
+    /* font-size: 62.5%; */
+    /* 12px */
+    /* font-size: 75.0%; */
+    /* 14px */
+    font-size: 87.5%;
+    /* 16px */
+    /* font-size: 100%; */
+}
+
+@media only screen and (min-width: 768px) {
+    html {
+        /* 10px */
+        /* font-size: 62.5%; */
+        /* 12px */
+        font-size: 75.0%;
+        /* 14px */
+        /* font-size: 87.5%; */
+        /* 16px */
+        /* font-size: 100%; */
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* Grid */
+
+form,
+.row {
+    width: 100%;
+}
+
+.row {
+    padding-bottom: 1.0rem;
+}
+
+.row::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+[class*="col-"] {
+    width: 100%;
+    float: left;
+    padding-right: 1.0rem;
+    /* debug */
+    /* border: 1px solid red; */
+}
+
+@media only screen and (min-width: 768px) {
+
+    /* For desktop: */
+    .col-1 {
+        width: 8.33%;
+    }
+
+    .col-2 {
+        width: 16.66%;
+    }
+
+    .col-3 {
+        width: 25%;
+    }
+
+    .col-4 {
+        width: 33.33%;
+        min-width: 33.33%;
+    }
+
+    .col-5 {
+        width: 41.66%;
+    }
+
+    .col-6 {
+        width: 50%;
+    }
+
+    .col-7 {
+        width: 58.33%;
+    }
+
+    .col-8 {
+        width: 66.66%;
+    }
+
+    .col-9 {
+        width: 75%;
+    }
+
+    .col-10 {
+        width: 83.33%;
+    }
+
+    .col-11 {
+        width: 91.66%;
+    }
+
+    .col-12 {
+        width: 100%;
+    }
+}
+
+/* Utility */
+
 .hidden {
     visibility: hidden !important;
 }
@@ -28,24 +152,11 @@
     text-align: left;
 }
 
+
 .bdr1 {
     border-left: 1px solid #555;
     border-top: 1px solid #555;
     border-right: 1px solid #555;
-}
-
-.pad4 {
-    padding: 4px 8px 4px 8px;
-}
-
-html {
-    font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Meiryo, メイリオ, Osaka, 'MS PGothic', arial, helvetica, sans-serif;
-    /* 10px */
-    /* font-size: 62.5%; */
-    /* 12px */
-    /* font-size: 75.0%; */
-    /* 14px */
-    font-size: 87.5%;
 }
 
 form {
@@ -54,36 +165,9 @@ form {
     padding: 0;
 }
 
-h1 {
-    font-size: 1.6rem;
-}
-
-h2 {
-    font-size: 1.4rem;
-}
-
-h3 {
-    font-size: 1.2rem;
-}
-
-h4 {
-    font-size: 1.1rem;
-}
-
-h5 {
-    font-size: 1.0rem;
-}
-
 input[type='text'].h5v:invalid {
     border: solid 1px red;
     background-color: lightpink;
-}
-
-
-
-html {
-    color: #555;
-    font-size: 62.5%;
 }
 
 button,
@@ -97,39 +181,42 @@ input,
 label,
 select,
 table {
+    min-height: 1px;
+    margin: 0px;
     font-size: 1.0rem;
     letter-spacing: 0.0em;
     line-height: 1.75em;
-    margin: 0px;
-}
-
-label,
-.label {
-    display: inline-block;
-    font-weight: bold;
-    width: 10em;
-    text-align: right;
-    margin-right: 1.0rem;
 }
 
 h1 {
+    font-weight: lighter;
     font-size: 1.6rem;
 }
 
 h2 {
+    font-weight: lighter;
     font-size: 1.4rem;
 }
 
 h3 {
+    font-weight: lighter;
     font-size: 1.2rem;
 }
 
 h4 {
+    font-weight: lighter;
     font-size: 1.1rem;
 }
 
 h5 {
+    font-weight: lighter;
     font-size: 1.0rem;
+}
+
+label,
+.label {
+    display: block;
+    font-weight: bold;
 }
 
 button,
@@ -167,9 +254,6 @@ button.link {
     border: 0;
     padding: 0;
     color: inherit;
-    /* color: black; */
-    /* color: #00f; */
-    /* text-decoration: underline; */
     font: inherit;
 }
 
@@ -181,11 +265,21 @@ button.link {
     content: "\0000a0";
 }
 
-div.belt {
+.belt {
     padding-left: 1.0rem;
     padding-right: 1.0rem;
+}
+
+.belt.head {
     padding-top: 1.0rem;
-    padding-bottom: 0.8rem;
+    padding-left: 1.0rem;
+    padding-bottom: 1.0rem;
+    margin-bottom: 1.2rem;
+}
+
+.belt.neck {
+    padding-left: 1.0rem;
+    padding-bottom: 1.0rem;
 }
 
 .belt.gray {
@@ -225,149 +319,52 @@ div.belt {
     border-bottom: solid 1px hsl(0, 85%, 25%);
 }
 
-.bg-mono-00 {
-    background: hsl(0, 0%, 0%);
-}
-
-/* 00/12 */
-.bg-mono-01 {
-    background: hsl(0, 0%, 8%);
-}
-
-/* 01/12 */
-.bg-mono-02 {
-    background: hsl(0, 0%, 17%);
-}
-
-/* 02/12 */
-.bg-mono-03 {
-    background: hsl(0, 0%, 25%);
-}
-
-/* 03/12 */
-.bg-mono-04 {
-    background: hsl(0, 0%, 33%);
-}
-
-/* 04/12 */
-.bg-mono-05 {
-    background: hsl(0, 0%, 42%);
-}
-
-/* 05/12 */
-.bg-mono-06 {
-    background: hsl(0, 0%, 50%);
-}
-
-/* 06/12 */
-.bg-mono-07 {
-    background: hsl(0, 0%, 58%);
-}
-
-/* 07/12 */
-.bg-mono-08 {
-    background: hsl(0, 0%, 67%);
-}
-
-/* 08/12 */
-.bg-mono-09 {
-    background: hsl(0, 0%, 75%);
-}
-
-/* 09/12 */
-.bg-mono-10 {
-    background: hsl(0, 0%, 83%);
-}
-
-/* 10/12 */
-.bg-mono-11 {
-    background: hsl(0, 0%, 92%);
-}
-
-/* 11/12 */
-.bg-mono-12 {
-    background: hsl(0, 0%, 100%);
-}
-
-/* 12/12 */
-
-.bl-mono-00 {
-    border-bottom: solid 1px hsl(0, 0%, 0%);
-}
-
-/* 00/12 */
-.bl-mono-01 {
-    border-bottom: solid 1px hsl(0, 0%, 8%);
-}
-
-/* 01/12 */
-.bl-mono-02 {
-    border-bottom: solid 1px hsl(0, 0%, 17%);
-}
-
-/* 02/12 */
-.bl-mono-03 {
-    border-bottom: solid 1px hsl(0, 0%, 25%);
-}
-
-/* 03/12 */
-.bl-mono-04 {
-    border-bottom: solid 1px hsl(0, 0%, 33%);
-}
-
-/* 04/12 */
-.bl-mono-05 {
-    border-bottom: solid 1px hsl(0, 0%, 42%);
-}
-
-/* 05/12 */
-.bl-mono-06 {
-    border-bottom: solid 1px hsl(0, 0%, 50%);
-}
-
-/* 06/12 */
-.bl-mono-07 {
-    border-bottom: solid 1px hsl(0, 0%, 58%);
-}
-
-/* 07/12 */
-.bl-mono-08 {
-    border-bottom: solid 1px hsl(0, 0%, 67%);
-}
-
-/* 08/12 */
-.bl-mono-09 {
-    border-bottom: solid 1px hsl(0, 0%, 75%);
-}
-
-/* 09/12 */
-.bl-mono-10 {
-    border-bottom: solid 1px hsl(0, 0%, 83%);
-}
-
-/* 10/12 */
-.bl-mono-11 {
-    border-bottom: solid 1px hsl(0, 0%, 92%);
-}
-
-/* 11/12 */
-.bl-mono-12 {
-    border-bottom: solid 1px hsl(0, 0%, 100%);
-}
-
-/* 12/12 */
-
-div.contents {
+.contents {
     padding-left: 1.0rem;
     padding-top: 1.0rem;
     padding-bottom: 1.0rem;
+    min-height: 600px;
 }
 
-div.row {
-    margin: 0.0rem 1.0rem 1.0rem 0.0rem;
+@media only screen and (min-width: 768px) {
+    .contents {
+        margin-left: 1.0rem;
+        margin-right: 1.0rem;
+        border-radius: 5px;
+    }
 }
 
+/* 
+    Colors
+    ======================================================== */
 
+* {
+    color: hsl(0, 0%, 10%, 1);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+th {
+    color: hsl(0, 0%, 30%, 1);
+}
+
+body {
+    background-color: hsl(0, 0%, 90%, 1);
+}
+
+.head {
+    background-color: hsl(0, 0%, 98%, 1);
+    border-bottom: 4px solid hsl(210, 60%, 60%, 1);
+    box-shadow: 0px 2px 5px hsla(0, 0%, 60%, 1);
+}
+
+.contents {
+    background-color: hsl(0, 0%, 100%, 1);
+    box-shadow: 0px 2px 5px hsla(0, 0%, 60%, 1);
+}
 
 /* The Modal (background) */
 
@@ -480,6 +477,26 @@ div.row {
     transition: top 0.6s ease-in-out;
 }
 
+.snackbar .window-btn-belt {
+    height: 24px;
+    padding-right: 8px;
+    border-bottom: 1px solid #555;
+}
+
+.snackbar .window-btn-belt .window-btn {
+    /* max-height: 24px; */
+    height: 24px;
+    padding-top: 4px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+}
+
 .snackbar .message {
     min-height: 60px;
+}
+
+.snackbar .window-btn,
+.snackbar .message {
+    background-color: hsl(0, 0%, 100%, 1);
 }

@@ -65,6 +65,8 @@
     <html>
 
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" href="data:,">
         <link rel="stylesheet" type="text/css" href="js/lib/node_modules/normalize.css/normalize.css">
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
@@ -72,7 +74,6 @@
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
         <script src="js/booq/booq.js"></script>
         <script src="js/lib/global.js"></script>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Part array</title>
     </head>
 
@@ -83,11 +84,11 @@
         </script>
 
         <div>
-            <div class="belt">
+            <div class="belt head">
                 <h1>Part array</h1>
             </div>
 
-            <div class="belt bg-mono-09">
+            <div class="belt neck">
                 <a href="home.php">Home</a>
                 <a href="part-global.php">Part global</a>
 
@@ -114,14 +115,14 @@
                 </script>
             </div>
 
-            <div>
-                <?php $this->echoBy("path"); ?>
-            </div>
-            <script>
-                structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
-            </script>
-
             <div class="contents">
+                <div>
+                    <?php $this->echoBy("path"); ?>
+                </div>
+                <script>
+                    structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
+                </script>
+
                 <div class="row context parent">
                     <label>Id</label>
                     <span class="id caption"></span>

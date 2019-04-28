@@ -385,15 +385,15 @@
         var self = Global.snackbar;
         self.html = '' +
           '<div class="snackbar">' +
-          '  <div class="window-btn-belt contact text-right" style="height: 20px; padding-right: 8px; border-bottom: 1px solid #555;">' +
+          '  <div class="window-btn-belt contact text-right" style="">' +
           '      <!-- https://fontawesome.com/icons?d=gallery&s=solid&m=free -->' +
-          '      <div class="window-btn min ib bdr1 pad4 none">' +
+          '      <div class="window-btn min ib bdr1 none">' +
           '          <i class="far fa-window-minimize"></i>' +
           '      </div>' +
-          '      <div class="window-btn max ib bdr1 pad4 none">' +
+          '      <div class="window-btn max ib bdr1 none">' +
           '          <i class="far fa-window-maximize"></i>' +
           '      </div>' +
-          '      <div class="window-btn close ib bdr1 pad4 none">' +
+          '      <div class="window-btn close ib bdr1 none">' +
           '          <i class="far fa-window-close"></i>' +
           '      </div>' +
           '  </div>' +
