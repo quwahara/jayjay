@@ -331,7 +331,7 @@ class PartService
             if ($parent_part['type'] === 'object') {
                 $new_part_property = $this->addNewProperty($parent_id, $name, $type, $value_string, $value_number);
                 $new_part_id = $new_part_property['child_id'];
-            } else if ($parent_part['type'] === 'object') {
+            } else if ($parent_part['type'] === 'array') {
                 $new_part_item = $this->addNewItem($parent_id, $type, $value_string, $value_number);
                 $new_part_id = $new_part_item['child_id'];
             }
