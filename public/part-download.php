@@ -1,5 +1,7 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'structs' => [
+        'command' => '',
+        'delete' => '',
         'download' => '',
     ],
     'refreshData' => function () {
@@ -39,6 +41,10 @@
 
             <div class="contents">
                 <form name="form1" method="post">
+                    <input name="command" type="hidden">
+                    <script>
+                        structs.command.withValue();
+                    </script>
                     <div class="row">
                         <div class="col-12">
                             <button name="download" type="button">Download</button>
@@ -49,7 +55,30 @@
                                     body: "ダウンロードを開始してもよろしいですか",
                                     ok: {
                                         onclick: function() {
+                                            structs.data.command = "download";
                                             document.form1.submit();
+                                        }
+                                    }
+                                });
+                            });
+                        </script>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button name="delete" type="button">Delete all part</button>
+                        </div>
+                        <script>
+                            structs.delete.on("click", function() {
+                                Global.modal.showMessage({
+                                    body: "すべてのデータが削除されます。本当によろしいですか",
+                                    ok: {
+                                        onclick: function() {
+                                            structs.data.command = "delete";
+                                            axios.post("part-download.php", structs.data)
+                                                .then(function(response) {
+                                                    structs.data = response.data;
+                                                })
+                                                .catch(Global.catcher(structs.data));
                                         }
                                     }
                                 });
@@ -71,6 +100,13 @@
 'post application/x-www-form-urlencoded' => function () {
     $this->downloadJsonData = $this->part()->dump();
     $this->downloadJsonFilename = 'part_dump.json';
+},
+'post application/json' => function () {
+    if ($this->data['command'] === 'delete') {
+        $this->part()->deleteAll();
+    }
+    $this->refreshData();
+    $this->data['status'] = 'OK';
 },
 ]);
 ?>

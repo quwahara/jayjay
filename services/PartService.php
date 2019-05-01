@@ -441,6 +441,13 @@ class PartService
         return $this->reorderI($parent_id);
     }
 
+    public function deleteAll()
+    {
+        $this->i_->attDeleteBy([]);
+        $this->r_->attDeleteBy([]);
+        $this->p_->attDeleteBy([]);
+    }
+
     public function reorderI($parent_id)
     {
         $part = $this->findPart($parent_id);
