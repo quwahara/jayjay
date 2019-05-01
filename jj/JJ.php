@@ -46,6 +46,7 @@ class JJ
     public $daos;
     public $data;
     public $dispatchKey;
+    public $doResponseJson;
     public $downloadJsonData;
     public $downloadJsonFilename;
     public $loadJsonData;
@@ -171,6 +172,7 @@ class JJ
         $this->loadJsonDone = false;
         $this->responseCode = 200;
 
+        $this->doResponseJson = $this->isJsonRequested();
         $this->dispatchKey = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
 
 
@@ -681,7 +683,7 @@ class JJ
             }
         }
 
-        if ($this->isJsonRequested()) {
+        if ($this->doResponseJson) {
             $this->responseJsonThenExit();
         }
 

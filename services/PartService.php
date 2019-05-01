@@ -119,6 +119,48 @@ class PartService
         return $results;
     }
 
+    public function load($dump)
+    {
+        $randomIdEnabled = $this->i_->randomIdEnabled;
+        $this->i_->setRandomIdEnabled(false);
+        $itemCount = 0;
+        foreach ($dump['part_items'] as $item) {
+            $insertId = $this->i_->attInsert($item);
+            if ($insertId) {
+                ++$itemCount;
+            }
+        }
+        $this->i_->setRandomIdEnabled($randomIdEnabled);
+
+        $randomIdEnabled = $this->r_->randomIdEnabled;
+        $this->r_->setRandomIdEnabled(false);
+        $propertyCount = 0;
+        foreach ($dump['part_properties'] as $property) {
+            $insertId = $this->r_->attInsert($property);
+            if ($insertId) {
+                ++$propertyCount;
+            }
+        }
+        $this->r_->setRandomIdEnabled($randomIdEnabled);
+
+        $randomIdEnabled = $this->p_->randomIdEnabled;
+        $this->p_->setRandomIdEnabled(false);
+        $partCount = 0;
+        foreach ($dump['parts'] as $part) {
+            $insertId = $this->p_->attInsert($part);
+            if ($insertId) {
+                ++$partCount;
+            }
+        }
+        $this->p_->setRandomIdEnabled($randomIdEnabled);
+
+        return [
+            'part' => $partCount,
+            'property' => $propertyCount,
+            'item' => $itemCount,
+        ];
+    }
+
     public function addPart($type, $value_string, $value_number)
     {
         $part = $this->p_->createStruct();

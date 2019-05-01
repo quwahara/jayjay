@@ -1,8 +1,14 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'structs' => [
         'command' => '',
-        'delete' => '',
+        'upload' => '',
         'download' => '',
+        'delete' => '',
+        'results' => [
+            'part' => 0,
+            'property' => 0,
+            'item' => 0,
+        ],
     ],
     'refreshData' => function () {
         return $this;
@@ -23,7 +29,7 @@
         <script src="js/booq/booq.js"></script>
         <script src="js/lib/global.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Download Part dump</title>
+        <title>Part admin</title>
         <script>
             var structs = new Booq(<?= $this->structsAsJSON() ?>);
         </script>
@@ -32,7 +38,7 @@
     <body>
         <div>
             <div class="belt head">
-                <h1>Download Part dump</h1>
+                <h1>Part admin</h1>
             </div>
 
             <div class="belt neck">
@@ -45,6 +51,37 @@
                     <script>
                         structs.command.withValue();
                     </script>
+                    <div class="row">
+                        <div class="col-12">
+                            <input name="file" type="file" accept="application/json,.json">
+                        </div>
+                        <script>
+                        </script>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button name="upload" type="button">Upload</button>
+                        </div>
+                        <script>
+                            structs.upload.on("click", function() {
+                                Global.modal.showMessage({
+                                    body: "アップロードを開始してもよろしいですか",
+                                    ok: {
+                                        onclick: function() {
+                                            var data = new FormData();
+                                            data.append('command', 'upload');
+                                            data.append('file', document.querySelector("[name='file']").files[0]);
+                                            axios.post("part-admin.php", data)
+                                                .then(function(response) {
+                                                    structs.data = response.data;
+                                                })
+                                                .catch(Global.catcher(structs.data));
+                                        }
+                                    }
+                                });
+                            });
+                        </script>
+                    </div>
                     <div class="row">
                         <div class="col-12">
                             <button name="download" type="button">Download</button>
@@ -74,7 +111,7 @@
                                     ok: {
                                         onclick: function() {
                                             structs.data.command = "delete";
-                                            axios.post("part-download.php", structs.data)
+                                            axios.post("part-admin.php", structs.data)
                                                 .then(function(response) {
                                                     structs.data = response.data;
                                                 })
@@ -96,6 +133,27 @@
     </html>
 <?php
 
+},
+'post multipart/form-data' => function () {
+
+    $this->doResponseJson = true;
+
+    $fileError = $_FILES['file']['error'];
+
+    if ($fileError !== UPLOAD_ERR_OK) {
+        $this->data['status'] = 'NG';
+        return;
+    }
+
+    $contents = file_get_contents($_FILES['file']['tmp_name']);
+    if ($contents === FALSE) {
+        $this->data['status'] = 'NG';
+        return;
+    }
+
+    $dump = json_decode($contents, true);
+
+    $this->data['results'] = $this->part()->load($dump);
 },
 'post application/x-www-form-urlencoded' => function () {
     $this->downloadJsonData = $this->part()->dump();
