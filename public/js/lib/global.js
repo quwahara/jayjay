@@ -302,6 +302,9 @@
         '  </div>' +
         '</div>' +
         '',
+      showMessage: function (opts) {
+        return this.create(opts).open();
+      },
       create: function (opts) {
         var G = this.Global;
         var m = {};

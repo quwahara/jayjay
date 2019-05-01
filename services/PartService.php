@@ -8,35 +8,44 @@ use \Exception;
 class PartService
 {
     public $p_;
-    public $po_;
-    public $pa_;
+    public $r_;
+    public $i_;
 
     public function init($part, $part_properties, $part_item)
     {
         $this->p_ = $part;
-        $this->po_ = $part_properties;
-        $this->pa_ = $part_item;
+        $this->r_ = $part_properties;
+        $this->i_ = $part_item;
         return $this;
     }
 
     // public function isObject($parent_id)
     // {
-    //     return !is_null($this->po_->attFindOneBy(['parent_id' => $parent_id]));
+    //     return !is_null($this->r_->attFindOneBy(['parent_id' => $parent_id]));
     // }
 
     // public function isArray($parent_id)
     // {
-    //     return !is_null($this->pa_->attFindOneBy(['parent_id' => $parent_id]));
+    //     return !is_null($this->i_->attFindOneBy(['parent_id' => $parent_id]));
     // }
 
     public function isProperty($child_id)
     {
-        return !is_null($this->po_->attFindOneBy(['child_id' => $child_id]));
+        return !is_null($this->r_->attFindOneBy(['child_id' => $child_id]));
     }
 
     public function isItem($child_id)
     {
-        return !is_null($this->pa_->attFindOneBy(['child_id' => $child_id]));
+        return !is_null($this->i_->attFindOneBy(['child_id' => $child_id]));
+    }
+
+    public function dump()
+    {
+        return [
+            'parts' => $this->p_->attFindAllBy([]),
+            'part_properties' => $this->r_->attFindAllBy([]),
+            'part_items' => $this->i_->attFindAllBy([]),
+        ];
     }
 
     public function findPart($id)
@@ -46,17 +55,17 @@ class PartService
 
     public function findProperty($child_id)
     {
-        return $this->po_->attFindOneBy(['child_id' => $child_id]);
+        return $this->r_->attFindOneBy(['child_id' => $child_id]);
     }
 
     public function findPropertyByParentIdAndName($parent_id, $name)
     {
-        return $this->po_->attFindOneBy(['parent_id' => $parent_id, 'name' => $name]);
+        return $this->r_->attFindOneBy(['parent_id' => $parent_id, 'name' => $name]);
     }
 
     public function findItem($child_id)
     {
-        return $this->pa_->attFindOneBy(['child_id' => $child_id]);
+        return $this->i_->attFindOneBy(['child_id' => $child_id]);
     }
 
     public function findPartSet($id)
@@ -70,14 +79,14 @@ class PartService
 
     public function findAllPropertiesOrderByName($parent_id)
     {
-        $tableName = $this->po_->table['tableName'];
-        return $this->po_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by name", ['parent_id' => $parent_id]);
+        $tableName = $this->r_->table['tableName'];
+        return $this->r_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by name", ['parent_id' => $parent_id]);
     }
 
     public function findAllItemsOrderByI($parent_id)
     {
-        $tableName = $this->pa_->table['tableName'];
-        return $this->pa_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by i", ['parent_id' => $parent_id]);
+        $tableName = $this->i_->table['tableName'];
+        return $this->i_->attFetchAll("select * from {$tableName} where parent_id = :parent_id order by i", ['parent_id' => $parent_id]);
     }
 
     public function findPartAndChildren($id)
@@ -139,42 +148,42 @@ class PartService
 
     public function addPartObject($parent_id, $child_id, $name)
     {
-        $part_property = $this->po_->createStruct();
+        $part_property = $this->r_->createStruct();
         $part_property['parent_id'] = $parent_id;
         $part_property['child_id'] = $child_id;
         $part_property['name'] = $name;
 
-        $id = $this->po_->attInsert($part_property);
-        $part_property = $this->po_->attFindOneById($id);
+        $id = $this->r_->attInsert($part_property);
+        $part_property = $this->r_->attFindOneById($id);
 
         return $part_property;
     }
 
     public function setPartObject($part_property)
     {
-        $id = $this->po_->attUpdateById($part_property);
-        $part_property = $this->po_->attFindOneById($id);
+        $id = $this->r_->attUpdateById($part_property);
+        $part_property = $this->r_->attFindOneById($id);
 
         return $part_property;
     }
 
     public function addPartArray($parent_id, $child_id)
     {
-        $part_item = $this->pa_->createStruct();
+        $part_item = $this->i_->createStruct();
         $part_item['parent_id'] = $parent_id;
         $part_item['child_id'] = $child_id;
         $part_item['i'] = $this->maxI($parent_id) + 1;
 
-        $id = $this->pa_->attInsert($part_item);
-        $part_item = $this->pa_->attFindOneById($id);
+        $id = $this->i_->attInsert($part_item);
+        $part_item = $this->i_->attFindOneById($id);
 
         return $part_item;
     }
 
     public function setPartArray($part_item)
     {
-        $id = $this->pa_->attUpdateById($part_item);
-        $part_item = $this->pa_->attFindOneById($id);
+        $id = $this->i_->attUpdateById($part_item);
+        $part_item = $this->i_->attFindOneById($id);
 
         return $part_item;
     }
@@ -407,7 +416,7 @@ class PartService
         }
 
         // Delete the property in the object.
-        $this->po_->attDeleteBy(['parent_id' => $parent_id, 'child_id' => $child_id]);
+        $this->r_->attDeleteBy(['parent_id' => $parent_id, 'child_id' => $child_id]);
     }
 
     /**
@@ -427,7 +436,7 @@ class PartService
         }
 
         // Delete the item in the array.
-        $this->pa_->attDeleteBy(['parent_id' => $parent_id, 'child_id' => $child_id]);
+        $this->i_->attDeleteBy(['parent_id' => $parent_id, 'child_id' => $child_id]);
 
         return $this->reorderI($parent_id);
     }
@@ -447,7 +456,7 @@ class PartService
         $i = 0;
         foreach ($array as $item) {
             $item['i'] = $i;
-            $this->pa_->attUpdateById($item);
+            $this->i_->attUpdateById($item);
             ++$i;
         }
 
@@ -456,7 +465,7 @@ class PartService
 
     public function maxI($parent_id)
     {
-        $maxI = $this->pa_->attFetchOne(
+        $maxI = $this->i_->attFetchOne(
             'select max(i) as i_max from part_items '
                 . 'where parent_id = :parent_id ',
             ['parent_id' => $parent_id]
@@ -472,7 +481,7 @@ class PartService
         $points = [];
         while ($part) {
 
-            $set = array_merge($this->po_->createStruct(), $this->pa_->createStruct(), $part);
+            $set = array_merge($this->r_->createStruct(), $this->i_->createStruct(), $part);
             $set['i'] = null;
 
             $part_property = $this->findProperty($targetId);

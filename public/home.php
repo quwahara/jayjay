@@ -26,6 +26,7 @@
                 <div><a href="logout.php">Log out</a></div>
                 <div><a href="table-definition.php">Table definition</a></div>
                 <div><a href="part-global.php">Part global</a></div>
+                <div><a href="part-download.php">Part download</a></div>
                 <div><a href="lab.php">Lab</a></div>
                 <div><a href="table-create-and-drop.php">Table create and drop</a></div>
                 <div><a href="-e-forbidden.php">access_denied</a></div>

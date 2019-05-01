@@ -46,6 +46,8 @@ class JJ
     public $daos;
     public $data;
     public $dispatchKey;
+    public $downloadJsonData;
+    public $downloadJsonFilename;
     public $loadJsonData;
     public $loadJsonDone;
     public $mediaType;
@@ -164,8 +166,10 @@ class JJ
 
     public function init()
     {
-        $this->responseCode = 200;
+        $this->downloadJsonData = null;
+        $this->downloadJsonFilename = null;
         $this->loadJsonDone = false;
+        $this->responseCode = 200;
 
         $this->dispatchKey = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
 
@@ -680,6 +684,10 @@ class JJ
         if ($this->isJsonRequested()) {
             $this->responseJsonThenExit();
         }
+
+        if (!is_null($this->downloadJsonFilename)) {
+            $this->downloadJsonThenExit();
+        }
     }
 
     public function redirectThenExit(string $location)
@@ -694,6 +702,16 @@ class JJ
         http_response_code($this->responseCode);
         header("Content-Type: application/json; charset=UTF-8");
         echo $this->json($this->data);
+        exit();
+    }
+
+    public function downloadJsonThenExit()
+    {
+        http_response_code($this->responseCode);
+        header("Content-Type: application/json; charset=UTF-8");
+        header("Content-disposition: attachment; filename={$this->downloadJsonFilename}");
+        echo $this->json($this->downloadJsonData);
+
         exit();
     }
 
