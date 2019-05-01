@@ -841,6 +841,8 @@ class JJ
 }
 
 return (function (array $args) {
+    ob_start();
+
     $jj = (new JJ())->initConfig($args);
     try {
         set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
@@ -860,9 +862,12 @@ return (function (array $args) {
         foreach ($lines as $line) {
             error_log($line);
         }
-        throw $th;
-        // $jj->responseInternalServerErrorThenExit();
+        // throw $th;
+        $jj->responseInternalServerErrorThenExit();
         // error_log(var_export($th, true));
     }
+
+    @ob_end_flush();
+
     return $jj;
 });
