@@ -5,20 +5,103 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use \Exception;
 use \PDO;
-use Services\DAService;
+use \PDOStatement;
 
 class DAObject
 {
+    const DEFAULT_SQL_TRACE = false;
+    const DEFAULT_RANDOM_ID_ENABLED = true;
+
+    /**
+     * I was going to be the range of randomId 
+     * between 1000000000000000000 and 1999999999999999999.
+     * I chose the range to be:
+     *  - Number of digits are as same as +9223372036854775807, and
+     *  - First digit is 1
+     * The +9223372036854775807 is max of 8 bytes.
+     * But I could not select and delete the record with the ids in the range,
+     * if I could insert it.
+     * 
+     * I have narrowed range
+     * between 1000000000001 and 9999999999999.
+     * I could select and delete the record with the id in the range.
+     * 
+     * References for integer data types in databases:
+     * https://dev.mysql.com/doc/refman/8.0/en/integer-types.html
+     * https://www.postgresql.org/docs/11/datatype-numeric.html
+     * https://www.sqlite.org/datatype3.html
+     */
+
+    //                          The number of digits are 13.
+    //                            x123x123x123x
+    const DEFAULT_RANDOM_ID_MIN = 1000000000001;
+    const DEFAULT_RANDOM_ID_MAX = 9999999999999;
+
+    public $sqlTrace;
     public $pdo;
     public $table;
     public $subtables;
+    public $randomIdEnabled;
+    public $randomIdMin;
+    public $randomIdMax;
 
-    public function init(PDO $pdo, array $table, array $subtables = [])
+
+    public static function isNumber($definition)
     {
+        return \preg_match('/^((TINY|MEDIUM|LONG|BIG)?INT(EGER)?|(DEC(IMAL)?|NUMERIC|FIXED|DOUBLE))/i', $definition);
+    }
+
+    public static function parsePDOParamType($definition)
+    {
+        if (\preg_match('/^((VAR)?CHAR|(TINY|MEDIUM|LONG)?TEXT|DOUBLE)/i', $definition)) {
+            return PDO::PARAM_STR;
+        } else if (\preg_match('/^((TINY|MEDIUM|LONG|BIG)?INT(EGER)?|(DEC(IMAL)?|NUMERIC|FIXED))/i', $definition)) {
+            return PDO::PARAM_INT;
+        } else {
+            return null;
+        }
+    }
+
+    public function init(PDO $pdo, array $table, array $subtables = []): self
+    {
+        $this->sqlTrace = self::DEFAULT_SQL_TRACE;
+        $this->randomIdEnabled = self::DEFAULT_RANDOM_ID_ENABLED;
+        $this->randomIdMin = self::DEFAULT_RANDOM_ID_MIN;
+        $this->randomIdMax = self::DEFAULT_RANDOM_ID_MAX;
+
         $this->pdo = $pdo;
         $this->table = $table;
         $this->subtables = $subtables;
         return $this;
+    }
+
+    public function setSqlTrace(bool $sqlTrace): self
+    {
+        $this->sqlTrace = $sqlTrace;
+        return $this;
+    }
+
+    public function setRandomIdEnabled(bool $randomIdEnabled): self
+    {
+        $this->randomIdEnabled = $randomIdEnabled;
+        return $this;
+    }
+
+    public function setRandomIdMin(int $randomIdMin): self
+    {
+        $this->randomIdMin = $randomIdMin;
+        return $this;
+    }
+
+    public function setRandomIdMax(int $randomIdMax): self
+    {
+        $this->randomIdMax = $randomIdMax;
+        return $this;
+    }
+
+    public function randomId(): int
+    {
+        return mt_rand($this->randomIdMin, $this->randomIdMax);
     }
 
     public function getAttrsAll()
@@ -62,7 +145,7 @@ class DAObject
     {
         $struct = [];
         foreach ($this->table['columns'] as $column) {
-            $struct[$column['fieldName']] = DAService::isNumber($column['definition']) ? 0 : '';
+            $struct[$column['fieldName']] = self::isNumber($column['definition']) ? 0 : '';
         }
         return $struct;
     }
@@ -99,7 +182,7 @@ class DAObject
         if (empty($column)) {
             throw new Exception('Undefined column name in the table:' . $name);
         }
-        $pType = DAService::parsePDOParamType($column['definition']);
+        $pType = self::parsePDOParamType($column['definition']);
         if (is_null($pType)) {
             throw new Exception('Unknown column type for the column:' . $name);
         }
@@ -137,14 +220,15 @@ class DAObject
 
     public function findAllBy($nameValueTypes, $fetch_style = PDO::FETCH_ASSOC)
     {
-        $el = PHP_EOL;
-        $sql = "select * from {$this->table['tableName']} where TRUE {$el}";
+        $sql = [];
+
+        $sql[] = "select * from {$this->table['tableName']} where TRUE";
 
         foreach ($nameValueTypes as $nvt) {
-            $sql .= "and {$nvt['name']} = :{$nvt['name']}{$el}";
+            $sql[] = "and {$nvt['name']} = :{$nvt['name']}";
         }
 
-        return $this->fetchAll($sql, $nameValueTypes, $fetch_style);
+        return $this->fetchAll(implode(PHP_EOL,  $sql), $nameValueTypes, $fetch_style);
     }
 
     public function attFetchOne($sql, $nameVsValues, $fetch_style = PDO::FETCH_ASSOC)
@@ -169,11 +253,8 @@ class DAObject
 
     public function fetchAll($sql, $nameValueTypes, $fetch_style = PDO::FETCH_ASSOC)
     {
-        $st = $this->pdo->prepare($sql);
-        foreach ($nameValueTypes as $nvt) {
-            $st->bindValue($nvt['name'], $nvt['value'], $nvt['type']);
-        }
-        $st->execute();
+        $st = $this->execute($sql, $nameValueTypes);
+
         return $st->fetchAll($fetch_style);
     }
 
@@ -184,6 +265,16 @@ class DAObject
 
     public function insert($setNameValueTypes)
     {
+        if ($this->randomIdEnabled) {
+            foreach ($setNameValueTypes as &$nvt) {
+                if ($nvt['name'] === 'id') {
+                    $nvt['value'] = $this->randomId();
+                    break;
+                }
+            }
+            unset($nvt);
+        }
+
         $el = PHP_EOL;
         $sql = "INSERT INTO {$this->table['tableName']} ({$el}";
 
@@ -292,26 +383,18 @@ class DAObject
 
     public function deleteBy($nameValueTypes = null)
     {
-        $el = PHP_EOL;
-        $sql = "DELETE FROM {$this->table['tableName']} {$el}";
+        $sql = [];
 
-        $sql .= "where true{$el}";
+        $sql[] = "DELETE FROM {$this->table['tableName']}";
+
+        $sql[] = "where true";
         if ($nameValueTypes) {
             foreach ($nameValueTypes as $nvt) {
-                $sql .= "and {$nvt['name']} = :{$nvt['name']}{$el}";
+                $sql[] = "and {$nvt['name']} = :{$nvt['name']}";
             }
         }
 
-        $pdo = $this->pdo;
-        $st = $pdo->prepare($sql);
-
-        if ($nameValueTypes) {
-            foreach ($nameValueTypes as $nvt) {
-                $st->bindValue($nvt['name'], $nvt['value'], $nvt['type']);
-            }
-        }
-
-        $st->execute();
+        $this->execute(implode(PHP_EOL,  $sql), $nameValueTypes);
     }
 
     public function createTableDDL(bool $enableIfNotExists = false): string
@@ -352,8 +435,22 @@ class DAObject
         return $s;
     }
 
-    public function execute($sql)
+    public function execute($sql, $nameValueTypes = null): PDOStatement
     {
-        $this->pdo->prepare($sql)->execute();
+        $st = $this->pdo->prepare($sql);
+
+        if ($nameValueTypes) {
+            foreach ($nameValueTypes as $nvt) {
+                $st->bindValue($nvt['name'], $nvt['value'], $nvt['type']);
+            }
+        }
+
+        if ($this->sqlTrace) {
+            error_log($st->queryString);
+        }
+
+        $st->execute();
+
+        return $st;
     }
 }

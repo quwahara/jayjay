@@ -1,7 +1,7 @@
 <?php
 return [
     'debug' => [
-        'enabled' => true,
+        'enabled' => false,
         'debug_variable_name' => '_dbg',
     ],
     // global structs parameters

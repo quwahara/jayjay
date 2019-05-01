@@ -57,7 +57,7 @@ class JJ
     public function initConfig(array $args)
     {
         $this->required_ = [];
-        $this->config_ = array_merge_recursive(
+        $this->config_ = array_replace_recursive(
             require __DIR__ . '/../config/global-default.php',
             require __DIR__ . '/../config/global.php'
         );
@@ -522,7 +522,7 @@ class JJ
             }
             $subtables[] = $subtable;
         }
-        return (new DAObject())->init($this->db()->pdo(), $table, $subtables);
+        return (new DAObject())->init($this->db()->pdo(), $table, $subtables)->setSqlTrace($this->config_['debug']['enabled']);
     }
 
     public function getTableByTableName($tableName)

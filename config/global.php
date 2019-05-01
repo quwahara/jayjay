@@ -1,5 +1,8 @@
 <?php
 return [
+    'debug' => [
+        'enabled' => true,
+    ],
     'db' => [
         'dsn' => 'mysql:host=localhost;dbname=wagaya;charset=utf8mb4',
         'username' => 'php',
