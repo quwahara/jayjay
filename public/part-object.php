@@ -17,6 +17,7 @@
         'add' => [
             'part',
             'part_property',
+            'id_copy_from' => '',
         ],
         'commands' => [
             'command' => '',
@@ -249,11 +250,13 @@
                                             <option value="number">Number</option>
                                             <option value="object">Object</option>
                                             <option value="array">Array</option>
+                                            <option value="copy_from">Copy from</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input name="value_string" class="type none h5v" type="text">
-                                        <input name="value_number" class="type none h5v" type="number">
+                                        <input class="type none h5v" name="value_string" type="text">
+                                        <input class="type none h5v" name="value_number" type="number">
+                                        <input class="type none h5v" name="id_copy_from" type="text">
                                     </td>
                                 </tr>
                             </tbody>
@@ -270,8 +273,10 @@
                                 .type.withValue()
                                 .type.linkExtra("[name='value_string']").eq("string").thenUntitoggle("none")
                                 .type.linkExtra("[name='value_number']").eq("number").thenUntitoggle("none")
+                                .type.linkExtra("[name='id_copy_from']").eq("copy_from").thenUntitoggle("none")
                                 .value_string.withValue()
                                 .value_number.withValue()
+                                .id_copy_from.withValue()
                                 .on("click", function(event) {
 
                                     if (!Global.snackbarByVlidity(
@@ -293,12 +298,6 @@
                                                             structs.data = response.data;
 
                                                             if (!Global.snackbarByViolations(structs.data.context.violations)) return;
-
-                                                            // structs.data.message = response.data.message;
-                                                            // if ("" !== structs.data.message) {
-                                                            //     Global.snackbar.messageDiv.classList.add("warning");
-                                                            //     Global.snackbar.maximize();
-                                                            // }
                                                         })
                                                         .catch(Global.snackbarByCatchFunction());
                                                 }
@@ -319,7 +318,6 @@
                 </script>
 
             </div>
-            <div id="snackbar"></div>
         </div>
         <script>
             window.onload = function() {
@@ -362,11 +360,17 @@
             }
         }
         if (0 === count($violations)) {
-            $this->part()->addNewProperty($parent_id, $propName, $type, $add['value_string'], $add['value_number']);
+            if ($type === 'copy_from') {
+                // copy_from
+                $part['id'] = $this->part()->cloneById($parent_id, $propName, $add['id_copy_from']);
+            } else {
+                $this->part()->addNewProperty($parent_id, $propName, $type, $add['value_string'], $add['value_number']);
+            }
             $add['name'] = '';
             $add['type'] = '';
             $add['value_string'] = '';
             $add['value_number'] = '';
+            $add['id_copy_from'] = '';
         }
         $data['context']['violations'] = $violations;
     }

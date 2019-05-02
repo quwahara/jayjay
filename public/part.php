@@ -36,7 +36,7 @@ parent exists, parent is array, target exists
                 'part_item'
             ],
         ],
-        'id_copy_from' => 0,
+        'id_copy_from' => '',
     ],
     'attrs' => [
         'part_set' => [
