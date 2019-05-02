@@ -144,6 +144,64 @@ class PartService
     }
 
     /**
+     * Get part value. The value contains child values if it has.
+     *
+     * @param int $id
+     * @param array $opts   addPseudoProperty:  Add '___' property if an object has no properties.
+     *                                          It is to prevent to encode to JSON array by json_encode if the array was empty.
+     *                      addObjectId: add id of part if the type of part is object.
+     * @return mixed
+     */
+    public function get(int $id, array $opts = [])
+    {
+        $part = $this->findPart($id);
+        if (is_null($part)) {
+            return null;
+        }
+
+        $opts = array_merge([
+            'addPseudoProperty' => true,
+            'pseudoPropertyName' => '___',
+            'addObjectId' => true,
+            'objectIdName' => '___id',
+        ], $opts);
+
+        if ($part['type'] === 'string') {
+            return $part['value_string'];
+        }
+
+        if ($part['type'] === 'number') {
+            return $part['value_number'];
+        }
+
+        if ($part['type'] === 'object') {
+            $properties = $this->findAllPropertiesOrderByName($part['id']);
+            $object = [];
+            if ($opts['addObjectId']) {
+                $object[$opts['objectIdName']] = $part['id'];
+            }
+            foreach ($properties as $property) {
+                $object[$property['name']] = $this->get($property['child_id']);
+            }
+            if (empty($object) && $opts['addPseudoProperty']) {
+                $object[$opts['pseudoPropertyName']] = null;
+            }
+            return $object;
+        }
+
+        if ($part['type'] === 'array') {
+            $items = $this->findAllItemsOrderByI($part['id']);
+            $array = [];
+            foreach ($items as $item) {
+                $array[$item['i']] = $this->get($item['child_id']);
+            }
+            return $array;
+        }
+
+        throw new Exception("The type is invalid. type:{$part['type']}");
+    }
+
+    /**
      * Query part and its children if it has by path
      * 
      * Example: '#123456/name/[3]'
