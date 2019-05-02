@@ -7,8 +7,11 @@ use \Exception;
 
 class PartService
 {
+    /** parts DAObject */
     public $p_;
+    /** part_properties DAObject */
     public $r_;
+    /** part_items DAObject */
     public $i_;
 
     public function init($part, $part_properties, $part_item)
@@ -68,6 +71,11 @@ class PartService
         return $this->i_->attFindOneBy(['child_id' => $child_id]);
     }
 
+    public function findItemByParentIdAndI($parent_id, $i)
+    {
+        return $this->i_->attFindOneBy(['parent_id' => $parent_id, 'i' => $i]);
+    }
+
     public function findPartSet($id)
     {
         return [
@@ -75,6 +83,22 @@ class PartService
             'property' => $this->findProperty($id),
             'item' => $this->findItem($id),
         ];
+    }
+
+    public function findAllGlobals()
+    {
+        return $this->p_->attFetchAll(
+            'select p.* '
+                . 'from parts p '
+                . ' left outer join part_items i '
+                . '     on p.id = i.child_id '
+                . ' left outer join part_properties r '
+                . '     on p.id = r.child_id '
+                . 'where i.child_id is null '
+                . 'and r.child_id is null '
+                . ' ',
+            []
+        );
     }
 
     public function findAllPropertiesOrderByName($parent_id)
@@ -101,12 +125,12 @@ class PartService
             'part_items' => null
         ];
         if ($part['type'] === 'object') {
-            $part_propertys = $this->findAllPropertiesOrderByName($part['id']);
+            $part_properties = $this->findAllPropertiesOrderByName($part['id']);
             $part_property_results = [];
-            foreach ($part_propertys as $part_property) {
+            foreach ($part_properties as $part_property) {
                 $part_property_results[$part_property['name']] = $this->findPartAndChildren($part_property['child_id']);
             }
-            $results['part_propertys'] =  $part_property_results;
+            $results['part_properties'] =  $part_property_results;
         } else if ($part['type'] === 'array') {
             $part_items = $this->findAllItemsOrderByI($part['id']);
             $part_item_results = [];
@@ -117,6 +141,76 @@ class PartService
         }
 
         return $results;
+    }
+
+    /**
+     * Query part and its children if it has by path
+     * 
+     * Example: '#123456/name/[3]'
+     * 
+     * - '/' is delimiter
+     * - '#123456' specifies the id of part
+     * - 'name' specifies the name of property
+     * - '[3]' specifies the index of item
+     *
+     * @param string $path
+     * @return mixed returns array contains part and its children if the query found otherwise null
+     */
+    public function query(string $path)
+    {
+        $ps = explode('/', $path);
+        $parent_id = null;
+
+        foreach ($ps as $p) {
+
+            // query by Id
+            if (preg_match('/\A#[0-9]+\z/u', $p)) {
+
+                $part = $this->findPart(intVal(substr($p, 1)));
+
+                if (is_null($part)) {
+                    return null;
+                }
+
+                $parent_id = $part['id'];
+
+                // query by index of item
+            } else if (preg_match('/\A\[[0-9]+\]\z/u', $p)) {
+
+                if (is_null($parent_id)) {
+                    return null;
+                }
+
+                $item = $this->findItemByParentIdAndI($parent_id, intVal(substr($p, mb_strlen($p) - 2)));
+
+                if (is_null($item)) {
+                    return null;
+                }
+
+                $parent_id = $item['child_id'];
+
+                // query by name of property
+            } else {
+
+                if (is_null($parent_id)) {
+                    return null;
+                }
+
+                $property = $this->findPropertyByParentIdAndName($parent_id, $p);
+
+                if (is_null($property)) {
+                    return null;
+                }
+
+                $parent_id = $property['child_id'];
+            }
+        }
+
+        if (is_null($parent_id)) {
+            return null;
+        }
+
+        return $this->findPartAndChildren($parent_id);
     }
 
     public function load($dump)
@@ -338,7 +432,7 @@ class PartService
         }
 
         if ($type === 'object') {
-            foreach ($original_part_and_children['part_propertys'] as $name => $part_property) {
+            foreach ($original_part_and_children['part_properties'] as $name => $part_property) {
                 $this->clone($new_part_id, $name, $part_property);
             }
         } else if ($type === 'array') {

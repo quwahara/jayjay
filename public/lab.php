@@ -1,13 +1,19 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'structs' => [
-        'object',
-        'commands' => [
-            'register' => ''
-        ]
+        //
     ],
+    'refreshData' => function () {
+        //
+        $x = $this->part()->findAllGlobals();
+        if ($x && count($x) >= 1) {
+            $path = "#{$x[0]['id']}/system/schema";
+            $y = $this->part()->query($path);
+        }
+        $s = '';
+    },
     'get' => function () {
-        $this->data['object']['type'] = 'variable';
-        $this->data['object']['name'] = 'apple';
+        //
+        $this->refreshData();
         ?>
     <html>
 
@@ -37,23 +43,7 @@
             <div class="contents">
                 <form method="post">
                     <div class="row">
-                        <label for="type">Type</label>
-                        <select name="type">
-                            <option value="variable">Variable</option>
-                            <option value="string">String</option>
-                        </select>
-                    </div>
-                    <div class="row">
-                        <label for="name">Name</label>
-                        <input type="text" name="name">
-                    </div>
-                    <div class="row value">
-                        <label for="value">Value</label>
-                        <input type="value" name="value">
-                    </div>
-                    <div class="row">
-                        <div class="label"></div>
-                        <button type="button" name="register">Register</button>
+                        <div class="col-12">xxx</div>
                     </div>
                 </form>
             </div>
@@ -61,46 +51,9 @@
         </div>
         <script>
             window.onload = function() {
-                Global.snackbar("#snackbar");
-
-                var booq = new Booq(<?= $this->structsAsJSON() ?>)
-                    .commands
-                    .register.on("click", function(event) {
-
-                        Global.snackbar.close();
-                        booq.status = "";
-                        axios.post("lab.php", booq.data)
-                            .then(function(response) {
-                                console.log(response.data);
-                                // booq.data.message = response.data.message;
-                                // if ("" !== booq.data.message) {
-                                //     Global.snackbar.messageDiv.classList.add("warning");
-                                //     Global.snackbar.maximize();
-                                // }
-                            })
-                            .catch(Global.catcher(booq));
-                    })
-                    .end
-
-                    .object
-                    .type.withValue()
-                    .type.on("change", function(event) {
-                        // if(event.target.value === "variable") {
-                        //     Booq.q("[name='value']").addClass("hidden");
-                        // }
-                        this.update();
-                    })
-                    .name.withValue()
-                    .setUpdate(function() {
-                        var x = this;
-                        Booq.q(".value").toggleClassByFlag("hidden", this.data.type !== "variable");
-                        // this.type.toggleClassByFlag("hidden", true);
-                    })
-                    .update()
-                    .end;
+                //
 
 
-                booq.data = <?= $this->dataAsJSON() ?>;
             };
         </script>
     </body>
@@ -111,20 +64,7 @@
 },
 'post application/json' => function () {
 
-    $object = $this->data['object'];
-    $objectDao = $this->dao('object');
-    $doUpdate = false;
 
-    if (array_key_exists('id', $object) && intval($object['id']) > 0) {
-        $doUpdate = null !== $objectDao->attFindOneById($object['id']);
-    }
-
-    if ($doUpdate) {
-        $objectDao->attUpdateById($object);
-    } else {
-        unset($object['id']);
-        $this->data['object'] = $objectDao->attFindOneById($objectDao->attInsert($object));
-    }
     $this->data['status'] = 'OK';
 }
 ]);
