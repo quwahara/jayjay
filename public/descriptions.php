@@ -1,27 +1,38 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
     'structs' => [
         //
-        'tables[]' => [
-            'part_properties'
+        'name' => '',
+        'descriptions' => [
+            'columns[]' => [
+                '___id' => '',
+                'name' => '',
+                'type' => '',
+            ],
         ],
     ],
-    'refreshData' => function () {
+    'refreshData' => function ($id) {
         //
-        $globals = $this->part()->findAllGlobals();
-        $schema = null;
-        if ($globals && count($globals) >= 1) {
-            $path = "#{$globals[0]['id']}/system/schema";
-            $schema = $this->part()->query($path);
+        $data = &$this->data;
+        $property = $this->part()->findProperty($id);
+        $data['name'] = $property['name'];
+
+        $table = $this->part()->get($id);
+
+        if (is_null($table)) {
+            throw new Exception("The table was not found. Table:{$property['name']}");
         }
-        $tables = [];
-        if ($schema) {
-            $tables = $this->part()->findAllPropertiesOrderByName($schema['part']['id']);
+
+        if (!array_key_exists('descriptions', $table)) {
+            throw new Exception("The table record was invalid. Table:{$property['name']}");
         }
-        $this->data['tables'] = $tables;
+
+        $data['descriptions'] = $table['descriptions'];
     },
     'get' => function () {
         //
-        $this->refreshData();
+        $id = $this->getRequestAsInt('id', 0);
+        $this->refreshData($id);
+
         ?>
     <html>
 
@@ -35,7 +46,7 @@
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
         <script src="js/booq/booq.js"></script>
         <script src="js/lib/global.js"></script>
-        <title>Schema</title>
+        <title>Descriptions</title>
         <script>
             var structs = new Booq(<?= $this->structsAsJSON() ?>);
         </script>
@@ -44,27 +55,33 @@
     <body>
         <div>
             <div class="belt head">
-                <h1>Schema</h1>
+                <h1><span class="name"></span> <span>descriptions</span></h1>
             </div>
+            <script>
+                structs.name.toText();
+            </script>
 
             <div class="belt neck">
-                <div><a href="home.php">Home</a></div>
+                <a href="home.php">Home</a>
+                <a href="schema.php">Schema</a>
             </div>
 
             <div class="contents">
                 <form method="post">
-                    <div class="tables">
+                    <h2>Columns</h2>
+                    <div class="descriptions columns">
                         <div class="row">
-                            <div class="col-12">
-                                <a class="name child_id"></a>
-                            </div>
+                            <div class="col-2 ___id"></div>
+                            <div class="col-2 name"></div>
+                            <div class="col-2 type"></div>
                         </div>
                     </div>
                     <script>
-                        structs.tables.each(function(element) {
+                        structs.descriptions.columns.each(function(element) {
                             this
+                                .___id.toText()
                                 .name.toText()
-                                .child_id.toHref("descriptions.php?id=:child_id");
+                                .type.toText();
                         });
                     </script>
                 </form>
@@ -72,7 +89,6 @@
         </div>
         <script>
             window.onload = function() {
-                //
                 structs.setData(<?= $this->dataAsJSON() ?>);
             };
         </script>
