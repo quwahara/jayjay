@@ -808,7 +808,7 @@ class JJ
     }
 
 
-    function requireBy2($name)
+    function requireBy($name)
     {
         if (array_key_exists($name, $this->required_)) {
             return $this->required_[$name];
@@ -823,7 +823,7 @@ class JJ
 
     function initStructsBy($name)
     {
-        $required = $this->requireBy2($name);
+        $required = $this->requireBy($name);
         if (!is_null($required)) {
             $this->initStructs($required['structs']);
         }
@@ -832,16 +832,9 @@ class JJ
 
     function echoBy($name)
     {
-        $required = $this->requireBy2($name, $args = []);
+        $required = $this->requireBy($name, $args = []);
         if (!is_null($required)) {
             return call_user_func_array($required['echo']->bindTo($this), $args);
-        }
-    }
-
-    function requireBy($name)
-    {
-        if (array_key_exists($name, $this->config_['requires'])) {
-            require __DIR__ . '/../' . $this->config_['requires'][$name];
         }
     }
 
