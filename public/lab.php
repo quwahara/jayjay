@@ -7,7 +7,6 @@
         $x = $this->part()->findAllGlobals();
         if ($x && count($x) >= 1) {
             $path = "#{$x[0]['id']}/system/schema";
-            $y = $this->part()->query($path);
         }
         $s = '';
     },

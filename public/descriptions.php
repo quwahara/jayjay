@@ -1,4 +1,7 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
+    'init' => function () {
+        //
+    },
     'structs' => [
         //
         'name' => '',

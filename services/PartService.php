@@ -202,7 +202,7 @@ class PartService
     }
 
     /**
-     * Query part and its children if it has by path
+     * Query part, part_properties and part_items that are drawn by path
      * 
      * Example: '#123456/name/[3]'
      * 
@@ -212,9 +212,9 @@ class PartService
      * - '[3]' specifies the index of item
      *
      * @param string $path
-     * @return mixed returns array contains part and its children if the query found otherwise null
+     * @return mixed returns part id if the query was succeded otherwise null
      */
-    public function query(string $path)
+    public function queryId(string $path, array $opts = [])
     {
         $ps = explode('/', $path);
         $parent_id = null;
@@ -268,7 +268,18 @@ class PartService
             return null;
         }
 
-        return $this->findPartAndChildren($parent_id);
+        return $parent_id;
+    }
+
+    public function query(string $path, array $opts = [])
+    {
+        $id = $this->queryId($path, $opts);
+
+        if (is_null($id)) {
+            return null;
+        }
+
+        return $this->get($id);
     }
 
     public function load($dump)

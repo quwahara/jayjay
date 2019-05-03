@@ -8,14 +8,14 @@
     'refreshData' => function () {
         //
         $globals = $this->part()->findAllGlobals();
-        $schema = null;
+        $schemaId = null;
         if ($globals && count($globals) >= 1) {
             $path = "#{$globals[0]['id']}/system/schema";
-            $schema = $this->part()->query($path);
+            $schemaId = $this->part()->queryId($path);
         }
         $tables = [];
-        if ($schema) {
-            $tables = $this->part()->findAllPropertiesOrderByName($schema['part']['id']);
+        if ($schemaId) {
+            $tables = $this->part()->findAllPropertiesOrderByName($schemaId);
         }
         $this->data['tables'] = $tables;
     },
@@ -55,8 +55,14 @@
                 <form method="post">
                     <div class="tables">
                         <div class="row">
-                            <div class="col-12">
-                                <a class="name child_id"></a>
+                            <div class="col-3">
+                                <span class="name"></span>
+                            </div>
+                            <div class="col-3">
+                                <a class="child_id data">Data</a>
+                            </div>
+                            <div class="col-3">
+                                <a class="child_id descriptions">Descriptions</a>
                             </div>
                         </div>
                     </div>
@@ -64,7 +70,8 @@
                         structs.tables.each(function(element) {
                             this
                                 .name.toText()
-                                .child_id.toHref("descriptions.php?id=:child_id");
+                                .child_id.linkExtra(".data").toHref("data.php?id=:child_id")
+                                .child_id.linkExtra(".descriptions").toHref("descriptions.php?id=:child_id");
                         });
                     </script>
                 </form>
