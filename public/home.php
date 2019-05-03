@@ -26,7 +26,6 @@
                 <div><a href="logout.php">Log out</a></div>
                 <div><a href="table-definition.php">Table definition</a></div>
                 <div><a href="part-object.php">Root part</a></div>
-                <div><a href="part-global.php">Part global</a></div>
                 <div><a href="part-admin.php">Part admin</a></div>
                 <div><a href="schema.php">Schema</a></div>
                 <div><a href="lab.php">Lab</a></div>

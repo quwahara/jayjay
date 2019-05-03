@@ -90,7 +90,6 @@
 
             <div class="belt neck">
                 <a href="home.php">Home</a>
-                <a href="part-global.php">Part global</a>
 
                 <span class="object">
                     <a class="type none id object">Parent object</a>
