@@ -757,7 +757,7 @@ class PartService
                 continue;
             }
 
-            $set['sub_type'] = 'global';
+            $set['sub_type'] = 'root';
             array_unshift($points, $set);
             break;
         }

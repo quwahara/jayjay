@@ -16,10 +16,7 @@ return [
         <span class="path_snippet paths">
             <span>
                 <span class="">/</span>
-                <span class="given"></span>
                 <a class="id"></a>
-                <span class="type"></span>
-                <span class="value"></span>
             </span>
         </span>
     </span>
@@ -29,7 +26,22 @@ return [
             pathSnippetBroker = function(path_snippet) {
                 path_snippet.paths.each(function(element, index) {
                     this
-                        .id.toText()
+                        .linkExtra(" .id").to(function(src, value) {
+                            var text = "";
+                            if (value.sub_type === "root") {
+                                text = "(root)";
+                            } else if (value.sub_type === "property") {
+                                text = value.name;
+                            } else if (value.sub_type === "item") {
+                                text = "[" + value.i + "]";
+                            } else {
+                                text = "(" + value.type + ")";
+                            }
+
+                            // "this" is issued element
+                            this.textContent = text;
+                        })
+
                         .linkExtra(" .id").toHref(function(value) {
                             if (value.type === "object") {
                                 return "part-object.php" + "?id=" + value.id;
@@ -38,39 +50,6 @@ return [
                             } else {
                                 return "part.php" + "?id=" + value.id;
                             }
-                        })
-                        .linkExtra(" .given").to(function(src, value) {
-                            var given = "";
-                            if (value.sub_type === "global") {
-                                given = "";
-                            } else if (value.sub_type === "property") {
-                                given = "[" + value.name + "]";
-                            } else if (value.sub_type === "item") {
-                                given = "[" + value.i + "]";
-                            } else {
-                                // unexpected
-                            }
-                            // "this" is issued element
-                            this.textContent = given;
-                        })
-                        .linkExtra(" .type").to(function(src, value) {
-                            this.textContent = value.type;
-                        })
-                        .linkExtra(" .value").to(function(src, value) {
-                            var valueValue = "";
-                            if (value.type === "object") {
-                                valueValue = "";
-                            } else if (value.type === "array") {
-                                valueValue = "";
-                            } else if (value.type === "string") {
-                                valueValue = '"' + value.value_string + '"';
-                            } else if (value.type === "number") {
-                                valueValue = value.value_number;
-                            } else {
-                                // unexpected
-                            }
-                            // "this" is issued element
-                            this.textContent = valueValue;
                         });
                 });
             }
