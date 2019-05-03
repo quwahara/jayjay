@@ -16,7 +16,7 @@ return [
         <span class="path_snippet paths">
             <span>
                 <span class="">/</span>
-                <a class="id"></a>
+                <a class="id" title=""></a>
             </span>
         </span>
     </span>
@@ -41,7 +41,6 @@ return [
                             // "this" is issued element
                             this.textContent = text;
                         })
-
                         .linkExtra(" .id").toHref(function(value) {
                             if (value.type === "object") {
                                 return "part-object.php" + "?id=" + value.id;
@@ -50,7 +49,9 @@ return [
                             } else {
                                 return "part.php" + "?id=" + value.id;
                             }
-                        });
+                        })
+                        .id.toAttr("title")
+                        ;
                 });
             }
         }
