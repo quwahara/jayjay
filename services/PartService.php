@@ -7,6 +7,10 @@ use \Exception;
 
 class PartService
 {
+    const DEFAULT_ROOT_ID = 1;
+
+    public $rootId;
+
     /** parts DAObject */
     public $p_;
     /** part_properties DAObject */
@@ -16,9 +20,16 @@ class PartService
 
     public function init($part, $part_properties, $part_item)
     {
+        $this->rootId = self::DEFAULT_ROOT_ID;
         $this->p_ = $part;
         $this->r_ = $part_properties;
         $this->i_ = $part_item;
+        return $this;
+    }
+
+    public function setRootId(int $rootId): self
+    {
+        $this->rootId = $rootId;
         return $this;
     }
 
@@ -44,8 +55,10 @@ class PartService
 
     public function dump()
     {
+        $sql = "select * from {$this->p_->table['tableName']} where id <> :id";
+
         return [
-            'parts' => $this->p_->attFindAllBy([]),
+            'parts' => $this->p_->attFetchAll($sql, ['id' => $this->rootId]),
             'part_properties' => $this->r_->attFindAllBy([]),
             'part_items' => $this->i_->attFindAllBy([]),
         ];
@@ -141,6 +154,11 @@ class PartService
         }
 
         return $results;
+    }
+
+    public function findRoot()
+    {
+        return $this->findPart($this->rootId);
     }
 
     /**
@@ -348,6 +366,27 @@ class PartService
     {
         $id = $this->p_->attUpdateById($part);
         $part = $this->p_->attFindOneById($id);
+        return $part;
+    }
+
+    public function addRoot()
+    {
+        $part = $this->p_->createStruct();
+
+        $part['id'] = $this->rootId;
+        $part['type'] = 'object';
+        $part['value_string'] = null;
+        $part['value_number'] = null;
+
+        $randomIdEnabled = $this->p_->randomIdEnabled;
+        $this->p_->setRandomIdEnabled(false);
+
+        $id = $this->p_->attInsert($part);
+
+        $this->p_->setRandomIdEnabled($randomIdEnabled);
+
+        $part = $this->p_->attFindOneById($id);
+
         return $part;
     }
 

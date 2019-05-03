@@ -42,6 +42,10 @@
     ],
     'refreshData' => function ($id) {
 
+        if (is_null($id)) {
+            $id = $this->part()->rootId;
+        }
+
         $ctx = &$this->data['context'];
         $ctx['id'] = $id;
 
@@ -84,7 +88,7 @@
         return $this;
     },
     'get' => function () {
-        $this->refreshData($this->getRequest('id', 0));
+        $this->refreshData($this->getRequest('id'));
         ?>
     <html>
 

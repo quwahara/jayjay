@@ -1,9 +1,15 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
+    'init' => function () {
+        $p = $this->part();
+        if (is_null($p->findRoot())) {
+            $p->addRoot();
+        }
+    },
     'structs' => [
         'command' => '',
         'upload' => '',
         'download' => '',
-        'delete' => '',
+        'initialize' => '',
         'results' => [
             'part' => 0,
             'property' => 0,
@@ -102,15 +108,15 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <button name="delete" type="button">Delete all part</button>
+                            <button name="initialize" type="button">Initialize</button>
                         </div>
                         <script>
-                            structs.delete.on("click", function() {
+                            structs.initialize.on("click", function() {
                                 Global.modal.showMessage({
                                     body: "すべてのデータが削除されます。本当によろしいですか",
                                     ok: {
                                         onclick: function() {
-                                            structs.data.command = "delete";
+                                            structs.data.command = "initialize";
                                             axios.post("part-admin.php", structs.data)
                                                 .then(function(response) {
                                                     structs.data = response.data;
@@ -160,8 +166,11 @@
     $this->downloadJsonFilename = 'part_dump.json';
 },
 'post application/json' => function () {
-    if ($this->data['command'] === 'delete') {
-        $this->part()->deleteAll();
+    $p = $this->part();
+
+    if ($this->data['command'] === 'initialize') {
+        $p->deleteAll();
+        $p->addRoot();
     }
     $this->refreshData();
     $this->data['status'] = 'OK';

@@ -547,7 +547,8 @@ class JJ
     {
         if (!$this->part_) {
             $this->part_ = (new PartService())
-                ->init($this->dao('part'), $this->dao('part_properties'), $this->dao('part_items'));
+                ->init($this->dao('part'), $this->dao('part_properties'), $this->dao('part_items'))
+                ->setRootId($this->config_['part']['root_id']);
         }
         return $this->part_;
     }

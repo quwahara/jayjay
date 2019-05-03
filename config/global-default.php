@@ -44,4 +44,7 @@ return [
         'redirect_path' => '-e-internal-server-error.php'
     ],
     'requires' => [],
+    'part' => [
+        'root_id' => 1,
+    ],
 ];
