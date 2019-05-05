@@ -57,6 +57,77 @@ class JJ
     public $structs;
     public $xsrf;
 
+    public function execute(array $args)
+    {
+        ob_start();
+
+        try {
+            set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
+                // error was suppressed with the @-operator
+                if (0 === error_reporting()) {
+                    return false;
+                }
+                throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+            });
+
+            $this->initConfig($args);
+
+            $this->verifyAccess();
+            if ($this->accessAllowed) {
+                $this->init()->dispatch();
+            }
+        } catch (\Throwable $th) {
+            $lines = explode("\n", (string)$th);
+            foreach ($lines as $line) {
+                error_log($line);
+            }
+
+            $this->responseInternalServerErrorThenExit();
+        }
+
+        @ob_end_flush();
+
+        return $this;
+    }
+
+    public function dispatch()
+    {
+        if (isset($this->args[$this->dispatchKey])) {
+            try {
+                $this->beginTransaction();
+                ($this->args[$this->dispatchKey])->bindTo($this, $this)();
+                $this->commit();
+            } catch (\Throwable $th) {
+                try {
+                    $rb = $this->rollBack();
+                    $rbth = null;
+                } catch (\Throwable $th2) {
+                    $rb = false;
+                    $rbth = $th2;
+                    $this->reportThrowable($th2);
+                }
+
+                if (!$rb) {
+                    $this->reportLines(['PDO::rollBack failed']);
+                    if ($rbth) {
+                        $rblines = explode("\n", (string)$rbth);
+                        $this->reportLines($rblines);
+                    }
+                }
+
+                throw $th;
+            }
+        }
+
+        if ($this->doResponseJson) {
+            $this->responseJsonThenExit();
+        }
+
+        if (!is_null($this->downloadJsonFilename)) {
+            $this->downloadJsonThenExit();
+        }
+    }
+
     public function initConfig(array $args)
     {
         $this->required_ = [];
@@ -649,50 +720,6 @@ class JJ
         return '';
     }
 
-    public function dispatch()
-    {
-        if (isset($this->args[$this->dispatchKey])) {
-            try {
-                $this->beginTransaction();
-                ($this->args[$this->dispatchKey])->bindTo($this, $this)();
-                $this->commit();
-            } catch (\Throwable $th) {
-                try {
-                    $rb = $this->rollBack();
-                    $rbth = null;
-                } catch (\Throwable $th2) {
-                    $rb = false;
-                    $rbth = $th2;
-                }
-                $lines = explode("\n", (string)$th);
-                foreach ($lines as $line) {
-                    error_log($line);
-                }
-                $rblines = [];
-                if (!$rb) {
-                    error_log('PDO::rollBack failed');
-                    if ($rbth) {
-                        $rblines = explode("\n", (string)$rbth);
-                        foreach ($rblines as $rbline) {
-                            error_log($rbline);
-                        }
-                    }
-                }
-
-                $this->data = ['debug' => ['lines' => $lines + $rblines]];
-                $this->responseInternalServerErrorThenExit();
-            }
-        }
-
-        if ($this->doResponseJson) {
-            $this->responseJsonThenExit();
-        }
-
-        if (!is_null($this->downloadJsonFilename)) {
-            $this->downloadJsonThenExit();
-        }
-    }
-
     public function redirectThenExit(string $location)
     {
         http_response_code($this->responseCode);
@@ -807,7 +834,6 @@ class JJ
         }
     }
 
-
     function requireBy($name)
     {
         if (array_key_exists($name, $this->required_)) {
@@ -852,36 +878,29 @@ class JJ
         }
         return (substr($haystack, -$length) === $needle);
     }
-}
 
-return (function (array $args) {
-    ob_start();
-
-    $jj = (new JJ())->initConfig($args);
-    try {
-        set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
-            // error was suppressed with the @-operator
-            if (0 === error_reporting()) {
-                return false;
-            }
-            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-        });
-
-        $jj->verifyAccess();
-        if ($jj->accessAllowed) {
-            $jj->init()->dispatch();
-        }
-    } catch (\Throwable $th) {
+    public function reportThrowable(\Throwable $th): self
+    {
         $lines = explode("\n", (string)$th);
+
+        $this->reportLines($lines);
+
+        return $this;
+    }
+
+    public function reportLines(array $lines): self
+    {
         foreach ($lines as $line) {
             error_log($line);
         }
-        // throw $th;
-        $jj->responseInternalServerErrorThenExit();
-        // error_log(var_export($th, true));
+        $this->data = ['debug' => ['lines' => $lines]];
+
+        return $this;
     }
+}
 
-    @ob_end_flush();
-
+return (function (array $args) {
+    $jj = new JJ();
+    $jj->execute($args);
     return $jj;
 });
