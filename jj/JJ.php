@@ -92,10 +92,22 @@ class JJ
 
     public function dispatch()
     {
-        if (isset($this->args[$this->dispatchKey])) {
+        $args = &$this->args;
+
+        if (isset($args[$this->dispatchKey])) {
             try {
                 $this->beginTransaction();
-                ($this->args[$this->dispatchKey])->bindTo($this, $this)();
+
+                if (array_key_exists('before', $args)) {
+                    $this->__call('before', []);
+                }
+
+                $this->__call($this->dispatchKey, []);
+
+                if (array_key_exists('after', $args)) {
+                    $this->__call('after', []);
+                }
+
                 $this->commit();
             } catch (\Throwable $th) {
                 try {
@@ -263,26 +275,13 @@ class JJ
         }
 
         $args = &$this->args;
-        if (array_key_exists('init', $args)) {
-            call_user_func($args['init']->bindTo($this));
-        }
 
         if (array_key_exists('structs', $args)) {
             $this->initStructs($args['structs']);
         }
 
-        if (empty($this->structs)) {
-            // prevent to be array for json_encode
-            $this->structs['___'] = '';
-        }
-
         if (array_key_exists('attrs', $args)) {
             $this->initAttrs($args['attrs']);
-        }
-
-        if (empty($this->attrs)) {
-            // prevent to be array for json_encode
-            $this->attrs['___'] = '';
         }
 
         if ($this->isGet()) {
@@ -299,7 +298,7 @@ class JJ
     public function __call($name, $args)
     {
         if (!array_key_exists($name, $this->args)) {
-            throw new \RuntimeException("Method {$name} does not exist");
+            throw new \RuntimeException("Method {$name} was not found");
         }
         $callable = $this->args[$name];
         if (!is_callable($callable)) {
@@ -614,7 +613,7 @@ class JJ
         return null;
     }
 
-    function part()
+    public function part()
     {
         if (!$this->part_) {
             $this->part_ = (new PartService())
@@ -634,18 +633,32 @@ class JJ
         return $_SERVER['REQUEST_METHOD'] == 'POST';
     }
 
-    function dataAsJSON()
+    public function dataAsJSON()
     {
         return $this->json($this->data);
     }
 
-    function structsAsJSON()
+    public function addPropertyIfEmpty(array &$array)
     {
+        if (empty($array)) {
+            // prevent to be array for json_encode
+            $array['___'] = '';
+        }
+
+        return $array;
+    }
+
+    public function structsAsJSON()
+    {
+        $this->addPropertyIfEmpty($this->structs);
+
         return $this->json($this->structs);
     }
 
-    function attrsAsJSON()
+    public function attrsAsJSON()
     {
+        $this->addPropertyIfEmpty($this->attrs);
+
         return $this->json($this->attrs);
     }
 

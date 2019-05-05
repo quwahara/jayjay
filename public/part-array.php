@@ -1,5 +1,5 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
-    'init' => function () {
+    'before' => function () {
         $this->initStructsBy('path');
     },
     'structs' => [

@@ -1,5 +1,5 @@
 <?php (require __DIR__ . '/../jj/JJ.php')([
-    'init' => function () {
+    'before' => function () {
         $p = $this->part();
         if (is_null($p->findRoot())) {
             $p->addRoot();

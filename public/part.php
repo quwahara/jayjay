@@ -12,7 +12,7 @@ parent exists, parent is array, target exists
 
     */
 
-    'init' => function () {
+    'before' => function () {
         $this->initStructsBy('path');
     },
     'structs' => [
