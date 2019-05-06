@@ -234,8 +234,18 @@ class PartService
      */
     public function queryId(string $path, array $opts = [])
     {
+        if (!is_string($path) || empty($path)) {
+            return null;
+        }
+
         $ps = explode('/', $path);
-        $parent_id = null;
+
+        if (mb_substr($path, 0, 1) === '/') {
+            $parent_id = $this->rootId;
+            array_shift($ps);
+        } else {
+            $parent_id = null;
+        }
 
         foreach ($ps as $p) {
 
