@@ -681,8 +681,8 @@ class JJ
     {
         if ($this->loadJsonDone === false) {
             $this->loadJsonDone = true;
-            $this->loadJsonData = json_decode(file_get_contents('php://input'), true);
-            $this->data = $this->loadJsonData;
+            $this->loadJsonData = file_get_contents('php://input');
+            $this->data = json_decode($this->loadJsonData, true);
         }
         return $this->loadJsonData;
     }
