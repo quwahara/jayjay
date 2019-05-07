@@ -32,6 +32,7 @@
                 <div><a href="table-create-and-drop.php">Table create and drop</a></div>
                 <div><a href="-e-forbidden.php">access_denied</a></div>
                 <div><a href="-e-internal-server-error.php">internal_server_error</a></div>
+                <div><a href="fontawesome.php">Font awesome</a></div>
                 <div><a href="phpinfo.php">PHP Info</a></div>
             </div>
 
