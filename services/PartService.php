@@ -462,6 +462,39 @@ class PartService
         return $this->addPartObject($parent_id, $part['id'], $name);
     }
 
+    public function setPrimitiveValueToProperty($parent_id, $name, $value)
+    {
+        $newPart = $this->putPrimitiveValueToProperty($parent_id, $name, $value);
+
+        if (is_null($newPart)) {
+            throw new Exception("The property was not found.");
+        }
+
+        return $newPart;
+    }
+
+    public function putPrimitiveValueToProperty($parent_id, $name, $value)
+    {
+        $property = $this->findPropertyByParentIdAndName($parent_id, $name);
+
+        if (is_null($property)) {
+            return null;
+        }
+
+        $part = $this->findPart($property['child_id']);
+        if (is_null($part)) {
+            return null;
+        }
+
+        if ($part['type'] === 'string') {
+            $part['value_string'] = $value;
+        } else if ($part['type'] === 'number') {
+            $part['value_number'] = $value;
+        }
+
+        return $this->setPart($part);
+    }
+
     public function setProperty($property, $part)
     {
         $parent_part = $this->findPart($property['parent_id']);
