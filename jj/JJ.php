@@ -169,7 +169,7 @@ class JJ
 
         // Is this access had been logged-in in this session?
         if (!array_key_exists('access', $this->args) || $this->args['access'] !== 'public') {
-            if (!array_key_exists($this->loggedInVarName(), $_SESSION) || !$_SESSION[$this->loggedInVarName()]) {
+            if (!$this->isLoggedIn()) {
                 $_SESSION['redirect_server_vars'] = $_SERVER;
                 header('Location: ' . $this->config_['login']['redirect_path']);
                 $this->accessAllowed = false;
@@ -184,10 +184,11 @@ class JJ
 
     function initXsrf()
     {
-        if (empty($_SESSION['_xsrf'])) {
-            $_SESSION['_xsrf'] = bin2hex(random_bytes(32));
+        $name = $this->config_['xsrf']['session_variable_name'];
+        if (empty($_SESSION[$name])) {
+            $_SESSION[$name] = bin2hex(random_bytes(32));
         }
-        $this->xsrf = $_SESSION['_xsrf'];
+        $this->xsrf = $_SESSION[$name];
         return $this;
     }
 
@@ -490,6 +491,11 @@ class JJ
      */
     function login(array $extras = [])
     {
+        unset($_SESSION[$this->config_['xsrf']['session_variable_name']]);
+        session_regenerate_id(true);
+        $this->initXsrf();
+        setcookie($this->config_['xsrf']['cookie_name'], $this->xsrf);
+
         $_SESSION[$this->loggedInVarName()] = true;
         unset($_SESSION['redirect_server_vars']);
         foreach ($extras as $k => $v) {
@@ -498,8 +504,6 @@ class JJ
         if (count($extras) > 0) {
             $_SESSION['_loggedin_extras'] = implode(',', array_keys($extras));
         }
-
-        setcookie($this->config_['xsrf']['cookie_name'], $this->xsrf);
 
         return $extras;
     }
@@ -529,6 +533,11 @@ class JJ
             unset($_COOKIE[$this->config_['xsrf']['cookie_name']]);
             setcookie($this->config_['xsrf']['cookie_name'], null, -1, '/');
         }
+
+        unset($_SESSION[$this->config_['xsrf']['session_variable_name']]);
+        session_regenerate_id(true);
+        $this->initXsrf();
+        setcookie($this->config_['xsrf']['cookie_name'], $this->xsrf);
 
         return $extras;
     }
