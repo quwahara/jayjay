@@ -17,6 +17,7 @@
         'add' => [
             'part',
             'part_item',
+            'id_copy_from' => '',
         ],
         'commands' => [
             'command' => '',
@@ -221,11 +222,13 @@
                                             <option value="number">Number</option>
                                             <option value="object">Object</option>
                                             <option value="array">Array</option>
+                                            <option value="copy_from">Copy from</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input name="value_string" class="type none h5v" type="text">
-                                        <input name="value_number" class="type none h5v" type="number">
+                                        <input class="type none h5v" name="value_string" type="text">
+                                        <input class="type none h5v" name="value_number" type="number">
+                                        <input class="type none h5v" name="id_copy_from" type="text">
                                     </td>
                                 </tr>
                             </tbody>
@@ -241,8 +244,10 @@
                                 .type.withValue()
                                 .type.linkExtra("[name='value_string']").eq("string").thenUntitoggle("none")
                                 .type.linkExtra("[name='value_number']").eq("number").thenUntitoggle("none")
+                                .type.linkExtra("[name='id_copy_from']").eq("copy_from").thenUntitoggle("none")
                                 .value_string.withValue()
                                 .value_number.withValue()
+                                .id_copy_from.withValue()
                                 .on("click", function(event) {
 
                                     if (!Global.snackbarByVlidity(
@@ -313,12 +318,19 @@
         $this->part()->delete($delete_id);
     } else if ($command === 'add') {
         $add = &$data['add'];
-        $this->part()->addNewItem($data['context']['id'], $add['type'], $add['value_string'], $add['value_number']);
+        $id = $data['context']['id'];
+        $type = $add['type'];
+        if ($type === 'copy_from') {
+            // copy_from
+            $this->part()->cloneById($id, null, $add['id_copy_from']);
+        } else {
+            $this->part()->addNewItem($id, $add['type'], $add['value_string'], $add['value_number']);
+        }
         $add['type'] = '';
         $add['value_string'] = '';
         $add['value_number'] = '';
     }
-    $this->refreshData($data['context']['id']);
+    $this->refreshData($id);
 
     $this->data['status'] = 'OK';
 }

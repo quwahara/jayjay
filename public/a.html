@@ -1,0 +1,38 @@
+<html>
+
+<head>
+  <title>hi</title>
+</head>
+
+<body>
+  <script>
+    window.onload = function () {
+      var tmpl = document.querySelector("#tmpl").firstElementChild;
+      var garden = document.querySelector("#garden");
+      for (var i = 0; i < 4000; ++i) {
+        garden.appendChild(tmpl.cloneNode(true));
+      }
+      document.querySelector("title").textContent = 'x';
+    };
+  </script>
+  <div>
+    hi
+  </div>
+  <div>
+    <button id="b" type="button">generate</button>
+    <input type="text">
+  </div>
+  <div>
+    <div id="tmpl">
+      <div>
+        <input type="checkbox">
+        <input type="text">
+      </div>
+    </div>
+  </div>
+  <div id="garden" style="display: none;">
+
+  </div>
+</body>
+
+</html>
