@@ -8,8 +8,10 @@ use \Exception;
 class PartService
 {
     const DEFAULT_ROOT_ID = 1;
+    const DEFAULT_GET_ID_NAME = '___id';
 
     public $rootId;
+    public $getIdName;
 
     /** parts DAObject */
     public $p_;
@@ -21,6 +23,7 @@ class PartService
     public function init($part, $part_properties, $part_item)
     {
         $this->rootId = self::DEFAULT_ROOT_ID;
+        $this->getIdName = self::DEFAULT_GET_ID_NAME;
         $this->p_ = $part;
         $this->r_ = $part_properties;
         $this->i_ = $part_item;
@@ -30,6 +33,12 @@ class PartService
     public function setRootId(int $rootId): self
     {
         $this->rootId = $rootId;
+        return $this;
+    }
+
+    public function setGetIdName(int $getIdName): self
+    {
+        $this->getIdName = $getIdName;
         return $this;
     }
 
@@ -181,7 +190,7 @@ class PartService
             'addPseudoProperty' => true,
             'pseudoPropertyName' => '___',
             'addObjectId' => true,
-            'objectIdName' => '___id',
+            'objectIdName' => $this->getIdName,
         ], $opts);
 
         if ($part['type'] === 'string') {
