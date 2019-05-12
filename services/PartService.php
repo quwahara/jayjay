@@ -208,7 +208,7 @@ class PartService
                 $object[$opts['objectIdName']] = $part['id'];
             }
             foreach ($properties as $property) {
-                $object[$property['name']] = $this->get($property['child_id']);
+                $object[$property['name']] = $this->get($property['child_id'], $opts);
             }
             if (empty($object) && $opts['addPseudoProperty']) {
                 $object[$opts['pseudoPropertyName']] = null;
@@ -220,7 +220,7 @@ class PartService
             $items = $this->findAllItemsOrderByI($part['id']);
             $array = [];
             foreach ($items as $item) {
-                $array[$item['i']] = $this->get($item['child_id']);
+                $array[$item['i']] = $this->get($item['child_id'], $opts);
             }
             return $array;
         }
@@ -241,7 +241,7 @@ class PartService
      * @param string $path
      * @return mixed returns part id if the query was succeded otherwise null
      */
-    public function queryId(string $path, array $opts = [])
+    public function queryId(string $path)
     {
         if (!is_string($path) || empty($path)) {
             return null;
@@ -310,13 +310,13 @@ class PartService
 
     public function query(string $path, array $opts = [])
     {
-        $id = $this->queryId($path, $opts);
+        $id = $this->queryId($path);
 
         if (is_null($id)) {
             return null;
         }
 
-        return $this->get($id);
+        return $this->get($id, $opts);
     }
 
     public function load($dump)
