@@ -5,6 +5,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use \Exception;
 use \PDO;
+use Services\AssemblyService;
 use Services\DAObject;
 use Services\DAService;
 use Services\DBService;
@@ -27,6 +28,11 @@ function bool_in_ini($var)
  */
 class JJ
 {
+    //
+    // Services
+    //
+
+    public $assembly_;
     public $config_;
     public $dbdec_;
     public $da_;
@@ -55,6 +61,7 @@ class JJ
     public $methods;
     public $responseCode;
     public $structs;
+    public $temps;
     public $xsrf;
 
     public function execute(array $args)
@@ -88,56 +95,6 @@ class JJ
         @ob_end_flush();
 
         return $this;
-    }
-
-    public function dispatch()
-    {
-        $args = &$this->args;
-
-        if (isset($args[$this->dispatchKey])) {
-            try {
-                $this->beginTransaction();
-
-                if (array_key_exists('before', $args)) {
-                    $this->__call('before', []);
-                }
-
-                $this->__call($this->dispatchKey, []);
-
-                if (array_key_exists('after', $args)) {
-                    $this->__call('after', []);
-                }
-
-                $this->commit();
-            } catch (\Throwable $th) {
-                try {
-                    $rb = $this->rollBack();
-                    $rbth = null;
-                } catch (\Throwable $th2) {
-                    $rb = false;
-                    $rbth = $th2;
-                    $this->reportThrowable($th2);
-                }
-
-                if (!$rb) {
-                    $this->reportLines(['PDO::rollBack failed']);
-                    if ($rbth) {
-                        $rblines = explode("\n", (string)$rbth);
-                        $this->reportLines($rblines);
-                    }
-                }
-
-                throw $th;
-            }
-        }
-
-        if ($this->doResponseJson) {
-            $this->responseJsonThenExit();
-        }
-
-        if (!is_null($this->downloadJsonFilename)) {
-            $this->downloadJsonThenExit();
-        }
     }
 
     public function initConfig(array $args)
@@ -209,52 +166,14 @@ class JJ
         return $valid;
     }
 
-    /**
-     * Response forbidden
-     * 
-     * This method exits but never returns.
-     *
-     * @return void
-     */
-    public function responseForbiddenThenExit()
-    {
-        $this->data = null;
-        $this->responseCode = 403;  // Forbidden
-
-        if ($this->isJsonRequested()) {
-            $this->responseJsonThenExit();
-        } else {
-            $this->redirectThenExit($this->config_['access_denied']['redirect_path']);
-        }
-    }
-
-    /**
-     * Response internal server error
-     * 
-     * This method exits but never returns.
-     *
-     * @return void
-     */
-    public function responseInternalServerErrorThenExit()
-    {
-        if (!bool_in_ini(ini_get('display_errors'))) {
-            $this->data = null;
-        }
-        $this->responseCode = 500;  // Internal Server Error
-
-        if ($this->isJsonRequested()) {
-            $this->responseJsonThenExit();
-        } else {
-            $this->redirectThenExit($this->config_['internal_server_error']['redirect_path']);
-        }
-    }
-
     public function init()
     {
         $this->downloadJsonData = null;
         $this->downloadJsonFilename = null;
         $this->loadJsonDone = false;
         $this->responseCode = 200;
+        $this->temps = [];
+
 
         $this->doResponseJson = $this->isJsonRequested();
         $this->dispatchKey = strtolower(trim($_SERVER['REQUEST_METHOD'] . ' ' . $this->getMediaType()));
@@ -294,6 +213,96 @@ class JJ
         }
 
         return $this;
+    }
+
+    public function dispatch()
+    {
+        $args = &$this->args;
+
+        if (isset($args[$this->dispatchKey])) {
+            try {
+                $this->beginTransaction();
+
+                if (array_key_exists('before', $args)) {
+                    $this->__call('before', []);
+                }
+
+                $this->__call($this->dispatchKey, []);
+
+                if (array_key_exists('after', $args)) {
+                    $this->__call('after', []);
+                }
+
+                $this->commit();
+            } catch (\Throwable $th) {
+                try {
+                    $rb = $this->rollBack();
+                    $rbth = null;
+                } catch (\Throwable $th2) {
+                    $rb = false;
+                    $rbth = $th2;
+                    $this->reportThrowable($th2);
+                }
+
+                if (!$rb) {
+                    $this->reportLines(['PDO::rollBack failed']);
+                    if ($rbth) {
+                        $rblines = explode("\n", (string)$rbth);
+                        $this->reportLines($rblines);
+                    }
+                }
+
+                throw $th;
+            }
+        }
+
+        if ($this->doResponseJson) {
+            $this->responseJsonThenExit();
+        }
+
+        if (!is_null($this->downloadJsonFilename)) {
+            $this->downloadJsonThenExit();
+        }
+    }
+
+    /**
+     * Response forbidden
+     * 
+     * This method exits but never returns.
+     *
+     * @return void
+     */
+    public function responseForbiddenThenExit()
+    {
+        $this->data = null;
+        $this->responseCode = 403;  // Forbidden
+
+        if ($this->isJsonRequested()) {
+            $this->responseJsonThenExit();
+        } else {
+            $this->redirectThenExit($this->config_['access_denied']['redirect_path']);
+        }
+    }
+
+    /**
+     * Response internal server error
+     * 
+     * This method exits but never returns.
+     *
+     * @return void
+     */
+    public function responseInternalServerErrorThenExit()
+    {
+        if (!bool_in_ini(ini_get('display_errors'))) {
+            $this->data = null;
+        }
+        $this->responseCode = 500;  // Internal Server Error
+
+        if ($this->isJsonRequested()) {
+            $this->responseJsonThenExit();
+        } else {
+            $this->redirectThenExit($this->config_['internal_server_error']['redirect_path']);
+        }
     }
 
     public function __call($name, $args)
@@ -632,6 +641,15 @@ class JJ
         return $this->part_;
     }
 
+    public function assembly()
+    {
+        if (!$this->assembly_) {
+            $this->assembly_ = (new AssemblyService())
+                ->init($this->part());
+        }
+        return $this->assembly_;
+    }
+
     public function isGet(): bool
     {
         return $_SERVER['REQUEST_METHOD'] == 'GET';
@@ -733,6 +751,53 @@ class JJ
         }
     }
 
+    /**
+     * Get value depends on REQUEST_METHOD
+     *
+     * @param string $key
+     * @param mixed $val
+     * @return mixed
+     */
+    public function getParam(string $key, $val = null)
+    {
+        if ($this->isGet()) {
+            $params = &$_REQUEST;
+        } else if ($this->isPost()) {
+            if ($this->isJsonRequested()) {
+                $params = &$this->data;
+            } else {
+                $params = &$_POST;
+            }
+        } else {
+            throw new Exception("The REQUEST_METHOD:{$_SERVER['REQUEST_METHOD']} was not supported.");
+        };
+
+        if (array_key_exists($key, $params)) {
+            return $params[$key];
+        } else {
+            return $val;
+        }
+    }
+
+    /**
+     * Get value depends on REQUEST_METHOD
+     * Throws exception if value is not supplied
+     *
+     * @param string $key
+     * @param mixed $val
+     * @return mixed 
+     */
+    public function getRequiredParam($key, $val = null)
+    {
+        $value = $this->getParam($key);
+
+        if (is_null($value)) {
+            throw new Exception("The required parameter:{$key} was not supplied.");
+        }
+
+        return $value;
+    }
+
     public function getMediaType()
     {
         if (array_key_exists('CONTENT_TYPE', $_SERVER)) {
@@ -777,8 +842,13 @@ class JJ
                     $violations[] = [
                         'name' => $name,
                         'type' => $type,
-                        'value' => $value,
-                        'violation' => 'required'
+                        'violation' => 'required',
+                        'params' => [
+                            [
+                                'name' => 'value',
+                                'value' => $value,
+                            ],
+                        ],
                     ];
                 }
             }
@@ -792,9 +862,17 @@ class JJ
                     $violations[] = [
                         'name' => $name,
                         'type' => $type,
-                        'value' => $value,
                         'violation' => 'minlength',
-                        'minlength' => $conditions['minlength']
+                        'params' => [
+                            [
+                                'name' => 'value',
+                                'value' => $value,
+                            ],
+                            [
+                                'name' => 'minlength',
+                                'value' => $conditions['minlength'],
+                            ],
+                        ],
                     ];
                 }
             }
@@ -803,9 +881,17 @@ class JJ
                     $violations[] = [
                         'name' => $name,
                         'type' => $type,
-                        'value' => $value,
                         'violation' => 'maxlength',
-                        'maxlength' => $conditions['maxlength']
+                        'params' => [
+                            [
+                                'name' => 'value',
+                                'value' => $value,
+                            ],
+                            [
+                                'name' => 'maxlength',
+                                'value' => $conditions['maxlength'],
+                            ],
+                        ]
                     ];
                 }
             }
@@ -817,8 +903,13 @@ class JJ
                     $violations[] = [
                         'name' => $name,
                         'type' => $type,
-                        'value' => $value,
-                        'violation' => 'required'
+                        'violation' => 'required',
+                        'params' => [
+                            [
+                                'name' => 'value',
+                                'value' => $value,
+                            ],
+                        ],
                     ];
                 }
             }
@@ -832,9 +923,17 @@ class JJ
                         $violations[] = [
                             'name' => $name,
                             'type' => $type,
-                            'value' => $value,
                             'violation' => 'min',
-                            'min' => $conditions['min']
+                            'params' => [
+                                [
+                                    'name' => 'value',
+                                    'value' => $value,
+                                ],
+                                [
+                                    'name' => 'min',
+                                    'value' => $conditions['min'],
+                                ]
+                            ]
                         ];
                     }
                 }
@@ -843,9 +942,17 @@ class JJ
                         $violations[] = [
                             'name' => $name,
                             'type' => $type,
-                            'value' => $value,
                             'violation' => 'max',
-                            'max' => $conditions['max']
+                            'params' => [
+                                [
+                                    'name' => 'value',
+                                    'value' => $value,
+                                ],
+                                [
+                                    'name' => 'max',
+                                    'value' => $conditions['max'],
+                                ],
+                            ]
                         ];
                     }
                 }

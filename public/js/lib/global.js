@@ -185,7 +185,7 @@
     /**
      * Retrieves message and replace placeholer by paramters
      * 
-     * Examples.
+     * Argument examples.
      * 
      * Case 1:
      * Only key, no paramters.
@@ -196,8 +196,13 @@
      * keyText: '#key {"ppp": "vvv"}', params: undefined
      * 
      * Case 3:
-     * Key and argument paramters.
+     * Key and argument paramters also parameters is object.
      * keyText: '#key', params: {"ppp": "vvv"}
+     * 
+     * Case 4:
+     * Key and argument paramters also parameters is object.
+     * keyText: '#key', params: [{"name":"ppp", "value": "vvv"}, {"name":"qqq", "value": "www"}]
+     * 
      */
     G.getMsg = function getMsg(keyText, params) {
       var keyResult = keyRex.exec(keyText);
@@ -230,21 +235,52 @@
         params = {};
       }
 
+      var getParamValue;
+
+      if (isObject(params)) {
+        getParamValue = function (name) {
+          if (name in params) {
+            return params[name];
+          }
+          if (name in inlineParams) {
+            return inlineParams[name];
+          }
+          return "";
+        };
+
+      } else if (isArray(params)) {
+        getParamValue = function (name) {
+
+          for (var i = 0; i < params.length; ++i) {
+            var param = params[i];
+            if (param.name === name) {
+              return param.value;
+            }
+          }
+
+          if (name in inlineParams) {
+            return inlineParams[name];
+          }
+
+          return "";
+        };
+      } else {
+        getParamValue = function (name) {
+          if (name in inlineParams) {
+            return inlineParams[name];
+          }
+          return "";
+        };
+
+      }
+
       // Replace placeholders in the message by params or inline params
       var paramResult;
       paramsRex.lastIndex = 0;
       paramResult = paramsRex.exec(msg);
       while (paramResult) {
         // paramResult[1] is 'aaa' if msg is '{aaa}'.
-        var name = paramResult[1];
-        var value;
-        if (name in params) {
-          value = params[name];
-        } else if (name in inlineParams) {
-          value = inlineParams[name];
-        } else {
-          value = "";
-        }
+        var value = getParamValue(paramResult[1]);
 
         // paramResult[0] is '{aaa}' if msg is '{aaa}'.
         msg = msg.replace(paramResult[0], value);
@@ -542,7 +578,7 @@
       var messages = [];
       for (var i = 0; i < violations.length; ++i) {
         var violation = violations[i];
-        var message = Global.getMsg("#violation-" + violation.violation, violation);
+        var message = Global.getMsg("#violation-" + violation.violation, violation.params);
 
         // Find label for the name
         var name = violation.name;

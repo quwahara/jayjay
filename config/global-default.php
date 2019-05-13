@@ -13,7 +13,11 @@ return [
                 'name' => '',
                 'type' => '',
                 'value' => '',
-                'violation' => ''
+                'violation' => '',
+                'params[]' => [
+                    'name' => '',
+                    'value' => '',
+                ],
             ],
         ],
     ],
