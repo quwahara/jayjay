@@ -575,13 +575,15 @@
 
       if (violations.length === 0) return true;
 
+      var violation, name;
+
       var messages = [];
       for (var i = 0; i < violations.length; ++i) {
-        var violation = violations[i];
+        violation = violations[i];
         var message = Global.getMsg("#violation-" + violation.violation, violation.params);
 
         // Find label for the name
-        var name = violation.name;
+        name = violation.name;
         if (!name) {
           messages.push("violation.name was empty");
           continue;
@@ -603,6 +605,16 @@
 
       Global.snackbar.messageDiv.innerHTML = html;
       Global.snackbar.maximize();
+
+      for (var j = 0; j < violations.length; ++j) {
+        violation = violations[j];
+        name = violation.name;
+
+        var inputElm = document.querySelector("input[name='" + name + "']");
+        if (inputElm) {
+          inputElm.classList.add("invalid");
+        }
+      }
 
       return false;
     };

@@ -330,6 +330,7 @@
         $add['value_string'] = '';
         $add['value_number'] = '';
     }
+    $id = $data['context']['id'];
     $this->refreshData($id);
 
     $this->data['status'] = 'OK';

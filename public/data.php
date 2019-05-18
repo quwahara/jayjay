@@ -88,7 +88,7 @@
                         structs.records.each(function(element, i, value) {
                             console.log(this, element, i, value);
 
-                            this.linkExtra(".row").each(function(element, name, value) {
+                            this.linkExtra(".row").each(function(element, nth, name, value) {
                                 console.log(this, element, name, value);
                                 this.nameToClass();
                                 if (name === '___id') {

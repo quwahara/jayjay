@@ -94,10 +94,37 @@ class AssemblyService
             $struct[$opts['pseudoPropertyName']] = null;
         }
 
+        $violation_set_structs = [];
+        $violation_set_data = [];
+        foreach ($descriptions['columns'] as $col) {
+            $violation_set_structs[$col['name']] = [
+                'violations[]' => [
+                    'type' => '',
+                    'value' => '',
+                    'violation' => '',
+                    'params[]' => [
+                        'name' => '',
+                        'value' => '',
+                    ],
+                    'message' => '',
+                ]
+            ];
+            $violation_set_data[$col['name']] = [
+                'violations' => []
+            ];
+        }
+
+        if (empty($violation_set_structs) && $opts['addPseudoProperty']) {
+            $violation_set_structs[$opts['pseudoPropertyName']] = null;
+            $violation_set_data[$opts['pseudoPropertyName']] = null;
+        }
+
         return [
             'attrs' => $attrs,
             'columns' => $descriptions['columns'],
             'struct' => $struct,
+            'violation_set_structs' => $violation_set_structs,
+            'violation_set_data' => $violation_set_data,
         ];
     }
 }

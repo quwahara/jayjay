@@ -56,7 +56,7 @@
                     <div class="tables">
                         <div class="row">
                             <div class="col-3">
-                                <span class="name"></span>
+                                <span class="name label"></span>
                             </div>
                             <div class="col-3">
                                 <a class="name data">Data</a>
@@ -69,7 +69,7 @@
                     <script>
                         structs.tables.each(function(element) {
                             this
-                                .name.toText()
+                                .name.linkExtra(".label").toText()
                                 .name.linkExtra(".data").toHref("data.php?name=:name")
                                 // .child_id.linkExtra(".data").toHref("data.php?id=:child_id")
                                 .child_id.linkExtra(".descriptions").toHref("descriptions.php?id=:child_id");

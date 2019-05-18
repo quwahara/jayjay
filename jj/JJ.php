@@ -28,6 +28,25 @@ function bool_in_ini($var)
  */
 class JJ
 {
+    public $violationStruct = [
+        'violations[]' => [
+            'type' => '',
+            'value' => '',
+            'violation' => '',
+            'params[]' => [
+                'name' => '',
+                'value' => '',
+            ],
+            'message' => '',
+        ]
+    ];
+
+    public $violationData = [
+        'violations[]' => [
+            //
+        ]
+    ];
+
     //
     // Services
     //
@@ -482,6 +501,9 @@ class JJ
             // create a key-value pair
             // This is going to be merged after this function returns.
             return [$key => $value];
+        } else if ($key === '___') {
+            // This was place holder.
+            return [$key => $value];
         } else {
             throw new Exception('The form of attrs argument was bad.');
         }
@@ -842,13 +864,8 @@ class JJ
                     $violations[] = [
                         'name' => $name,
                         'type' => $type,
-                        'violation' => 'required',
-                        'params' => [
-                            [
-                                'name' => 'value',
-                                'value' => $value,
-                            ],
-                        ],
+                        'value' => $value,
+                        'violation' => 'required'
                     ];
                 }
             }
@@ -862,17 +879,9 @@ class JJ
                     $violations[] = [
                         'name' => $name,
                         'type' => $type,
+                        'value' => $value,
                         'violation' => 'minlength',
-                        'params' => [
-                            [
-                                'name' => 'value',
-                                'value' => $value,
-                            ],
-                            [
-                                'name' => 'minlength',
-                                'value' => $conditions['minlength'],
-                            ],
-                        ],
+                        'minlength' => $conditions['minlength']
                     ];
                 }
             }
@@ -881,17 +890,9 @@ class JJ
                     $violations[] = [
                         'name' => $name,
                         'type' => $type,
+                        'value' => $value,
                         'violation' => 'maxlength',
-                        'params' => [
-                            [
-                                'name' => 'value',
-                                'value' => $value,
-                            ],
-                            [
-                                'name' => 'maxlength',
-                                'value' => $conditions['maxlength'],
-                            ],
-                        ]
+                        'maxlength' => $conditions['maxlength']
                     ];
                 }
             }
@@ -903,13 +904,8 @@ class JJ
                     $violations[] = [
                         'name' => $name,
                         'type' => $type,
-                        'violation' => 'required',
-                        'params' => [
-                            [
-                                'name' => 'value',
-                                'value' => $value,
-                            ],
-                        ],
+                        'value' => $value,
+                        'violation' => 'required'
                     ];
                 }
             }
@@ -923,6 +919,120 @@ class JJ
                         $violations[] = [
                             'name' => $name,
                             'type' => $type,
+                            'value' => $value,
+                            'violation' => 'min',
+                            'min' => $conditions['min']
+                        ];
+                    }
+                }
+                if (array_key_exists('max', $conditions)) {
+                    if ($n > $conditions['max']) {
+                        $violations[] = [
+                            'name' => $name,
+                            'type' => $type,
+                            'value' => $value,
+                            'violation' => 'max',
+                            'max' => $conditions['max']
+                        ];
+                    }
+                }
+            }
+            return $violations;
+        } else {
+            throw new \RuntimeException("Unsupported type: {$type} for validation");
+        }
+    }
+
+    function validate2($type, $value, $conditions): array
+    {
+        $violations = [];
+        if ($type === 'string') {
+            $isEmpty = empty($value);
+            if (array_key_exists('required', $conditions)) {
+                if ($isEmpty) {
+                    $violations[] = [
+                        'type' => $type,
+                        'violation' => 'required',
+                        'params' => [
+                            [
+                                'name' => 'value',
+                                'value' => $value,
+                            ],
+                        ],
+                        'message' => '',
+                    ];
+                }
+            }
+            if (!$isEmpty && !is_string($value)) {
+                throw new \RuntimeException("Type of \$value was not string");
+            }
+            $s = strval($value);
+            $len = mb_strlen($s);
+            if (array_key_exists('minlength', $conditions)) {
+                if ($len < $conditions['minlength']) {
+                    $violations[] = [
+                        'type' => $type,
+                        'violation' => 'minlength',
+                        'params' => [
+                            [
+                                'name' => 'value',
+                                'value' => $value,
+                            ],
+                            [
+                                'name' => 'minlength',
+                                'value' => $conditions['minlength'],
+                            ],
+                        ],
+                        'message' => '',
+                    ];
+                }
+            }
+            if (array_key_exists('maxlength', $conditions)) {
+                if ($len > $conditions['maxlength']) {
+                    $violations[] = [
+                        'type' => $type,
+                        'violation' => 'maxlength',
+                        'params' => [
+                            [
+                                'name' => 'value',
+                                'value' => $value,
+                            ],
+                            [
+                                'name' => 'maxlength',
+                                'value' => $conditions['maxlength'],
+                            ],
+                        ],
+                        'message' => '',
+                    ];
+                }
+            }
+            return $violations;
+        } else if ($type === 'number') {
+            $isNull = is_null($value);
+            if (array_key_exists('required', $conditions)) {
+                if ($isNull) {
+                    $violations[] = [
+                        'type' => $type,
+                        'violation' => 'required',
+                        'params' => [
+                            [
+                                'name' => 'value',
+                                'value' => $value,
+                            ],
+                        ],
+                        'message' => '',
+                    ];
+                }
+            }
+            if (!$isNull && !is_numeric($value)) {
+                throw new \RuntimeException("Type of \$value was not string");
+            }
+            if (!$isNull) {
+                $n = floatval($value);
+                if (array_key_exists('min', $conditions)) {
+                    if ($n < $conditions['min']) {
+                        $violations[] = [
+                            'type' => $type,
                             'violation' => 'min',
                             'params' => [
                                 [
@@ -933,14 +1043,14 @@ class JJ
                                     'name' => 'min',
                                     'value' => $conditions['min'],
                                 ]
-                            ]
+                            ],
+                            'message' => '',
                         ];
                     }
                 }
                 if (array_key_exists('max', $conditions)) {
                     if ($n > $conditions['max']) {
                         $violations[] = [
-                            'name' => $name,
                             'type' => $type,
                             'violation' => 'max',
                             'params' => [
@@ -952,7 +1062,8 @@ class JJ
                                     'name' => 'max',
                                     'value' => $conditions['max'],
                                 ],
-                            ]
+                            ],
+                            'message' => '',
                         ];
                     }
                 }

@@ -18,6 +18,7 @@ return [
                     'name' => '',
                     'value' => '',
                 ],
+                'message' => '',
             ],
         ],
     ],
