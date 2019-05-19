@@ -15,7 +15,6 @@
         $this->initAttrs($acs['attrs']);
 
         $this->initStructs([
-            'name' => '',
             'columns[]' => [
                 'name' => '',
                 'type' => '',
@@ -31,12 +30,22 @@
     },
     'structs' => [
         //
+        'head' => [
+            'name' => '',
+        ],
+        'neck' => [
+            'to_data' => '',
+        ],
     ],
     'refreshData' => function ($id) {
         //
         $data = &$this->data;
+        $temps = &$this->temps;
 
         $data['context']['violation_set'] = [];
+
+        $data['head']['name'] = $temps['name'];
+        $data['neck']['to_data'] = $temps['name'];
 
         $record = $this->part()->get($id);
         if (is_null($record)) {
@@ -80,15 +89,15 @@
                 <h1><span class="name"></span> <span>data</span></h1>
             </div>
             <script>
-                structs.extent(".head").name.toText().end;
+                structs.head.name.toText().end;
             </script>
 
             <div class="belt neck">
                 <a href="home.php">Home</a>
                 <a href="schema.php">Schema</a>
-                <a class="name">Data</a>
+                <a class="to_data">Data</a>
                 <script>
-                    structs.extent(".neck").name.toHref("data.php?name=:name").end;
+                    structs.neck.to_data.toHref("data.php?name=:to_data").end;
                 </script>
             </div>
 
@@ -151,7 +160,7 @@
                                             console.log(structs.data);
                                             axios.post("detail.php", structs.data)
                                                 .then(function(response) {
-                                                    console.log(response.data);\
+                                                    console.log(response.data);
                                                     var vset = response.data.violation_set;
                                                     for (var name in vset) {
                                                         var vs = vset[name].violations;
