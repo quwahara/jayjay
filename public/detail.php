@@ -138,7 +138,7 @@
                             this.linkExtra(" .violation_set.violations").nameToClass();
 
                             structs.violation_set[name].violations
-                                .link(this.fullPathSelector("nth_child") + " .violations")
+                                .setLink(this.fullPathSelector("nth_child") + " .violations")
                                 .each(function(elm, index, item) {
                                     this.message.toText().traceQualify();
                                 }).traceQualify();
