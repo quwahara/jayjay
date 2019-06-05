@@ -15,7 +15,7 @@
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
         <link rel="stylesheet" type="text/css" href="css/global.css">
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-        <script src="js/booq/booq.js"></script>
+        <script src="js/booq/olbi.js"></script>
         <script src="js/lib/global.js"></script>
         <title>Login</title>
     </head>
@@ -51,32 +51,32 @@
         <script>
             window.onload = function() {
                 Global.snackbar("#snackbar");
-                var booq = new Booq(<?= $this->structsAsJSON() ?>);
+                var olbi = new Olbi(<?= $this->structsAsJSON() ?>);
 
-                booq
+                olbi
                     .message.toText()
                     .user
                     .name.withValue()
                     .password.withValue();
 
-                Booq.q("form").on("submit", function(event) {
+                Olbi.query("form").on("submit", function(event) {
                     event.preventDefault();
                     Global.snackbar.close();
-                    booq.data.status = "";
-                    axios.post("index.php", booq.data)
+                    olbi.data.status = "";
+                    axios.post("index.php", olbi.data)
                         .then(function(response) {
                             console.log(response.data);
                             if (response.data.status === "#login-succeeded") {
                                 window.location.href = window.location.href.replace("/index.php", "/home.php");
                             }
-                            booq.data = response.data;
-                            booq.data.message = Global.getMsg(booq.data.status);
-                            if ("" !== booq.data.message) {
+                            olbi.data = response.data;
+                            olbi.data.message = Global.getMsg(olbi.data.status);
+                            if ("" !== olbi.data.message) {
                                 Global.snackbar.messageDiv.classList.add("warning");
                                 Global.snackbar.maximize();
                             }
                         })
-                        .catch(Global.catcher(booq.data));
+                        .catch(Global.catcher(olbi.data));
                 });
             };
         </script>
