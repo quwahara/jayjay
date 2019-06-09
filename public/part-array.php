@@ -73,15 +73,15 @@
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
         <link rel="stylesheet" type="text/css" href="css/global.css">
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-        <script src="js/booq/booq.js"></script>
+        <script src="js/booq/olbi.js"></script>
         <script src="js/lib/global.js"></script>
         <title>Part array</title>
     </head>
 
     <body>
         <script>
-            var attrs = new Booq(<?= $this->attrsAsJSON() ?>);
-            var structs = new Booq(<?= $this->structsAsJSON() ?>);
+            var attrs = new Olbi(<?= $this->attrsAsJSON() ?>);
+            var structs = new Olbi(<?= $this->structsAsJSON() ?>);
         </script>
 
         <div>
@@ -98,8 +98,8 @@
                 <script>
                     structs.context.parent.extent(".belt .object")
                         .type.eq("object").thenUntitoggle("none")
-                        .id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                        .id.linkExtra(".object").toHref("part-object.php?id=:id")
+                        .id.linkSimplex(".part").toHref("part.php?parent_id=:id")
+                        .id.linkSimplex(".object").toHref("part-object.php?id=:id")
                         .endParent;
                 </script>
 
@@ -109,8 +109,8 @@
                 <script>
                     structs.context.parent.extent(".belt .array")
                         .type.eq("array").thenUntitoggle("none")
-                        .id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                        .id.linkExtra(".array").toHref("part-array.php?id=:id")
+                        .id.linkSimplex(".part").toHref("part.php?parent_id=:id")
+                        .id.linkSimplex(".array").toHref("part-array.php?id=:id")
                         .endParent;
                 </script>
             </div>
@@ -120,7 +120,7 @@
                     <?php $this->echoBy("path"); ?>
                 </div>
                 <script>
-                    structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
+                    structs.path_snippet.callWithThis(pathSnippetBroker);
                 </script>
 
                 <div class="row context parent">
@@ -157,8 +157,8 @@
                             structs.partxs.each(function(element) {
 
                                 this
-                                    .id.linkExtra(".command").toAttr("data-id")
-                                    .id.linkExtra(".command").on("click", function(event) {
+                                    .id.linkSimplex(".command").toAttr("data-id")
+                                    .id.linkSimplex(".command").on("click", function(event) {
                                         Global.modal.create({
                                                 body: "id:" + event.target.dataset.id + " を削除してもよろしいですか",
                                                 ok: {
@@ -183,7 +183,7 @@
                                             })
                                             .open();
                                     })
-                                    .linkExtra(" a.id").toHref(function(value) {
+                                    .linkSimplex(" a.id").toHref(function(value) {
                                         if (value.type === "string" || value.type === "number") {
                                             return "part.php" +
                                                 "?id=" + value.id;
@@ -198,7 +198,7 @@
                                         }
                                     })
                                     .i.toText()
-                                    .id.linkExtra(".caption").toText()
+                                    .id.linkSimplex(".caption").toText()
                                     .type.toText()
                                     .value_string.toText()
                                     .value_number.toText();
@@ -242,17 +242,17 @@
 
                             structs.add
                                 .type.withValue()
-                                .type.linkExtra("[name='value_string']").eq("string").thenUntitoggle("none")
-                                .type.linkExtra("[name='value_number']").eq("number").thenUntitoggle("none")
-                                .type.linkExtra("[name='id_copy_from']").eq("copy_from").thenUntitoggle("none")
+                                .type.linkSimplex("[name='value_string']").eq("string").thenUntitoggle("none")
+                                .type.linkSimplex("[name='value_number']").eq("number").thenUntitoggle("none")
+                                .type.linkSimplex("[name='id_copy_from']").eq("copy_from").thenUntitoggle("none")
                                 .value_string.withValue()
                                 .value_number.withValue()
                                 .id_copy_from.withValue()
                                 .on("click", function(event) {
 
                                     if (!Global.snackbarByVlidity(
-                                            this.value_string.selector("name") + ", " +
-                                            this.value_number.selector("name")
+                                            this.value_string.preferredSelector("name") + ", " +
+                                            this.value_number.preferredSelector("name")
                                         )) return;
 
                                     Global.modal.create({
