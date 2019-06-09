@@ -26,32 +26,30 @@ return [
             pathSnippetBroker = function(path_snippet) {
                 path_snippet.paths.each(function(element, index) {
                     this
-                        .linkExtra(" .id").to(function(src, value) {
+                        .linkSimplex(" .id").to(function(element, data) {
                             var text = "";
-                            if (value.sub_type === "root") {
+                            if (data.sub_type === "root") {
                                 text = "(root)";
-                            } else if (value.sub_type === "property") {
-                                text = value.name;
-                            } else if (value.sub_type === "item") {
-                                text = "[" + value.i + "]";
+                            } else if (data.sub_type === "property") {
+                                text = data.name;
+                            } else if (data.sub_type === "item") {
+                                text = "[" + data.i + "]";
                             } else {
-                                text = "(" + value.type + ")";
+                                text = "(" + data.type + ")";
                             }
 
-                            // "this" is issued element
-                            this.textContent = text;
+                            element.textContent = text;
                         })
-                        .linkExtra(" .id").toHref(function(value) {
-                            if (value.type === "object") {
-                                return "part-object.php" + "?id=" + value.id;
-                            } else if (value.type === "array") {
-                                return "part-array.php" + "?id=" + value.id;
+                        .linkSimplex(" .id").toHref(function(data) {
+                            if (data.type === "object") {
+                                return "part-object.php" + "?id=" + data.id;
+                            } else if (data.type === "array") {
+                                return "part-array.php" + "?id=" + data.id;
                             } else {
-                                return "part.php" + "?id=" + value.id;
+                                return "part.php" + "?id=" + data.id;
                             }
                         })
-                        .id.toAttr("title")
-                        ;
+                        .id.toAttr("title");
                 });
             }
         }
