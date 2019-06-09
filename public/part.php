@@ -134,15 +134,15 @@ parent exists, parent is array, target exists
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
         <link rel="stylesheet" type="text/css" href="css/global.css">
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-        <script src="js/booq/booq.js"></script>
+        <script src="js/booq/olbi.js"></script>
         <script src="js/lib/global.js"></script>
         <title><?= $this->data['context']['title'] ?></title>
     </head>
 
     <body>
         <script>
-            var attrs = new Booq(<?= $this->attrsAsJSON() ?>);
-            var structs = new Booq(<?= $this->structsAsJSON() ?>);
+            var attrs = new Olbi(<?= $this->attrsAsJSON() ?>);
+            var structs = new Olbi(<?= $this->structsAsJSON() ?>);
         </script>
 
         <div>
@@ -162,8 +162,8 @@ parent exists, parent is array, target exists
                 <script>
                     structs.context.parent.extent(".belt .object")
                         .type.eq("object").thenUntitoggle("none")
-                        .id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                        .id.linkExtra(".object").toHref("part-object.php?id=:id");
+                        .id.linkSimplex(".part").toHref("part.php?parent_id=:id")
+                        .id.linkSimplex(".object").toHref("part-object.php?id=:id");
                 </script>
 
                 <span class="array">
@@ -172,8 +172,8 @@ parent exists, parent is array, target exists
                 <script>
                     structs.context.parent.extent(".belt .array")
                         .type.eq("array").thenUntitoggle("none")
-                        .id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                        .id.linkExtra(".array").toHref("part-array.php?id=:id");
+                        .id.linkSimplex(".part").toHref("part.php?parent_id=:id")
+                        .id.linkSimplex(".array").toHref("part-array.php?id=:id");
                 </script>
             </div>
 
@@ -182,7 +182,7 @@ parent exists, parent is array, target exists
                     <?php $this->echoBy("path"); ?>
                 </div>
                 <script>
-                    structs.path_snippet.callFunctionWithThis(pathSnippetBroker);
+                    structs.path_snippet.callWithThis(pathSnippetBroker);
                 </script>
 
                 <form method="post">
@@ -254,7 +254,7 @@ parent exists, parent is array, target exists
                     <script>
                         structs.part_set.part.extent(".modify")
                             .id.isTruthy().thenUntitoggle("none")
-                            .id.linkExtra(".caption").toText()
+                            .id.linkSimplex(".caption").toText()
                             .type.toText()
                             .endPart;
                     </script>
@@ -313,10 +313,10 @@ parent exists, parent is array, target exists
                         </div>
                         <script>
                             attrs.part_set.part
-                                .value_string.linkPreferred("down_and_name").toAttrs();
+                                .value_string.link("down_and_name").toAttrs();
 
                             structs.part_set.part
-                                .type.linkExtra(".is_string").eq("string").thenUntitoggle("none")
+                                .type.linkSimplex(".is_string").eq("string").thenUntitoggle("none")
                                 .value_string.withValue();
                         </script>
 
@@ -328,7 +328,7 @@ parent exists, parent is array, target exists
                         </div>
                         <script>
                             structs.part_set.part
-                                .type.linkExtra(".is_number").eq("number").thenUntitoggle("none")
+                                .type.linkSimplex(".is_number").eq("number").thenUntitoggle("none")
                                 .value_number.withValue();
                         </script>
 
@@ -343,7 +343,7 @@ parent exists, parent is array, target exists
                                 .id_copy_from.withValue()
                                 .part_set
                                 .___.part
-                                .___.___.type.linkExtra(".is_copy_from").eq("copy_from").thenUntitoggle("none");
+                                .___.___.type.linkSimplex(".is_copy_from").eq("copy_from").thenUntitoggle("none");
                         </script>
 
                         <div class="row object-child part_set part">
@@ -355,8 +355,8 @@ parent exists, parent is array, target exists
                         <script>
                             structs.extent(".object-child").part_set.part
                                 .type.eq("object").thenUntitoggle("none")
-                                .id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                                .id.linkExtra(".object").toHref("part-object.php?id=:id");
+                                .id.linkSimplex(".part").toHref("part.php?parent_id=:id")
+                                .id.linkSimplex(".object").toHref("part-object.php?id=:id");
                             structs.extent("");
                         </script>
 
@@ -369,8 +369,8 @@ parent exists, parent is array, target exists
                         <script>
                             structs.extent(".array-child").part_set.part
                                 .type.eq("array").thenUntitoggle("none")
-                                .id.linkExtra(".part").toHref("part.php?parent_id=:id")
-                                .id.linkExtra(".object").toHref("part-array.php?id=:id");
+                                .id.linkSimplex(".part").toHref("part.php?parent_id=:id")
+                                .id.linkSimplex(".object").toHref("part-array.php?id=:id");
                             structs.extent("");
                         </script>
 
@@ -380,13 +380,13 @@ parent exists, parent is array, target exists
                         </div>
                         <script>
                             structs
-                                .linkExtra("button[name='register']").on("click", function() {
+                                .linkSimplex("button[name='register']").on("click", function() {
                                     Global.snackbar.close();
                                     var structs = this;
                                     structs.data.status = "";
 
                                     if (!Global.snackbarByVlidity(
-                                            structs.part_set.part.value_string.selector("name")
+                                            structs.part_set.part.value_string.preferredSelector("name")
                                         )) return;
 
                                     Global.modal.create({
@@ -410,7 +410,7 @@ parent exists, parent is array, target exists
 
                         <script>
                             window.onload = function() {
-                                attrs.setStructureAsData();
+                                attrs.setStructAsData();
                                 structs.setData(<?= $this->dataAsJSON() ?>);
                             };
                         </script>
