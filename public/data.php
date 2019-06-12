@@ -46,16 +46,15 @@
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
         <link rel="stylesheet" type="text/css" href="css/global.css">
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-        <script src="js/booq/booq.js"></script>
+        <script src="js/booq/olbi.js"></script>
         <script src="js/lib/global.js"></script>
         <title>Data</title>
         <script>
-            Booq.configure({
-                traceStructure: true,
-                traceQualify: true,
-                traceSetData: true,
+            Olbi.configure({
+                traceLink: true
             });
-            var structs = new Booq(<?= $this->structsAsJSON() ?>).traceStructure();
+
+            var structs = new Olbi(<?= $this->structsAsJSON() ?>);
         </script>
     </head>
 
@@ -85,29 +84,29 @@
                         </div>
                     </div>
                     <script>
-                        structs.records.each(function(element, i, value) {
-                            console.log(this, element, i, value);
+                        structs.records.each(function(i, element) {
+                            console.log(this, i, element);
 
-                            this.linkExtra(".row").each(function(element, nth, name, value) {
-                                console.log(this, element, name, value);
-                                this.nameToClass();
+                            this.linkSimplex(".row").each(function(nth, name, element) {
+                                console.log(this, nth, name, element);
+                                this.addClassFromName();
                                 if (name === '___id') {
-                                    this.linkExtra(" a").valueToText("→");
-                                    this.linkExtra(" a").toHref("detail.php?id=:___id");
-                                    this.linkExtra(" a").antitogglesClass("none");
+                                    this.linkSimplex(" a").setText("→");
+                                    this.linkSimplex(" a").toHref("detail.php?id=:___id");
+                                    this.linkSimplex(" a").antitogglesClass("none").traceLink();
                                 } else {
-                                    this.linkExtra(" span").toText();
-                                    this.linkExtra(" span").antitogglesClass("none");
+                                    this.linkSimplex(" span").toText();
+                                    this.linkSimplex(" span").antitogglesClass("none");
                                 }
-                            }).traceQualify();
-                        }).traceQualify();
+                            });
+                        });
                     </script>
                 </form>
             </div>
         </div>
         <script>
             window.onload = function() {
-                structs.setData(<?= $this->dataAsJson() ?>).traceSetData();
+                structs.setData(<?= $this->dataAsJson() ?>);
             };
         </script>
     </body>

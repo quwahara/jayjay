@@ -33,11 +33,11 @@
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
         <link rel="stylesheet" type="text/css" href="css/global.css">
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-        <script src="js/booq/booq.js"></script>
+        <script src="js/booq/olbi.js"></script>
         <script src="js/lib/global.js"></script>
         <title>Schema</title>
         <script>
-            var structs = new Booq(<?= $this->structsAsJSON() ?>);
+            var structs = new Olbi(<?= $this->structsAsJSON() ?>);
         </script>
     </head>
 
@@ -69,10 +69,10 @@
                     <script>
                         structs.tables.each(function(element) {
                             this
-                                .name.linkExtra(".label").toText()
-                                .name.linkExtra(".data").toHref("data.php?name=:name")
-                                // .child_id.linkExtra(".data").toHref("data.php?id=:child_id")
-                                .child_id.linkExtra(".descriptions").toHref("descriptions.php?id=:child_id");
+                                .name.linkSimplex(".label").toText()
+                                .name.linkSimplex(".data").toHref("data.php?name=:name")
+                                // .child_id.linkSimplex(".data").toHref("data.php?id=:child_id")
+                                .child_id.linkSimplex(".descriptions").toHref("descriptions.php?id=:child_id");
                         });
                     </script>
                 </form>
