@@ -35,15 +35,15 @@
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
         <link rel="stylesheet" type="text/css" href="css/global.css">
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-        <script src="js/booq/booq.js"></script>
+        <script src="js/booq/olbi.js"></script>
         <script src="js/lib/global.js"></script>
         <title>Table create and drop</title>
     </head>
 
     <body>
         <script>
-            var attrs = new Booq(<?= $this->attrsAsJSON() ?>);
-            var structs = new Booq(<?= $this->structsAsJSON() ?>);
+            var attrs = new Olbi(<?= $this->attrsAsJSON() ?>);
+            var structs = new Olbi(<?= $this->structsAsJSON() ?>);
         </script>
 
         <div>
@@ -82,10 +82,10 @@
                             .tableName.withValue()
                             .createTableDDL.toText()
                             .dropTableDDL.toText()
-                            .linkExtra(" button").on("click", function() {
+                            .linkSimplex(" button").on("click", function() {
                                 Global.snackbar.close();
                                 structs.data.status = "";
-                                axios.post("table-create-and-drop.php", new FormData(Booq.goUpParentByTagName(event.target, "form")))
+                                axios.post("table-create-and-drop.php", new FormData(Olbi.goUpParentByTagName(event.target, "form")))
                                     .then(function(response) {
                                         console.log(response.data);
                                         structs.data.message = response.data.message;
