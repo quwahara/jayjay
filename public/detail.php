@@ -69,17 +69,15 @@
         <link rel="stylesheet" type="text/css" href="css/fontawesome-free-5.5.0-web/css/all.css">
         <link rel="stylesheet" type="text/css" href="css/global.css">
         <script src="js/lib/node_modules/axios/dist/axios.js"></script>
-        <script src="js/booq/booq.js"></script>
+        <script src="js/booq/olbi.js"></script>
         <script src="js/lib/global.js"></script>
         <title>Data</title>
         <script>
-            Booq.configure({
-                traceStructure: true,
-                traceQualify: true,
-                traceSetData: true,
+            Olbi.configure({
+                traceLink: true
             });
-            var attrs = new Booq(<?= $this->attrsAsJSON() ?>);
-            var structs = new Booq(<?= $this->structsAsJSON() ?>);
+            var attrs = new Olbi(<?= $this->attrsAsJSON() ?>);
+            var structs = new Olbi(<?= $this->structsAsJSON() ?>);
         </script>
     </head>
 
@@ -129,19 +127,19 @@
                         </div>
                     </div>
                     <script>
-                        structs.record.each(function(element, nth, name, value) {
-                            this.nameToClass().traceQualify();
-                            this.linkExtra(" label").nameToText().traceQualify();
-                            this.linkExtra(" label").nameToAttr("for");
-                            this.linkExtra(" input").nameToAttr("name");
-                            this.linkExtra(" input").withValue();
-                            this.linkExtra(" .violation_set.violations").nameToClass();
+                        structs.record.each(function(nth, name, element) {
+                            this.addClassFromName().traceLink();
+                            this.linkSimplex(" label").setTextFromName().traceLink();
+                            this.linkSimplex(" label").setAttrFromName("for");
+                            this.linkSimplex(" input").setAttrFromName("name");
+                            this.linkSimplex(" input").withValue();
+                            this.linkSimplex(" .violation_set.violations").addClassFromName();
 
                             structs.violation_set[name].violations
-                                .setLink(this.fullPathSelector("nth_child") + " .violations")
-                                .each(function(elm, index, item) {
-                                    this.message.toText().traceQualify();
-                                }).traceQualify();
+                                .link("nth_child", " .violations").traceLink()
+                                .each(function(index, elem) {
+                                    this.message.toText().traceLink();
+                                }).traceLink();
                         });
                     </script>
 
