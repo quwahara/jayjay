@@ -235,9 +235,9 @@
                         </table>
                         <script>
                             // attrs.add
-                            //     .name.linkPreferred("down_and_name").toAttrs()
-                            //     .value_string.linkPreferred("down_and_name").toAttrs()
-                            //     .value_number.linkPreferred("down_and_name").toAttrs()
+                            //     .name.linkPreferred("DESCENDANT_NAME").toAttrs()
+                            //     .value_string.linkPreferred("DESCENDANT_NAME").toAttrs()
+                            //     .value_number.linkPreferred("DESCENDANT_NAME").toAttrs()
                             //     .setStructureAsData();
 
                             structs.add

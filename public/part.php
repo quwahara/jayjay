@@ -313,7 +313,7 @@ parent exists, parent is array, target exists
                         </div>
                         <script>
                             attrs.part_set.part
-                                .value_string.link("down_and_name").toAttrs();
+                                .value_string.link("DESCENDANT_NAME").toAttrs();
 
                             structs.part_set.part
                                 .type.linkSimplex(".is_string").eq("string").thenUntitoggle("none")

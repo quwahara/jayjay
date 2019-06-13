@@ -270,9 +270,9 @@
                         </table>
                         <script>
                             attrs.add
-                                .name.link("down_and_name").toAttrs()
-                                .value_string.link("down_and_name").toAttrs()
-                                .value_number.link("down_and_name").toAttrs()
+                                .name.link("DESCENDANT_NAME").toAttrs()
+                                .value_string.link("DESCENDANT_NAME").toAttrs()
+                                .value_number.link("DESCENDANT_NAME").toAttrs()
                                 .setStructAsData();
 
                             structs.add
